@@ -2,7 +2,7 @@ import { describe, it, expect } from "vitest";
 import { readFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import { assertManifest } from "./validate.js";
-import { computeManifestId, stampManifestId } from "./hash.js";
+import { computeManifestId, computeRevisionHash, stampManifestId } from "./hash.js";
 
 const FIXTURE_PATH = resolve(
   import.meta.dirname,
@@ -42,6 +42,55 @@ describe("computeManifestId", () => {
     const modified = { ...manifest, priceDrops: "99999999" };
     const id2 = computeManifestId(modified);
     expect(id1).toBe(id2);
+  });
+});
+
+describe("computeRevisionHash", () => {
+  it("returns a 64-character hex string", async () => {
+    const manifest = await loadManifest();
+    const hash = computeRevisionHash(manifest);
+    expect(hash).toMatch(/^[a-f0-9]{64}$/);
+  });
+
+  it("is deterministic", async () => {
+    const manifest = await loadManifest();
+    const h1 = computeRevisionHash(manifest);
+    const h2 = computeRevisionHash(manifest);
+    expect(h1).toBe(h2);
+  });
+
+  it("changes when price changes", async () => {
+    const manifest = await loadManifest();
+    const h1 = computeRevisionHash(manifest);
+    const modified = { ...manifest, priceDrops: "99999999" };
+    const h2 = computeRevisionHash(modified);
+    expect(h1).not.toBe(h2);
+  });
+
+  it("changes when payout policy changes", async () => {
+    const manifest = await loadManifest();
+    const h1 = computeRevisionHash(manifest);
+    const modified = {
+      ...manifest,
+      payoutPolicy: { ...manifest.payoutPolicy, terms: "New terms" },
+    };
+    const h2 = computeRevisionHash(modified);
+    expect(h1).not.toBe(h2);
+  });
+
+  it("differs from manifestId", async () => {
+    const manifest = await loadManifest();
+    const id = computeManifestId(manifest);
+    const rev = computeRevisionHash(manifest);
+    expect(id).not.toBe(rev);
+  });
+
+  it("ignores the id field (is independent of stamp order)", async () => {
+    const manifest = await loadManifest();
+    const h1 = computeRevisionHash(manifest);
+    const stamped = stampManifestId(manifest);
+    const h2 = computeRevisionHash(stamped);
+    expect(h1).toBe(h2);
   });
 });
 

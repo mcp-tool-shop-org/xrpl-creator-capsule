@@ -17,6 +17,7 @@
   },
   "dependencies": {
     "@capsule/core": "*",
+    "@capsule/storage": "*",
     "xrpl": "4.2.5"
   }
 }

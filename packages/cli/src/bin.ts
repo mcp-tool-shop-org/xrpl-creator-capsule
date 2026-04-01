@@ -5,14 +5,34 @@ import { createRelease } from "./commands/create-release.js";
 import { validateManifestFile } from "./commands/validate.js";
 import { resolveManifestFile } from "./commands/resolve.js";
 import { initWallets } from "./commands/init-wallets.js";
+import { configureMinter } from "./commands/configure-minter.js";
+import { mintReleaseCommand } from "./commands/mint-release.js";
+import { verifyRelease } from "./commands/verify-release.js";
 import type { NetworkId } from "@capsule/xrpl";
 
 const COMMANDS: Record<string, string> = {
   "init-wallets": "Generate and fund issuer + operator wallet pair",
+  "configure-minter": "Set operator as authorized minter on issuer account",
   "create-release": "Create a release from a manifest input file",
   validate: "Validate a Release Manifest against the schema",
   resolve: "Check that manifest pointers (CIDs, URLs) are structurally valid",
+  "mint-release": "Mint NFT editions from a manifest and emit issuance receipt",
+  "verify-release": "Reconcile manifest + receipt against chain state",
 };
+
+function parseNetwork(args: string[]): NetworkId {
+  const { values } = parseArgs({
+    args,
+    options: { network: { type: "string", default: "testnet" } },
+    allowPositionals: true,
+  });
+  const network = values.network as NetworkId;
+  if (!["testnet", "devnet", "mainnet"].includes(network)) {
+    console.error(`Invalid network: ${network}`);
+    process.exit(1);
+  }
+  return network;
+}
 
 async function main(): Promise<void> {
   const command = process.argv[2];
@@ -21,7 +41,7 @@ async function main(): Promise<void> {
     console.log("Usage: capsule <command> [options]\n");
     console.log("Commands:");
     for (const [name, desc] of Object.entries(COMMANDS)) {
-      console.log(`  ${name.padEnd(18)} ${desc}`);
+      console.log(`  ${name.padEnd(20)} ${desc}`);
     }
     process.exit(0);
   }
@@ -57,6 +77,34 @@ async function main(): Promise<void> {
       console.log(`Funded:   ${result.funded}`);
       console.log(`Authorized minter: ${result.authorized}`);
       console.log(`Credentials written to: ${values.output}`);
+      break;
+    }
+
+    case "configure-minter": {
+      const { values } = parseArgs({
+        args: process.argv.slice(3),
+        options: {
+          wallets: { type: "string", short: "w", default: "wallets.json" },
+          network: { type: "string", default: "testnet" },
+          "allow-mainnet-write": { type: "boolean", default: false },
+        },
+      });
+
+      const network = values.network as NetworkId;
+      console.log(`Configuring authorized minter on ${network}...`);
+      const result = await configureMinter({
+        walletsPath: values.wallets!,
+        network,
+        allowMainnetWrite: values["allow-mainnet-write"],
+      });
+
+      console.log(`Issuer:   ${result.issuerAddress}`);
+      console.log(`Operator: ${result.operatorAddress}`);
+      console.log(`Authorized: ${result.authorized}`);
+      if (!result.authorized) {
+        console.error(`Verification failed: ${result.verification.error}`);
+        process.exit(1);
+      }
       break;
     }
 
@@ -120,6 +168,73 @@ async function main(): Promise<void> {
 
       if (!result.passed) {
         process.exit(1);
+      }
+      break;
+    }
+
+    case "mint-release": {
+      const { values } = parseArgs({
+        args: process.argv.slice(3),
+        options: {
+          manifest: { type: "string", short: "m" },
+          wallets: { type: "string", short: "w", default: "wallets.json" },
+          network: { type: "string", default: "testnet" },
+          out: { type: "string", short: "o", default: "issuance-receipt.json" },
+          "allow-mainnet-write": { type: "boolean", default: false },
+        },
+      });
+
+      if (!values.manifest) {
+        console.error("--manifest (-m) is required");
+        process.exit(1);
+      }
+
+      const network = values.network as NetworkId;
+      console.log(`Minting release on ${network}...`);
+
+      const receipt = await mintReleaseCommand({
+        manifestPath: values.manifest,
+        walletsPath: values.wallets!,
+        network,
+        receiptPath: values.out!,
+        allowMainnetWrite: values["allow-mainnet-write"],
+      });
+
+      console.log(`Release: ${receipt.release.title} by ${receipt.release.artist}`);
+      console.log(`Manifest ID: ${receipt.manifestId.slice(0, 16)}...`);
+      console.log(`Revision Hash: ${receipt.manifestRevisionHash.slice(0, 16)}...`);
+      console.log(`Minted ${receipt.xrpl.nftTokenIds.length} edition(s)`);
+      console.log(`Receipt written to: ${values.out}`);
+      break;
+    }
+
+    case "verify-release": {
+      const { values } = parseArgs({
+        args: process.argv.slice(3),
+        options: {
+          manifest: { type: "string", short: "m" },
+          receipt: { type: "string", short: "r" },
+        },
+      });
+
+      if (!values.manifest || !values.receipt) {
+        console.error(
+          "Usage: capsule verify-release --manifest <file> --receipt <file>"
+        );
+        process.exit(1);
+      }
+
+      const result = await verifyRelease(values.manifest, values.receipt);
+      for (const check of result.checks) {
+        const icon = check.passed ? "PASS" : "FAIL";
+        console.log(`  [${icon}] ${check.name}: ${check.detail}`);
+      }
+
+      if (!result.passed) {
+        console.error("\nVerification FAILED");
+        process.exit(1);
+      } else {
+        console.log("\nVerification PASSED");
       }
       break;
     }

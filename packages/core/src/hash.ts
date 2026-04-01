@@ -28,6 +28,36 @@ export function computeManifestId(manifest: ReleaseManifest): string {
 }
 
 /**
+ * Compute a SHA-256 hash of the FULL manifest payload.
+ * This is the revision hash — it changes when anything changes
+ * (price, policy, benefit, metadata endpoint, etc.).
+ *
+ * Used at mint/sale time to record exactly which version of the
+ * manifest a collector bought against.
+ */
+export function computeRevisionHash(manifest: ReleaseManifest): string {
+  // Strip the `id` field so revision hash is independent of identity stamp
+  const { id: _id, ...rest } = manifest;
+  const canonical = JSON.stringify(sortKeysDeep(rest));
+  return createHash("sha256").update(canonical).digest("hex");
+}
+
+/**
+ * Recursively sort object keys for deterministic serialization.
+ */
+function sortKeysDeep(obj: unknown): unknown {
+  if (Array.isArray(obj)) return obj.map(sortKeysDeep);
+  if (obj !== null && typeof obj === "object") {
+    const sorted: Record<string, unknown> = {};
+    for (const key of Object.keys(obj as Record<string, unknown>).sort()) {
+      sorted[key] = sortKeysDeep((obj as Record<string, unknown>)[key]);
+    }
+    return sorted;
+  }
+  return obj;
+}
+
+/**
  * Stamp a manifest with its deterministic id.
  * Returns a new object (does not mutate).
  */

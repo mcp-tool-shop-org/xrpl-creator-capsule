@@ -1,0 +1,110 @@
+import type { JSONSchemaType } from "ajv";
+import type { IssuanceReceipt } from "./receipt.js";
+
+export const issuanceReceiptSchema: JSONSchemaType<IssuanceReceipt> = {
+  type: "object",
+  required: [
+    "schemaVersion",
+    "kind",
+    "manifestId",
+    "manifestRevisionHash",
+    "network",
+    "issuedAt",
+    "issuerAddress",
+    "operatorAddress",
+    "release",
+    "pointers",
+    "xrpl",
+    "storage",
+    "verification",
+  ],
+  properties: {
+    schemaVersion: { type: "string", const: "1.0.0" },
+    kind: { type: "string", const: "issuance-receipt" },
+    manifestId: { type: "string", pattern: "^[a-f0-9]{64}$" },
+    manifestRevisionHash: { type: "string", pattern: "^[a-f0-9]{64}$" },
+    network: { type: "string", enum: ["testnet", "devnet", "mainnet"] },
+    issuedAt: { type: "string" },
+    issuerAddress: {
+      type: "string",
+      pattern: "^r[1-9A-HJ-NP-Za-km-z]{24,34}$",
+    },
+    operatorAddress: {
+      type: "string",
+      pattern: "^r[1-9A-HJ-NP-Za-km-z]{24,34}$",
+    },
+    release: {
+      type: "object",
+      required: ["title", "artist", "editionSize", "transferFee"],
+      properties: {
+        title: { type: "string", minLength: 1 },
+        artist: { type: "string", minLength: 1 },
+        editionSize: { type: "integer", minimum: 1 },
+        transferFee: { type: "integer", minimum: 0 },
+      },
+      additionalProperties: false,
+    },
+    pointers: {
+      type: "object",
+      required: ["metadataUri", "licenseUri", "coverCid", "mediaCid"],
+      properties: {
+        metadataUri: { type: "string", minLength: 1 },
+        licenseUri: { type: "string", minLength: 1 },
+        coverCid: { type: "string", minLength: 1 },
+        mediaCid: { type: "string", minLength: 1 },
+      },
+      additionalProperties: false,
+    },
+    xrpl: {
+      type: "object",
+      required: [
+        "authorizedMinterVerified",
+        "mintTxHashes",
+        "nftTokenIds",
+        "tokenTaxon",
+        "flags",
+        "transferFee",
+      ],
+      properties: {
+        authorizedMinterVerified: { type: "boolean" },
+        authorizedMinterTxHash: { type: "string", nullable: true },
+        mintTxHashes: { type: "array", items: { type: "string" } },
+        nftTokenIds: { type: "array", items: { type: "string" } },
+        tokenTaxon: { type: "integer" },
+        flags: { type: "integer" },
+        transferFee: { type: "integer" },
+      },
+      additionalProperties: false,
+    },
+    storage: {
+      type: "object",
+      required: ["provider", "mediaResolved", "coverResolved"],
+      properties: {
+        provider: { type: "string", minLength: 1 },
+        mediaResolved: { type: "boolean" },
+        coverResolved: { type: "boolean" },
+      },
+      additionalProperties: false,
+    },
+    verification: {
+      type: "object",
+      required: [
+        "manifestMatchesPointers",
+        "issuerOperatorSeparated",
+        "networkAllowed",
+        "errors",
+        "warnings",
+      ],
+      properties: {
+        manifestMatchesPointers: { type: "boolean" },
+        issuerOperatorSeparated: { type: "boolean" },
+        networkAllowed: { type: "boolean" },
+        errors: { type: "array", items: { type: "string" } },
+        warnings: { type: "array", items: { type: "string" } },
+      },
+      additionalProperties: false,
+    },
+    receiptHash: { type: "string", pattern: "^[a-f0-9]{64}$", nullable: true },
+  },
+  additionalProperties: false,
+};
