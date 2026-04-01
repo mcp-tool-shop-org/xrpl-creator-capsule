@@ -9,6 +9,7 @@ import { configureMinter } from "./commands/configure-minter.js";
 import { mintReleaseCommand } from "./commands/mint-release.js";
 import { verifyRelease } from "./commands/verify-release.js";
 import { grantAccess } from "./commands/grant-access.js";
+import { recoverRelease } from "./commands/recover-release.js";
 import { configureMinterViaXaman, mintReleaseViaXaman } from "./commands/xaman-flow.js";
 import { MockDeliveryProvider } from "@capsule/storage";
 import type { NetworkId } from "@capsule/xrpl";
@@ -24,6 +25,7 @@ const COMMANDS: Record<string, string> = {
   "verify-release": "Reconcile manifest + receipt against chain state",
   "grant-access": "Evaluate access request and emit grant receipt",
   "create-access-policy": "Generate an access policy from manifest + receipt",
+  "recover-release": "Reconstruct a release from artifacts + chain state",
 };
 
 function parseNetwork(args: string[]): NetworkId {
@@ -385,6 +387,53 @@ async function main(): Promise<void> {
 
       if (result.decision === "deny") {
         process.exit(1);
+      }
+      break;
+    }
+
+    case "recover-release": {
+      const { values } = parseArgs({
+        args: process.argv.slice(3),
+        options: {
+          manifest: { type: "string", short: "m" },
+          receipt: { type: "string", short: "r" },
+          policy: { type: "string", short: "p" },
+          out: { type: "string", short: "o", default: "recovery-bundle.json" },
+        },
+      });
+
+      if (!values.manifest || !values.receipt) {
+        console.error(
+          "Usage: capsule recover-release --manifest <file> --receipt <file> [--policy <file>]"
+        );
+        process.exit(1);
+      }
+
+      const result = await recoverRelease(
+        values.manifest,
+        values.receipt,
+        values.policy
+      );
+
+      // Print reconstruction report
+      for (const section of result.reconstruction.sections) {
+        const icon = section.passed ? "PASS" : "FAIL";
+        console.log(`\n[${icon}] ${section.name}`);
+        for (const line of section.lines) {
+          console.log(`  ${line}`);
+        }
+      }
+
+      // Write recovery bundle
+      const { writeFile: writeOut } = await import("node:fs/promises");
+      await writeOut(values.out!, JSON.stringify(result.bundle, null, 2) + "\n");
+      console.log(`\nRecovery bundle written to: ${values.out}`);
+
+      if (!result.reconstruction.passed) {
+        console.error("\nRecovery INCOMPLETE — some checks failed");
+        process.exit(1);
+      } else {
+        console.log("\nRecovery COMPLETE — release is fully reconstructable");
       }
       break;
     }

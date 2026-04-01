@@ -42,3 +42,15 @@ export {
   computeGrantHash,
   stampGrantHash,
 } from "./access-grant-validate.js";
+
+export type { RecoveryBundle } from "./recovery-bundle.js";
+export { recoveryBundleSchema } from "./recovery-bundle-schema.js";
+export {
+  validateRecoveryBundle,
+  assertRecoveryBundle,
+  computeBundleHash,
+  stampBundleHash,
+  deriveRecoveryBundle,
+  verifyBundleConsistency,
+} from "./recovery-bundle-validate.js";
+export type { BundleVerificationResult } from "./recovery-bundle-validate.js";

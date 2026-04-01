@@ -1,0 +1,53 @@
+{
+  "schemaVersion": "1.0.0",
+  "kind": "recovery-bundle",
+  "manifestId": "303dd8bf6f0afe7aa06e48c1fff3f64b97b39e770c8895197c4b0f6f0208fdb4",
+  "revisionHash": "c307c7943f49e531af28abf67b0f69fd1503251150dd39fc0837436a552b8a9e",
+  "receiptHash": "5193208bf4f7098bce7d149e7730c61d8743806f52f09937b66353ae29d01b23",
+  "title": "Midnight Frequency",
+  "artist": "Vex Morrow",
+  "editionSize": 1,
+  "network": "testnet",
+  "issuerAddress": "rpvoajJ4mbnorub6W8MFBEtfkeFaMTCPBX",
+  "operatorAddress": "rn64Djcp45J7GkpuMKM9DsfXMTSyY6qdMh",
+  "tokenIds": [
+    "000813881524A73075237DE0F84728ECEF5D41B72CC5934332CC1D3100F69D96"
+  ],
+  "txHashes": [
+    "07459A93BFA5817727416FE969F6A4F17E0A9064E37690174DF01E8DC505B698"
+  ],
+  "transferFee": 5000,
+  "metadataUri": "https://example.com/.well-known/xrpl-nft/midnight-frequency",
+  "licenseUri": "https://example.com/releases/midnight-frequency/license",
+  "coverCid": "QmYwAPJzv5CZsnA625s3Xf2nemtYgPpHdWEz79ojWnPbdG",
+  "mediaCid": "QmT78zSuBmuS4z925WZfrqQ1qHaJ56DQaTfyMUF7F8ff5o",
+  "licenseType": "custom",
+  "licenseSummary": "You receive a personal, non-transferable license to listen to and display this release. Purchase does NOT transfer copyright or any intellectual property rights. You may not reproduce, distribute, or create derivative works without written permission from the artist.",
+  "benefit": {
+    "kind": "stems",
+    "description": "Full stem pack (drums, bass, synths, vocals) for personal remixing. Non-commercial use only.",
+    "contentPointer": "QmPK1s3pNYLi9ERiq3BDxKa4XosgWwFRQUydHUtz4YgpqB"
+  },
+  "generatedAt": "2026-04-01T09:01:51.744Z",
+  "recoveryVersion": "1.0.0",
+  "instructions": [
+    "This release \"Midnight Frequency\" by Vex Morrow was issued on the XRPL testnet.",
+    "Issuer account: rpvoajJ4mbnorub6W8MFBEtfkeFaMTCPBX",
+    "Operator account: rn64Djcp45J7GkpuMKM9DsfXMTSyY6qdMh",
+    "1 edition(s) were minted as NFTs.",
+    "To verify ownership: query the XRPL ledger for the token ID(s) listed in this bundle.",
+    "To check holder eligibility: the wallet must hold at least one of the qualifying token IDs.",
+    "Metadata is available at: https://example.com/.well-known/xrpl-nft/midnight-frequency",
+    "License terms are at: https://example.com/releases/midnight-frequency/license",
+    "Cover artwork CID: QmYwAPJzv5CZsnA625s3Xf2nemtYgPpHdWEz79ojWnPbdG",
+    "Media CID: QmT78zSuBmuS4z925WZfrqQ1qHaJ56DQaTfyMUF7F8ff5o",
+    "Benefit: stems — Full stem pack (drums, bass, synths, vocals) for personal remixing. Non-commercial use only.",
+    "Benefit content pointer: QmPK1s3pNYLi9ERiq3BDxKa4XosgWwFRQUydHUtz4YgpqB",
+    "This bundle was generated from canonical artifacts and contains no secrets."
+  ],
+  "accessPolicyLabel": "stems for Midnight Frequency holders",
+  "qualifyingTokenIds": [
+    "000813881524A73075237DE0F84728ECEF5D41B72CC5934332CC1D3100F69D96"
+  ],
+  "bundleHash": "77790c6c292746106d067cc2f3bc573eb58851b31c9fd3ba77cddf8af0d082e3"
+}
