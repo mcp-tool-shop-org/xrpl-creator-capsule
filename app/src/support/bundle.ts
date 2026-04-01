@@ -16,6 +16,7 @@ import { save } from "@tauri-apps/plugin-dialog";
 import { saveFile } from "../bridge/engine";
 import { getActionLog } from "../state/release";
 import { loadSession } from "../state/session";
+import pkg from "../../package.json";
 
 export interface SupportBundle {
   bundleVersion: 1;
@@ -56,7 +57,7 @@ export async function exportSupportBundle(currentMode: string): Promise<string |
     generatedAt: new Date().toISOString(),
     app: {
       name: "XRPL Creator Capsule Desktop",
-      version: "1.0.0-rc.1",
+      version: pkg.version,
       platform: navigator.platform || "unknown",
       mode: currentMode,
     },

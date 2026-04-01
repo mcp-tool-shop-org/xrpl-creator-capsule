@@ -8,20 +8,20 @@
 
 <p align="center">
   <a href="https://github.com/mcp-tool-shop-org/xrpl-creator-capsule/actions"><img src="https://github.com/mcp-tool-shop-org/xrpl-creator-capsule/actions/workflows/ci.yml/badge.svg" alt="CI" /></a>
-  <a href="https://github.com/mcp-tool-shop-org/xrpl-creator-capsule/releases"><img src="https://img.shields.io/badge/preview-v1.0.0--rc.2-orange" alt="Preview RC.2" /></a>
+  <a href="https://github.com/mcp-tool-shop-org/xrpl-creator-capsule/releases"><img src="https://img.shields.io/badge/release-v1.0.0-brightgreen" alt="v1.0.0" /></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="MIT License" /></a>
   <a href="https://mcp-tool-shop-org.github.io/xrpl-creator-capsule/"><img src="https://img.shields.io/badge/handbook-live-brightgreen" alt="Handbook" /></a>
 </p>
 
 XRP Ledger 上での、クリエイターが所有するコンテンツの公開システム。作品を公開し、直接販売したり、コレクター向けの特典を提供したり、収益を管理したりできます。これらはすべて、改ざんが困難なオンチェーンの証明によって支えられています。
 
-> **プレビュー版リリース。** RC.2 は、テストネット用のプレビュー版製品です。このシステムのアーキテクチャは、テストネットとメインネットの両方に対応していますが、すべての信頼性の検証はテストネットでのみ行われています。メインネットは、慎重に検討された運用を行うためのものであり、デフォルトの設定ではありません。
+> **プレビュー版リリース。** v1.0.0 は、テストネット用のプレビュー版製品です。このシステムのアーキテクチャは、テストネットとメインネットの両方に対応していますが、すべての信頼性の検証はテストネットでのみ行われています。メインネットは、慎重に検討された運用を行うためのものであり、デフォルトの設定ではありません。
 
 ## 利用方法が2つあります
 
 ### デスクトップアプリケーション（クリエイター向け推奨）
 
-[GitHub Releases](https://github.com/mcp-tool-shop-org/xrpl-creator-capsule/releases/tag/v1.0.0-rc.2) からWindowsインストーラーをダウンロードし、[初心者向けガイド](https://mcp-tool-shop-org.github.io/xrpl-creator-capsule/handbook/beginners/)に従ってください。
+[GitHub Releases](https://github.com/mcp-tool-shop-org/xrpl-creator-capsule/releases/latest) からWindowsインストーラーをダウンロードし、[初心者向けガイド](https://mcp-tool-shop-org.github.io/xrpl-creator-capsule/handbook/beginners/)に従ってください。
 
 **スタジオモード**では、6つのステップでガイドされたワークフローを提供します。
 
@@ -105,7 +105,7 @@ site/             Handbook (Astro Starlight)
 | **Default** | はい | No |
 | **Trust-proven** | はい（ライブ証明、265件のテストあり） | まだいいえ |
 | **CLI guard** | 不要 | `--network mainnet --allow-mainnet-write` |
-| **Desktop app** | スタジオモードのデフォルト設定 | RC.2では公開されていません |
+| **Desktop app** | スタジオモードのデフォルト設定 | v1.0.0では公開されていません |
 
 **このリリースは、テストネットのプレビュー版としてお考えください。** アーキテクチャはテストネット専用ではありませんが、信頼性の検証はテストネットで行われています。メインネットでの利用には、Xamanによる署名と、意図的なプロモーションが必要です。
 

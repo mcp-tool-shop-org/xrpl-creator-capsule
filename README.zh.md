@@ -8,20 +8,20 @@
 
 <p align="center">
   <a href="https://github.com/mcp-tool-shop-org/xrpl-creator-capsule/actions"><img src="https://github.com/mcp-tool-shop-org/xrpl-creator-capsule/actions/workflows/ci.yml/badge.svg" alt="CI" /></a>
-  <a href="https://github.com/mcp-tool-shop-org/xrpl-creator-capsule/releases"><img src="https://img.shields.io/badge/preview-v1.0.0--rc.2-orange" alt="Preview RC.2" /></a>
+  <a href="https://github.com/mcp-tool-shop-org/xrpl-creator-capsule/releases"><img src="https://img.shields.io/badge/release-v1.0.0-brightgreen" alt="v1.0.0" /></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="MIT License" /></a>
   <a href="https://mcp-tool-shop-org.github.io/xrpl-creator-capsule/"><img src="https://img.shields.io/badge/handbook-live-brightgreen" alt="Handbook" /></a>
 </p>
 
 在XRP账本上，提供创作者自主的发布系统。发行作品，直接销售，解锁收藏者权益，管理收益——所有这些都由可靠的链上证明支持。
 
-> **预览版发布。** RC.2 是一个测试网预览产品。引擎架构支持测试网和主网，但所有信任证明都仅在测试网中进行验证。主网是一个谨慎且经过深思熟虑的路径，而不是默认选项。
+> **预览版发布。** v1.0.0 是一个测试网预览产品。引擎架构支持测试网和主网，但所有信任证明都仅在测试网中进行验证。主网是一个谨慎且经过深思熟虑的路径，而不是默认选项。
 
 ## 两种使用方法
 
 ### 桌面应用程序（推荐给创作者）
 
-从 [GitHub Releases](https://github.com/mcp-tool-shop-org/xrpl-creator-capsule/releases/tag/v1.0.0-rc.2) 下载 Windows 安装程序，并按照 [新手指南](https://mcp-tool-shop-org.github.io/xrpl-creator-capsule/handbook/beginners/) 进行操作。
+从 [GitHub Releases](https://github.com/mcp-tool-shop-org/xrpl-creator-capsule/releases/latest) 下载 Windows 安装程序，并按照 [新手指南](https://mcp-tool-shop-org.github.io/xrpl-creator-capsule/handbook/beginners/) 进行操作。
 
 **工作室模式** 将引导您完成一个由 6 个步骤组成的流程：
 
@@ -105,7 +105,7 @@ site/             Handbook (Astro Starlight)
 | **Default** | 是 | No |
 | **Trust-proven** | 是（实时证明，265 个测试） | 否 |
 | **CLI guard** | 不需要 | `--network mainnet --allow-mainnet-write` |
-| **Desktop app** | 工作室模式的默认设置 | RC.2 版本中未公开 |
+| **Desktop app** | 工作室模式的默认设置 | v1.0.0 版本中未公开 |
 
 **请将本次发布视为测试网的预览版本。** 架构并非仅适用于测试网，但信任证明已在测试网上得到验证。 要实现主网的可用性，需要进行实时的 Xaman 签名操作，以及有意识的推广——而不是简单的配置切换。
 

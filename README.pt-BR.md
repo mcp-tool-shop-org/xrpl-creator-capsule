@@ -8,20 +8,20 @@
 
 <p align="center">
   <a href="https://github.com/mcp-tool-shop-org/xrpl-creator-capsule/actions"><img src="https://github.com/mcp-tool-shop-org/xrpl-creator-capsule/actions/workflows/ci.yml/badge.svg" alt="CI" /></a>
-  <a href="https://github.com/mcp-tool-shop-org/xrpl-creator-capsule/releases"><img src="https://img.shields.io/badge/preview-v1.0.0--rc.2-orange" alt="Preview RC.2" /></a>
+  <a href="https://github.com/mcp-tool-shop-org/xrpl-creator-capsule/releases"><img src="https://img.shields.io/badge/release-v1.0.0-brightgreen" alt="v1.0.0" /></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="MIT License" /></a>
   <a href="https://mcp-tool-shop-org.github.io/xrpl-creator-capsule/"><img src="https://img.shields.io/badge/handbook-live-brightgreen" alt="Handbook" /></a>
 </p>
 
 Sistema de lançamento de conteúdo de propriedade do criador na carteira XRP Ledger. Crie trabalhos, venda diretamente, desbloqueie benefícios para colecionadores, gerencie a receita – tudo com provas duradouras na blockchain.
 
-> **Versão de pré-lançamento.** A RC.2 é um produto de visualização para a rede de testes (Testnet). A arquitetura do sistema suporta tanto a rede de testes quanto a rede principal (Mainnet), mas todas as provas de confiança foram validadas apenas na rede de testes. A rede principal é um caminho cuidadosamente planejado – não é o padrão.
+> **Versão de pré-lançamento.** A v1.0.0 é um produto de visualização para a rede de testes (Testnet). A arquitetura do sistema suporta tanto a rede de testes quanto a rede principal (Mainnet), mas todas as provas de confiança foram validadas apenas na rede de testes. A rede principal é um caminho cuidadosamente planejado – não é o padrão.
 
 ## Duas maneiras de usar:
 
 ### Aplicativo para desktop (recomendado para criadores)
 
-Baixe o instalador para Windows em [GitHub Releases](https://github.com/mcp-tool-shop-org/xrpl-creator-capsule/releases/tag/v1.0.0-rc.2) e siga o [Guia para Iniciantes](https://mcp-tool-shop-org.github.io/xrpl-creator-capsule/handbook/beginners/).
+Baixe o instalador para Windows em [GitHub Releases](https://github.com/mcp-tool-shop-org/xrpl-creator-capsule/releases/latest) e siga o [Guia para Iniciantes](https://mcp-tool-shop-org.github.io/xrpl-creator-capsule/handbook/beginners/).
 
 O **Modo Studio** guia você por um fluxo de 6 etapas:
 
@@ -105,7 +105,7 @@ O sistema possui total consciência da rede – a rede de testes e a rede princi
 | **Default** | Sim | No |
 | **Trust-proven** | Sim (provas em funcionamento, 265 testes) | Ainda não |
 | **CLI guard** | Nenhum necessário | `--network mainnet --allow-mainnet-write` |
-| **Desktop app** | Padrão do Modo Studio | Não disponível na RC.2 |
+| **Desktop app** | Padrão do Modo Studio | Não disponível na v1.0.0 |
 
 **Considere esta versão como uma visualização da rede de testes.** A arquitetura não é exclusiva da rede de testes, mas a prova de confiança foi validada na rede de testes. A compatibilidade com a rede principal requer assinaturas Xaman em funcionamento e promoção deliberada – não uma simples ativação.
 

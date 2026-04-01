@@ -1,6 +1,6 @@
 {
   "name": "xrpl-creator-capsule",
-  "version": "1.0.1",
+  "version": "1.0.0",
   "private": true,
   "description": "Creator-owned release system on XRPL — ownership, payment, access, and survivability",
   "author": "mcp-tool-shop",

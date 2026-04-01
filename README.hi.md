@@ -8,20 +8,20 @@
 
 <p align="center">
   <a href="https://github.com/mcp-tool-shop-org/xrpl-creator-capsule/actions"><img src="https://github.com/mcp-tool-shop-org/xrpl-creator-capsule/actions/workflows/ci.yml/badge.svg" alt="CI" /></a>
-  <a href="https://github.com/mcp-tool-shop-org/xrpl-creator-capsule/releases"><img src="https://img.shields.io/badge/preview-v1.0.0--rc.2-orange" alt="Preview RC.2" /></a>
+  <a href="https://github.com/mcp-tool-shop-org/xrpl-creator-capsule/releases"><img src="https://img.shields.io/badge/release-v1.0.0-brightgreen" alt="v1.0.0" /></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="MIT License" /></a>
   <a href="https://mcp-tool-shop-org.github.io/xrpl-creator-capsule/"><img src="https://img.shields.io/badge/handbook-live-brightgreen" alt="Handbook" /></a>
 </p>
 
 एक्सआरपी लेजर पर रचनाकारों के स्वामित्व वाली रिलीज़ प्रणाली। कार्य जारी करें, सीधे बेचें, संग्राहकों के लिए लाभ अनलॉक करें, राजस्व का प्रबंधन करें - ये सभी टिकाऊ ऑन-चेन प्रमाणों द्वारा समर्थित हैं।
 
-> **प्रारंभिक रिलीज़।** RC.2 एक टेस्टनेट पूर्वावलोकन उत्पाद है। इंजन आर्किटेक्चर टेस्टनेट और मेननेट दोनों का समर्थन करता है, लेकिन सभी ट्रस्ट प्रमाणों को केवल टेस्टनेट पर सत्यापित किया गया है। मेननेट एक सुरक्षित और सावधानीपूर्वक मार्ग है - यह डिफ़ॉल्ट नहीं है।
+> **प्रारंभिक रिलीज़।** v1.0.0 एक टेस्टनेट पूर्वावलोकन उत्पाद है। इंजन आर्किटेक्चर टेस्टनेट और मेननेट दोनों का समर्थन करता है, लेकिन सभी ट्रस्ट प्रमाणों को केवल टेस्टनेट पर सत्यापित किया गया है। मेननेट एक सुरक्षित और सावधानीपूर्वक मार्ग है - यह डिफ़ॉल्ट नहीं है।
 
 ## इसका उपयोग करने के दो तरीके:
 
 ### डेस्कटॉप ऐप (रचनाकारों के लिए अनुशंसित)
 
-विंडोज इंस्टॉलर को [GitHub रिलीज़](https://github.com/mcp-tool-shop-org/xrpl-creator-capsule/releases/tag/v1.0.0-rc.2) से डाउनलोड करें और [शुरुआती गाइड](https://mcp-tool-shop-org.github.io/xrpl-creator-capsule/handbook/beginners/) का पालन करें।
+विंडोज इंस्टॉलर को [GitHub रिलीज़](https://github.com/mcp-tool-shop-org/xrpl-creator-capsule/releases/latest) से डाउनलोड करें और [शुरुआती गाइड](https://mcp-tool-shop-org.github.io/xrpl-creator-capsule/handbook/beginners/) का पालन करें।
 
 **स्टूडियो मोड** आपको एक निर्देशित 6-चरणीय प्रक्रिया के माध्यम से मार्गदर्शन करता है:
 
@@ -105,7 +105,7 @@ site/             Handbook (Astro Starlight)
 | **Default** | हाँ | No |
 | **Trust-proven** | हाँ (लाइव प्रमाण, 265 परीक्षण) | अभी नहीं |
 | **CLI guard** | किसी की आवश्यकता नहीं | `--network mainnet --allow-mainnet-write` |
-| **Desktop app** | स्टूडियो मोड डिफ़ॉल्ट | RC.2 में उपलब्ध नहीं |
+| **Desktop app** | स्टूडियो मोड डिफ़ॉल्ट | v1.0.0 में उपलब्ध नहीं |
 
 **इस रिलीज़ को टेस्टनेट पूर्वावलोकन के रूप में मानें।** आर्किटेक्चर केवल टेस्टनेट तक सीमित नहीं है, लेकिन ट्रस्ट प्रमाण टेस्टनेट पर सत्यापित है। मेननेट के लिए लाइव ज़ामाइन हस्ताक्षर और जानबूझकर प्रचार की आवश्यकता होती है - यह कोई डिफ़ॉल्ट सेटिंग नहीं है।
 

@@ -8,20 +8,20 @@
 
 <p align="center">
   <a href="https://github.com/mcp-tool-shop-org/xrpl-creator-capsule/actions"><img src="https://github.com/mcp-tool-shop-org/xrpl-creator-capsule/actions/workflows/ci.yml/badge.svg" alt="CI" /></a>
-  <a href="https://github.com/mcp-tool-shop-org/xrpl-creator-capsule/releases"><img src="https://img.shields.io/badge/preview-v1.0.0--rc.2-orange" alt="Preview RC.2" /></a>
+  <a href="https://github.com/mcp-tool-shop-org/xrpl-creator-capsule/releases"><img src="https://img.shields.io/badge/release-v1.0.0-brightgreen" alt="v1.0.0" /></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="MIT License" /></a>
   <a href="https://mcp-tool-shop-org.github.io/xrpl-creator-capsule/"><img src="https://img.shields.io/badge/handbook-live-brightgreen" alt="Handbook" /></a>
 </p>
 
 Système de publication de contenu détenu par les créateurs sur la blockchain XRP Ledger. Permet de créer des œuvres, de les vendre directement, d'offrir des avantages aux collectionneurs et de gérer les revenus, le tout grâce à une preuve immuable enregistrée sur la blockchain.
 
-> **Version préliminaire.** RC.2 est une version de test pour le réseau de test. L'architecture du système prend en charge à la fois le réseau de test et le réseau principal, mais toutes les preuves de confiance ont été validées uniquement sur le réseau de test. Le réseau principal est un chemin sécurisé et réfléchi, et n'est pas la configuration par défaut.
+> **Version préliminaire.** v1.0.0 est une version de test pour le réseau de test. L'architecture du système prend en charge à la fois le réseau de test et le réseau principal, mais toutes les preuves de confiance ont été validées uniquement sur le réseau de test. Le réseau principal est un chemin sécurisé et réfléchi, et n'est pas la configuration par défaut.
 
 ## Deux façons de l'utiliser :
 
 ### Application de bureau (recommandée pour les créateurs)
 
-Téléchargez le programme d'installation pour Windows depuis [GitHub Releases](https://github.com/mcp-tool-shop-org/xrpl-creator-capsule/releases/tag/v1.0.0-rc.2) et suivez le [Guide pour débutants](https://mcp-tool-shop-org.github.io/xrpl-creator-capsule/handbook/beginners/).
+Téléchargez le programme d'installation pour Windows depuis [GitHub Releases](https://github.com/mcp-tool-shop-org/xrpl-creator-capsule/releases/latest) et suivez le [Guide pour débutants](https://mcp-tool-shop-org.github.io/xrpl-creator-capsule/handbook/beginners/).
 
 Le **mode Studio** vous guide à travers un processus en 6 étapes :
 
@@ -105,7 +105,7 @@ Le système est pleinement conscient du réseau : le réseau de test et le rése
 | **Default** | Oui | No |
 | **Trust-proven** | Oui (preuves actives, 265 tests) | Non encore |
 | **CLI guard** | Aucun requis | `--network mainnet --allow-mainnet-write` |
-| **Desktop app** | Configuration par défaut du mode Studio | Non disponible dans RC.2 |
+| **Desktop app** | Configuration par défaut du mode Studio | Non disponible dans v1.0.0 |
 
 **Considérez cette version comme une version préliminaire pour le réseau de test.** L'architecture n'est pas limitée au réseau de test, mais la preuve de confiance a été validée sur le réseau de test. La compatibilité avec le réseau principal nécessite une signature Xaman active et une promotion délibérée, et non un simple paramètre.
 

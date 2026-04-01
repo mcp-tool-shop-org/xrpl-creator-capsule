@@ -8,20 +8,20 @@
 
 <p align="center">
   <a href="https://github.com/mcp-tool-shop-org/xrpl-creator-capsule/actions"><img src="https://github.com/mcp-tool-shop-org/xrpl-creator-capsule/actions/workflows/ci.yml/badge.svg" alt="CI" /></a>
-  <a href="https://github.com/mcp-tool-shop-org/xrpl-creator-capsule/releases"><img src="https://img.shields.io/badge/preview-v1.0.0--rc.2-orange" alt="Preview RC.2" /></a>
+  <a href="https://github.com/mcp-tool-shop-org/xrpl-creator-capsule/releases"><img src="https://img.shields.io/badge/release-v1.0.0-brightgreen" alt="v1.0.0" /></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="MIT License" /></a>
   <a href="https://mcp-tool-shop-org.github.io/xrpl-creator-capsule/"><img src="https://img.shields.io/badge/handbook-live-brightgreen" alt="Handbook" /></a>
 </p>
 
 Creator-owned release system on the XRP Ledger. Issue work, sell directly, unlock collector benefits, govern revenue — all backed by durable on-chain proof.
 
-> **Preview release.** RC.2 is a Testnet preview product. The engine architecture supports both Testnet and Mainnet, but all trust proofs have been validated on Testnet only. Mainnet is a guarded, deliberate path — not the default.
+> **Testnet-first release.** v1.0.0 is a Testnet product. The engine architecture supports both Testnet and Mainnet, but all trust proofs have been validated on Testnet only. Mainnet is a guarded, deliberate promotion — not the default.
 
 ## Two ways to use it
 
 ### Desktop app (recommended for creators)
 
-Download the Windows installer from [GitHub Releases](https://github.com/mcp-tool-shop-org/xrpl-creator-capsule/releases/tag/v1.0.0-rc.2) and follow the [Beginners Guide](https://mcp-tool-shop-org.github.io/xrpl-creator-capsule/handbook/beginners/).
+Download the Windows installer from [GitHub Releases](https://github.com/mcp-tool-shop-org/xrpl-creator-capsule/releases/latest) and follow the [Beginners Guide](https://mcp-tool-shop-org.github.io/xrpl-creator-capsule/handbook/beginners/).
 
 **Studio Mode** walks you through a guided 6-step flow:
 
@@ -40,7 +40,7 @@ Requires [Node.js 22+](https://nodejs.org/) (bundled runtime coming in a future 
 git clone https://github.com/mcp-tool-shop-org/xrpl-creator-capsule.git
 cd xrpl-creator-capsule
 npm install
-bash verify.sh    # 265 tests, zero network calls
+bash verify.sh    # 359 tests, zero network calls
 ```
 
 15 commands covering the full release lifecycle:
@@ -74,8 +74,8 @@ XRPL Creator Capsule treats the XRP Ledger as a durable control plane for owners
 | C — Access Truth | Ownership unlocks real off-chain access | 34 |
 | D — Governance Truth | Revenue governed through auditable approval chain | 67 |
 | E — Durability Truth | Release survives frontend death (death drill passed) | 28 |
-| Desktop Runtime Trust | Mode switch, restart, interruption, timeout, timing | 73 |
-| **Total** | | **265** |
+| Desktop Runtime Trust | Mode switch, restart, interruption, timeout, timing | 94 |
+| **Total** | | **359** |
 
 ## Architecture
 
@@ -103,9 +103,9 @@ The system has full network awareness — Testnet and Mainnet are distinct, conf
 | | Testnet | Mainnet |
 |-|---------|---------|
 | **Default** | Yes | No |
-| **Trust-proven** | Yes (live proofs, 265 tests) | Not yet |
+| **Trust-proven** | Yes (live proofs, 359 tests) | Not yet |
 | **CLI guard** | None needed | `--network mainnet --allow-mainnet-write` |
-| **Desktop app** | Studio Mode default | Not exposed in RC.2 |
+| **Desktop app** | Studio Mode default | Not exposed in v1.0.0 |
 
 **Treat this release as a Testnet preview.** The architecture is not Testnet-only, but the trust proof is Testnet-proven. Mainnet readiness requires live Xaman signing and deliberate promotion — not a flag flip.
 
