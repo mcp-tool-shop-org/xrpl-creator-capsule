@@ -1,0 +1,27 @@
+{
+  "schemaVersion": "1.0.0",
+  "kind": "access-grant-receipt",
+  "manifestId": "303dd8bf6f0afe7aa06e48c1fff3f64b97b39e770c8895197c4b0f6f0208fdb4",
+  "policyLabel": "stems for Midnight Frequency holders",
+  "subjectAddress": "rn64Djcp45J7GkpuMKM9DsfXMTSyY6qdMh",
+  "network": "testnet",
+  "decision": "allow",
+  "reason": "Wallet holds 1 qualifying NFT(s)",
+  "benefit": {
+    "kind": "stems",
+    "contentPointer": "QmPK1s3pNYLi9ERiq3BDxKa4XosgWwFRQUydHUtz4YgpqB"
+  },
+  "ownership": {
+    "matchedTokenIds": [
+      "000813881524A73075237DE0F84728ECEF5D41B72CC5934332CC1D3100F69D96"
+    ],
+    "totalNftsChecked": 1
+  },
+  "delivery": {
+    "mode": "download-token",
+    "token": "tok_ff6a7796f786eb4e6ab62380cdd4637c",
+    "expiresAt": "2026-04-01T09:50:30.411Z"
+  },
+  "decidedAt": "2026-04-01T08:50:29.482Z",
+  "grantHash": "504ef23bc83d996cb7725cd24787e5c1c1ee5a3412c9a8db30b2f207f597d753"
+}

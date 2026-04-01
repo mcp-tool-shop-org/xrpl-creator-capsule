@@ -21,3 +21,6 @@ export type { NftInfo } from "./read-nft.js";
 
 export { issueRelease } from "./issue-release.js";
 export type { IssueReleaseOptions } from "./issue-release.js";
+
+export { checkHolder } from "./check-holder.js";
+export type { HolderCheckResult } from "./check-holder.js";

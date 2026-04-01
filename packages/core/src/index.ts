@@ -24,3 +24,21 @@ export {
   computeReceiptHash,
   stampReceiptHash,
 } from "./receipt-validate.js";
+
+export type { AccessPolicy } from "./access-policy.js";
+export { accessPolicySchema } from "./access-policy-schema.js";
+export {
+  validateAccessPolicy,
+  assertAccessPolicy,
+  checkPolicyCoherence,
+} from "./access-policy-validate.js";
+export type { PolicyCoherenceResult } from "./access-policy-validate.js";
+
+export type { AccessGrantReceipt } from "./access-grant.js";
+export { accessGrantReceiptSchema } from "./access-grant-schema.js";
+export {
+  validateAccessGrant,
+  assertAccessGrant,
+  computeGrantHash,
+  stampGrantHash,
+} from "./access-grant-validate.js";

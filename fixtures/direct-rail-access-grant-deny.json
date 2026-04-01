@@ -1,0 +1,20 @@
+{
+  "schemaVersion": "1.0.0",
+  "kind": "access-grant-receipt",
+  "manifestId": "303dd8bf6f0afe7aa06e48c1fff3f64b97b39e770c8895197c4b0f6f0208fdb4",
+  "policyLabel": "stems for Midnight Frequency holders",
+  "subjectAddress": "rpvoajJ4mbnorub6W8MFBEtfkeFaMTCPBX",
+  "network": "testnet",
+  "decision": "deny",
+  "reason": "Wallet does not hold any qualifying NFT for this release",
+  "benefit": {
+    "kind": "stems",
+    "contentPointer": "QmPK1s3pNYLi9ERiq3BDxKa4XosgWwFRQUydHUtz4YgpqB"
+  },
+  "ownership": {
+    "matchedTokenIds": [],
+    "totalNftsChecked": 0
+  },
+  "decidedAt": "2026-04-01T08:50:41.964Z",
+  "grantHash": "509bfa41e171150b7833ba52a93caa9b9f2c0e2546c5e05204895dc837cad48d"
+}

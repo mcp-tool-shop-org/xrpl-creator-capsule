@@ -8,7 +8,9 @@ import { initWallets } from "./commands/init-wallets.js";
 import { configureMinter } from "./commands/configure-minter.js";
 import { mintReleaseCommand } from "./commands/mint-release.js";
 import { verifyRelease } from "./commands/verify-release.js";
+import { grantAccess } from "./commands/grant-access.js";
 import { configureMinterViaXaman, mintReleaseViaXaman } from "./commands/xaman-flow.js";
+import { MockDeliveryProvider } from "@capsule/storage";
 import type { NetworkId } from "@capsule/xrpl";
 import type { XamanNetwork } from "@capsule/xaman";
 
@@ -20,6 +22,8 @@ const COMMANDS: Record<string, string> = {
   resolve: "Check that manifest pointers (CIDs, URLs) are structurally valid",
   "mint-release": "Mint NFT editions from a manifest and emit issuance receipt",
   "verify-release": "Reconcile manifest + receipt against chain state",
+  "grant-access": "Evaluate access request and emit grant receipt",
+  "create-access-policy": "Generate an access policy from manifest + receipt",
 };
 
 function parseNetwork(args: string[]): NetworkId {
@@ -279,6 +283,108 @@ async function main(): Promise<void> {
         process.exit(1);
       } else {
         console.log("\nVerification PASSED");
+      }
+      break;
+    }
+
+    case "create-access-policy": {
+      const { values } = parseArgs({
+        args: process.argv.slice(3),
+        options: {
+          manifest: { type: "string", short: "m" },
+          receipt: { type: "string", short: "r" },
+          output: { type: "string", short: "o", default: "access-policy.json" },
+          ttl: { type: "string", default: "3600" },
+        },
+      });
+
+      if (!values.manifest || !values.receipt) {
+        console.error(
+          "Usage: capsule create-access-policy --manifest <file> --receipt <file>"
+        );
+        process.exit(1);
+      }
+
+      const { readFile, writeFile } = await import("node:fs/promises");
+      const { assertManifest, assertReceipt, computeManifestId } = await import("@capsule/core");
+
+      const manifest = assertManifest(JSON.parse(await readFile(values.manifest, "utf-8")));
+      const receipt = assertReceipt(JSON.parse(await readFile(values.receipt, "utf-8")));
+
+      const policy = {
+        schemaVersion: "1.0.0" as const,
+        kind: "access-policy" as const,
+        manifestId: computeManifestId(manifest),
+        label: `${manifest.benefit.kind} for ${manifest.title} holders`,
+        benefit: {
+          kind: manifest.benefit.kind,
+          contentPointer: manifest.benefit.contentPointer,
+        },
+        rule: {
+          type: "holds-nft" as const,
+          issuerAddress: manifest.issuerAddress,
+          qualifyingTokenIds: receipt.xrpl.nftTokenIds,
+        },
+        delivery: {
+          mode: "download-token" as const,
+          ttlSeconds: parseInt(values.ttl!, 10),
+        },
+        createdAt: new Date().toISOString(),
+      };
+
+      await writeFile(values.output!, JSON.stringify(policy, null, 2) + "\n");
+      console.log(`Access policy created: ${policy.label}`);
+      console.log(`Benefit: ${policy.benefit.kind}`);
+      console.log(`Qualifying tokens: ${policy.rule.qualifyingTokenIds.length}`);
+      console.log(`TTL: ${policy.delivery.ttlSeconds}s`);
+      console.log(`Written to: ${values.output}`);
+      break;
+    }
+
+    case "grant-access": {
+      const { values } = parseArgs({
+        args: process.argv.slice(3),
+        options: {
+          manifest: { type: "string", short: "m" },
+          receipt: { type: "string", short: "r" },
+          policy: { type: "string", short: "p" },
+          wallet: { type: "string", short: "w" },
+          out: { type: "string", short: "o", default: "access-grant.json" },
+        },
+      });
+
+      if (!values.manifest || !values.receipt || !values.policy || !values.wallet) {
+        console.error(
+          "Usage: capsule grant-access --manifest <file> --receipt <file> --policy <file> --wallet <address>"
+        );
+        process.exit(1);
+      }
+
+      const result = await grantAccess({
+        manifestPath: values.manifest,
+        receiptPath: values.receipt,
+        policyPath: values.policy,
+        walletAddress: values.wallet,
+        deliveryProvider: new MockDeliveryProvider(),
+      });
+
+      const { writeFile: writeOut } = await import("node:fs/promises");
+      await writeOut(values.out!, JSON.stringify(result, null, 2) + "\n");
+
+      if (result.decision === "allow") {
+        console.log(`ACCESS GRANTED`);
+        console.log(`  Benefit: ${result.benefit.kind}`);
+        console.log(`  Token: ${result.delivery!.token}`);
+        console.log(`  Expires: ${result.delivery!.expiresAt}`);
+      } else {
+        console.log(`ACCESS DENIED`);
+        console.log(`  Reason: ${result.reason}`);
+      }
+
+      console.log(`Grant receipt written to: ${values.out}`);
+
+      if (result.decision === "deny") {
+        process.exit(1);
       }
       break;
     }

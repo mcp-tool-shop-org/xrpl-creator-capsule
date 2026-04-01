@@ -1,0 +1,22 @@
+{
+  "schemaVersion": "1.0.0",
+  "kind": "access-policy",
+  "manifestId": "303dd8bf6f0afe7aa06e48c1fff3f64b97b39e770c8895197c4b0f6f0208fdb4",
+  "label": "stems for Midnight Frequency holders",
+  "benefit": {
+    "kind": "stems",
+    "contentPointer": "QmPK1s3pNYLi9ERiq3BDxKa4XosgWwFRQUydHUtz4YgpqB"
+  },
+  "rule": {
+    "type": "holds-nft",
+    "issuerAddress": "rpvoajJ4mbnorub6W8MFBEtfkeFaMTCPBX",
+    "qualifyingTokenIds": [
+      "000813881524A73075237DE0F84728ECEF5D41B72CC5934332CC1D3100F69D96"
+    ]
+  },
+  "delivery": {
+    "mode": "download-token",
+    "ttlSeconds": 3600
+  },
+  "createdAt": "2026-04-01T08:50:19.232Z"
+}
