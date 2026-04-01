@@ -8,52 +8,42 @@
 
 <p align="center">
   <a href="https://github.com/mcp-tool-shop-org/xrpl-creator-capsule/actions"><img src="https://github.com/mcp-tool-shop-org/xrpl-creator-capsule/actions/workflows/ci.yml/badge.svg" alt="CI" /></a>
+  <a href="https://github.com/mcp-tool-shop-org/xrpl-creator-capsule/releases"><img src="https://img.shields.io/badge/preview-v1.0.0--rc.2-orange" alt="Preview RC.2" /></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="MIT License" /></a>
-  <a href="https://mcp-tool-shop-org.github.io/xrpl-creator-capsule/"><img src="https://img.shields.io/badge/Landing_Page-live-brightgreen" alt="Landing Page" /></a>
+  <a href="https://mcp-tool-shop-org.github.io/xrpl-creator-capsule/"><img src="https://img.shields.io/badge/handbook-live-brightgreen" alt="Handbook" /></a>
 </p>
 
-Creator-owned release system on the XRP Ledger. Issue work, sell directly, unlock collector benefits, govern revenue — all backed by durable on-chain truth that survives frontend death.
+Creator-owned release system on the XRP Ledger. Issue work, sell directly, unlock collector benefits, govern revenue — all backed by durable on-chain proof.
 
-## What it does
+> **Preview release.** RC.2 is a Testnet preview product. The engine architecture supports both Testnet and Mainnet, but all trust proofs have been validated on Testnet only. Mainnet is a guarded, deliberate path — not the default.
 
-XRPL Creator Capsule treats the XRP Ledger as a durable control plane for ownership, payment, access, and survivability around creative work. It is not a marketplace — it is the infrastructure that makes marketplaces optional.
+## Two ways to use it
 
-A creator capsule binds together:
+### Desktop app (recommended for creators)
 
-- **Creator Intent** — A signed release manifest with deterministic identity (SHA-256 manifestId)
-- **Mint Truth** — NFT editions minted on XRPL with tamper-evident issuance receipts
-- **Access Truth** — Ownership-gated benefits verified by on-chain holder checks
-- **Durability Truth** — Recovery bundles that reconstruct the full release without the original app
-- **Governance Truth** — Revenue governed through an auditable approval chain (policy → proposal → decision → execution)
+Download the Windows installer from [GitHub Releases](https://github.com/mcp-tool-shop-org/xrpl-creator-capsule/releases/tag/v1.0.0-rc.2) and follow the [Beginners Guide](https://mcp-tool-shop-org.github.io/xrpl-creator-capsule/handbook/beginners/).
 
-Every artifact is hash-stamped and cross-referenced. Every claim is verifiable against the ledger.
+**Studio Mode** walks you through a guided 6-step flow:
 
-## Architecture
+1. Describe your release (title, artist, edition size, files)
+2. Set collector benefits (bonus tracks, stems, high-res art)
+3. Review terms and safety
+4. Publish to XRPL Testnet
+5. Test collector access
+6. Generate a recovery bundle
 
-```
-packages/
-  core/       Canonical contracts, schemas, validation, hashing
-  xrpl/       XRPL client (connect, mint, verify, holder checks)
-  storage/    Content store + delivery provider interfaces
-  xaman/      Wallet-mediated signing via Xaman
-  cli/        15 CLI commands for the full release lifecycle
-artifacts/    Live Testnet proof artifacts
-fixtures/     Sanitized fixtures for testing
-```
+Requires [Node.js 22+](https://nodejs.org/) (bundled runtime coming in a future release).
 
-Monorepo with 5 npm workspaces. TypeScript, Vitest, Node 22+.
-
-## Quick start
+### CLI (for developers and integrators)
 
 ```bash
 git clone https://github.com/mcp-tool-shop-org/xrpl-creator-capsule.git
 cd xrpl-creator-capsule
 npm install
-npm run build
-bash verify.sh
+bash verify.sh    # 265 tests, zero network calls
 ```
 
-## CLI commands
+15 commands covering the full release lifecycle:
 
 | Command | Purpose |
 |---------|---------|
@@ -73,16 +63,51 @@ bash verify.sh
 | `execute-payout` | Record payout execution and verify hash chain |
 | `verify-payout` | Verify all 4 governance artifacts and their relationships |
 
-## Proven phases
+## What it proves
+
+XRPL Creator Capsule treats the XRP Ledger as a durable control plane for ownership, payment, access, and survivability. It is not a marketplace — it is the infrastructure that makes marketplaces optional.
 
 | Phase | What it proves | Tests |
 |-------|---------------|-------|
 | A — Creator Intent | Manifest identity is deterministic and tamper-evident | 27 |
-| B — Mint Truth | NFTs on XRPL match manifest exactly (live Testnet) | 36 |
+| B — Mint Truth | NFTs on XRPL match manifest exactly (live Testnet proof) | 36 |
 | C — Access Truth | Ownership unlocks real off-chain access | 34 |
-| E — Durability Truth | Release survives frontend death (death drill passed) | 28 |
 | D — Governance Truth | Revenue governed through auditable approval chain | 67 |
-| **Total** | | **240** |
+| E — Durability Truth | Release survives frontend death (death drill passed) | 28 |
+| Desktop Runtime Trust | Mode switch, restart, interruption, timeout, timing | 73 |
+| **Total** | | **265** |
+
+## Architecture
+
+```
+app/              Desktop app (Tauri v2 + React)
+  src/            Studio Mode + Advanced Mode UI
+  src-tauri/      Rust backend (file I/O, bridge dispatch)
+  bridge-worker   Engine bridge (stdin/stdout JSON-RPC)
+packages/
+  core/           Canonical contracts, schemas, validation, hashing
+  xrpl/           XRPL client (connect, mint, verify, holder checks)
+  storage/        Content store + delivery provider interfaces
+  xaman/          Wallet-mediated signing via Xaman
+  cli/            15 CLI commands
+artifacts/        Live Testnet proof artifacts
+site/             Handbook (Astro Starlight)
+```
+
+Monorepo with 5 engine packages + desktop app. TypeScript, Vitest, Tauri v2, Node 22+.
+
+## Network posture
+
+The system has full network awareness — Testnet and Mainnet are distinct, configurable targets.
+
+| | Testnet | Mainnet |
+|-|---------|---------|
+| **Default** | Yes | No |
+| **Trust-proven** | Yes (live proofs, 265 tests) | Not yet |
+| **CLI guard** | None needed | `--network mainnet --allow-mainnet-write` |
+| **Desktop app** | Studio Mode default | Not exposed in RC.2 |
+
+**Treat this release as a Testnet preview.** The architecture is not Testnet-only, but the trust proof is Testnet-proven. Mainnet readiness requires live Xaman signing and deliberate promotion — not a flag flip.
 
 ## Trust model
 
@@ -102,21 +127,17 @@ bash verify.sh
 - All hashes use SHA-256 over deterministic `sortKeysDeep()` canonicalization
 - Every artifact is independently verifiable against the ledger
 - `xrpl` pinned at exact version 4.2.5 (post npm supply chain advisory)
-- No telemetry is collected or sent
 
-## Verification
+## Known limitations
 
-```bash
-bash verify.sh
-```
+- **Node.js required** for the desktop app (bundled runtime coming)
+- **Xaman QR signing not yet live** — wallet credentials file required (seed-based, testnet only)
+- **IPFS upload pending** — file pointers use local paths, real content-addressed storage coming
+- **Windows only** — macOS installer planned for a future RC
 
-Runs TypeScript type-checking and the full 240-test suite.
+## Reporting problems
 
-## Status
-
-**Phase 1 MVP: complete.** The core product thesis — XRPL as a durable control plane for creator releases — is proven across all five phases with live Testnet artifacts.
-
-**Pending:** Xaman live proof (adapter architecture shipped, awaiting external credentials). This is a closure pass, not a new build phase.
+Click **Report** in the desktop title bar to export a support bundle, then open a [GitHub issue](https://github.com/mcp-tool-shop-org/xrpl-creator-capsule/issues/new/choose).
 
 ## License
 
