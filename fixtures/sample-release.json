@@ -1,0 +1,34 @@
+{
+  "schemaVersion": "1.0.0",
+  "title": "Midnight Frequency",
+  "artist": "Vex Morrow",
+  "editionSize": 50,
+  "coverCid": "QmYwAPJzv5CZsnA625s3Xf2nemtYgPpHdWEz79ojWnPbdG",
+  "mediaCid": "QmT78zSuBmuS4z925WZfrqQ1qHaJ56DQaTfyMUF7F8ff5o",
+  "metadataEndpoint": "https://example.com/.well-known/xrpl-nft/midnight-frequency",
+  "license": {
+    "type": "custom",
+    "summary": "You receive a personal, non-transferable license to listen to and display this release. Purchase does NOT transfer copyright or any intellectual property rights. You may not reproduce, distribute, or create derivative works without written permission from the artist.",
+    "uri": "https://example.com/releases/midnight-frequency/license"
+  },
+  "benefit": {
+    "kind": "stems",
+    "description": "Full stem pack (drums, bass, synths, vocals) for personal remixing. Non-commercial use only.",
+    "contentPointer": "QmPK1s3pNYLi9ERiq3BDxKa4XosgWwFRQUydHUtz4YgpqB"
+  },
+  "priceDrops": "50000000",
+  "transferFeePercent": 5,
+  "payoutPolicy": {
+    "treasuryAddress": "rHb9CJAWyB4rj91VRWn96DkukG4bwdtyTh",
+    "multiSig": true,
+    "signers": [
+      "rHb9CJAWyB4rj91VRWn96DkukG4bwdtyTh",
+      "rPT1Sjq2YGrBMTttX4GZHjKu9dyfzbpAYe"
+    ],
+    "quorum": 2,
+    "terms": "Revenue splits: 70% artist / 20% producer / 10% cover artist. Payouts approved by 2-of-2 multi-sig monthly."
+  },
+  "issuerAddress": "rHb9CJAWyB4rj91VRWn96DkukG4bwdtyTh",
+  "operatorAddress": "rPT1Sjq2YGrBMTttX4GZHjKu9dyfzbpAYe",
+  "createdAt": "2026-04-01T00:00:00Z"
+}

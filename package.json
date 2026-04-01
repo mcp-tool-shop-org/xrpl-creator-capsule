@@ -1,0 +1,23 @@
+{
+  "name": "xrpl-creator-capsule",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Creator-owned release system on XRPL — ownership, payment, access, and survivability",
+  "author": "mcp-tool-shop",
+  "license": "MIT",
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "build": "npm run build --workspaces",
+    "test": "npm run test --workspaces",
+    "lint": "tsc --noEmit --project tsconfig.json"
+  },
+  "devDependencies": {
+    "typescript": "5.8.3",
+    "vitest": "3.1.1"
+  }
+}
