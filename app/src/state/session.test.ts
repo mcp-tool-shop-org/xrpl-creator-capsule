@@ -7,7 +7,7 @@ const mockInvoke = vi.mocked(invoke);
 
 // Helper — configure loadFile/saveFile behavior
 function mockLoadFile(results: Record<string, string | Error>) {
-  mockInvoke.mockImplementation(async (cmd: string, args?: Record<string, unknown>) => {
+  mockInvoke.mockImplementation(async (cmd: string, args?: any) => {
     if (cmd === "load_file") {
       const path = (args as { path: string }).path;
       const result = results[path];
@@ -22,7 +22,7 @@ function mockLoadFile(results: Record<string, string | Error>) {
 
 function mockSaveCapture(): { calls: Array<{ path: string; content: string }> } {
   const calls: Array<{ path: string; content: string }> = [];
-  mockInvoke.mockImplementation(async (cmd: string, args?: Record<string, unknown>) => {
+  mockInvoke.mockImplementation(async (cmd: string, args?: any) => {
     if (cmd === "save_file") {
       const a = args as { path: string; content: string };
       calls.push({ path: a.path, content: a.content });
@@ -92,7 +92,7 @@ describe("session persistence", () => {
       // First call is loadSession (inside saveSession), second is the write
       let loadCount = 0;
       const saved: string[] = [];
-      mockInvoke.mockImplementation(async (cmd: string, args?: Record<string, unknown>) => {
+      mockInvoke.mockImplementation(async (cmd: string, args?: any) => {
         if (cmd === "load_file") {
           loadCount++;
           return JSON.stringify(VALID_SESSION);

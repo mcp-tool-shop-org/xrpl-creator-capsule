@@ -27,7 +27,7 @@ function renderRelease() {
 
 // ── Helper: mock engine calls by command name ─────────────────────
 function mockEngine(responses: Record<string, unknown>) {
-  mockInvoke.mockImplementation(async (cmd: string, args?: Record<string, unknown>) => {
+  mockInvoke.mockImplementation(async (cmd: string, args?: any) => {
     if (cmd === "load_file") {
       const path = (args as { path: string }).path;
       if (path.includes("manifest")) return JSON.stringify(MANIFEST);
@@ -262,7 +262,7 @@ describe("release state", () => {
 
   describe("runMintFromStudio", () => {
     it("runs mint and updates both manifest and mint state", async () => {
-      mockInvoke.mockImplementation(async (cmd: string, args?: Record<string, unknown>) => {
+      mockInvoke.mockImplementation(async (cmd: string, args?: any) => {
         if (cmd === "load_file") return JSON.stringify(MANIFEST);
         if (cmd === "save_file") return undefined;
         if (cmd === "engine_call") return RECEIPT;

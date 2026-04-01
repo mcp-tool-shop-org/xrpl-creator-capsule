@@ -206,7 +206,7 @@ describe("studio state", () => {
   describe("autosave", () => {
     it("saves session after 2s debounce on draft change", async () => {
       const saveCalls: string[] = [];
-      mockInvoke.mockImplementation(async (cmd: string, args?: Record<string, unknown>) => {
+      mockInvoke.mockImplementation(async (cmd: string, args?: any) => {
         if (cmd === "load_file") throw new Error("No session");
         if (cmd === "save_file") {
           saveCalls.push((args as { content: string }).content);
@@ -236,7 +236,7 @@ describe("studio state", () => {
 
     it("debounces multiple rapid changes into one save", async () => {
       const saveCalls: string[] = [];
-      mockInvoke.mockImplementation(async (cmd: string, args?: Record<string, unknown>) => {
+      mockInvoke.mockImplementation(async (cmd: string, args?: any) => {
         if (cmd === "load_file") throw new Error("No session");
         if (cmd === "save_file") {
           saveCalls.push((args as { content: string }).content);

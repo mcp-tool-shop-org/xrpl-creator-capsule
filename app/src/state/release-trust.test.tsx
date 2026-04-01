@@ -71,7 +71,7 @@ describe("mode-switch preservation", () => {
     vi.useFakeTimers();
     clearActionLog();
     // Default mock: loadFile returns manifest/receipt, saveFile succeeds
-    mockInvoke.mockImplementation(async (cmd: string, args?: Record<string, unknown>) => {
+    mockInvoke.mockImplementation(async (cmd: string, args?: any) => {
       if (cmd === "load_file") return JSON.stringify(MANIFEST);
       if (cmd === "save_file") return undefined;
       if (cmd === "engine_call") return RECEIPT;
