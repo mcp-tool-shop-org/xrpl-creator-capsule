@@ -2,7 +2,7 @@
 title: Developer Setup
 description: Clone, build, and run the test suite for contributors and developers.
 sidebar:
-  order: 2
+  order: 1
 ---
 
 ## Prerequisites

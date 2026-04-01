@@ -2,7 +2,7 @@
 title: "Beginners: Your First Release"
 description: A step-by-step guide for creatives using Capsule Desktop to publish, protect, and verify a release on the XRP Ledger.
 sidebar:
-  order: 1
+  order: 8
 ---
 
 This guide is for **creators** — musicians, visual artists, producers, writers — who want to publish a release using the Capsule Desktop app. No blockchain experience required.

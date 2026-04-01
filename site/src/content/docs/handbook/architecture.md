@@ -2,7 +2,7 @@
 title: Architecture
 description: How XRPL Creator Capsule is built and how the pieces connect.
 sidebar:
-  order: 5
+  order: 4
 ---
 
 ## Canonical objects

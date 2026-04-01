@@ -2,7 +2,7 @@
 title: CLI Reference
 description: All 15 CLI commands with flags and usage.
 sidebar:
-  order: 4
+  order: 3
 ---
 
 All commands are invoked via `npx tsx packages/cli/src/bin.ts <command>` or as `capsule <command>` if linked.
