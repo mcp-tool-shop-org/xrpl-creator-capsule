@@ -19,6 +19,7 @@
     { "path": "packages/core" },
     { "path": "packages/xrpl" },
     { "path": "packages/storage" },
+    { "path": "packages/xaman" },
     { "path": "packages/cli" }
   ],
   "files": []

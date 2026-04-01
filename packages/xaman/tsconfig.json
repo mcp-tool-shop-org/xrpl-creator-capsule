@@ -7,9 +7,6 @@
   },
   "include": ["src"],
   "references": [
-    { "path": "../core" },
-    { "path": "../xrpl" },
-    { "path": "../xaman" },
-    { "path": "../storage" }
+    { "path": "../core" }
   ]
 }

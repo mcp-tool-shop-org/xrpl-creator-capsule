@@ -5,3 +5,4 @@ export { initWallets } from "./commands/init-wallets.js";
 export { configureMinter } from "./commands/configure-minter.js";
 export { mintReleaseCommand } from "./commands/mint-release.js";
 export { verifyRelease } from "./commands/verify-release.js";
+export { configureMinterViaXaman, mintReleaseViaXaman } from "./commands/xaman-flow.js";

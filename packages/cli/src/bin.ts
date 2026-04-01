@@ -8,7 +8,9 @@ import { initWallets } from "./commands/init-wallets.js";
 import { configureMinter } from "./commands/configure-minter.js";
 import { mintReleaseCommand } from "./commands/mint-release.js";
 import { verifyRelease } from "./commands/verify-release.js";
+import { configureMinterViaXaman, mintReleaseViaXaman } from "./commands/xaman-flow.js";
 import type { NetworkId } from "@capsule/xrpl";
+import type { XamanNetwork } from "@capsule/xaman";
 
 const COMMANDS: Record<string, string> = {
   "init-wallets": "Generate and fund issuer + operator wallet pair",
@@ -86,24 +88,43 @@ async function main(): Promise<void> {
         options: {
           wallets: { type: "string", short: "w", default: "wallets.json" },
           network: { type: "string", default: "testnet" },
+          via: { type: "string" },
+          operator: { type: "string" },
           "allow-mainnet-write": { type: "boolean", default: false },
         },
       });
 
       const network = values.network as NetworkId;
-      console.log(`Configuring authorized minter on ${network}...`);
-      const result = await configureMinter({
-        walletsPath: values.wallets!,
-        network,
-        allowMainnetWrite: values["allow-mainnet-write"],
-      });
 
-      console.log(`Issuer:   ${result.issuerAddress}`);
-      console.log(`Operator: ${result.operatorAddress}`);
-      console.log(`Authorized: ${result.authorized}`);
-      if (!result.authorized) {
-        console.error(`Verification failed: ${result.verification.error}`);
-        process.exit(1);
+      if (values.via === "xaman") {
+        if (!values.operator) {
+          console.error("--operator is required with --via xaman");
+          process.exit(1);
+        }
+        if (network === "devnet") {
+          console.error("Xaman does not support devnet");
+          process.exit(1);
+        }
+        const result = await configureMinterViaXaman(
+          values.operator,
+          network as XamanNetwork
+        );
+        console.log(`Authorized minter via Xaman. TX: ${result.txid}`);
+      } else {
+        console.log(`Configuring authorized minter on ${network}...`);
+        const result = await configureMinter({
+          walletsPath: values.wallets!,
+          network,
+          allowMainnetWrite: values["allow-mainnet-write"],
+        });
+
+        console.log(`Issuer:   ${result.issuerAddress}`);
+        console.log(`Operator: ${result.operatorAddress}`);
+        console.log(`Authorized: ${result.authorized}`);
+        if (!result.authorized) {
+          console.error(`Verification failed: ${result.verification.error}`);
+          process.exit(1);
+        }
       }
       break;
     }
@@ -179,6 +200,8 @@ async function main(): Promise<void> {
           manifest: { type: "string", short: "m" },
           wallets: { type: "string", short: "w", default: "wallets.json" },
           network: { type: "string", default: "testnet" },
+          via: { type: "string" },
+          operator: { type: "string" },
           out: { type: "string", short: "o", default: "issuance-receipt.json" },
           "allow-mainnet-write": { type: "boolean", default: false },
         },
@@ -190,6 +213,27 @@ async function main(): Promise<void> {
       }
 
       const network = values.network as NetworkId;
+
+      if (values.via === "xaman") {
+        if (network === "devnet") {
+          console.error("Xaman does not support devnet");
+          process.exit(1);
+        }
+        const result = await mintReleaseViaXaman(
+          values.manifest,
+          network as XamanNetwork,
+          values.operator
+        );
+        console.log(`\nMint complete via Xaman.`);
+        console.log(`Manifest ID: ${result.manifestId.slice(0, 16)}...`);
+        console.log(`Revision Hash: ${result.revisionHash.slice(0, 16)}...`);
+        console.log(`Editions minted: ${result.results.length}`);
+        for (const r of result.results) {
+          console.log(`  TX: ${r.txid}`);
+        }
+        break;
+      }
+
       console.log(`Minting release on ${network}...`);
 
       const receipt = await mintReleaseCommand({

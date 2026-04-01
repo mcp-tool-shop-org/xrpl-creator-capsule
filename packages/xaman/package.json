@@ -1,12 +1,15 @@
 {
-  "name": "@capsule/cli",
+  "name": "@capsule/xaman",
   "version": "0.1.0",
   "private": true,
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
-  "bin": {
-    "capsule": "dist/bin.js"
+  "exports": {
+    ".": {
+      "import": "./src/index.ts",
+      "default": "./dist/index.js"
+    }
   },
   "scripts": {
     "build": "tsc --build",
@@ -14,9 +17,6 @@
   },
   "dependencies": {
     "@capsule/core": "*",
-    "@capsule/xrpl": "*",
-    "@capsule/xaman": "*",
-    "@capsule/storage": "*",
-    "xrpl": "4.2.5"
+    "xumm-sdk": "1.11.2"
   }
 }
