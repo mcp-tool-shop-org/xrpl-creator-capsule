@@ -125,6 +125,20 @@ describe("computeReceiptHash", () => {
     expect(computeReceiptHash(r1)).not.toBe(computeReceiptHash(r2));
   });
 
+  it("covers nested fields — changing xrpl.nftTokenIds changes hash", () => {
+    const r1 = makeValidReceipt();
+    const r2 = makeValidReceipt();
+    r2.xrpl.nftTokenIds = ["DEADBEEF00000000"];
+    expect(computeReceiptHash(r1)).not.toBe(computeReceiptHash(r2));
+  });
+
+  it("covers deeply nested fields — changing pointers.coverCid changes hash", () => {
+    const r1 = makeValidReceipt();
+    const r2 = makeValidReceipt();
+    r2.pointers.coverCid = "QmDIFFERENTCIDDIFFERENTCIDDIFFERENT";
+    expect(computeReceiptHash(r1)).not.toBe(computeReceiptHash(r2));
+  });
+
   it("ignores existing receiptHash field", () => {
     const receipt = makeValidReceipt();
     const h1 = computeReceiptHash(receipt);
