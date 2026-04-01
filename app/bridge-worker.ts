@@ -23,17 +23,25 @@ import {
   resolveManifestPointers,
   assertReceipt,
   computeReceiptHash,
+  assertAccessPolicy,
+  checkPolicyCoherence,
+  stampGrantHash,
+  deriveRecoveryBundle,
+  verifyBundleConsistency,
   type ReleaseManifest,
   type IssuanceReceipt,
+  type AccessPolicy,
+  type AccessGrantReceipt,
 } from "@capsule/core";
 import {
   importWalletPair,
   issueRelease,
   verifyAuthorizedMinter,
   readNftFromLedger,
+  checkHolder,
   type NetworkId,
 } from "@capsule/xrpl";
-import { MockContentStore } from "@capsule/storage";
+import { MockContentStore, MockDeliveryProvider } from "@capsule/storage";
 import { convertStringToHex } from "xrpl";
 
 // ── Types ───────────────────────────────────────────────────────────
@@ -69,6 +77,16 @@ async function dispatch(cmd: BridgeCommand): Promise<unknown> {
       return mintReleaseCmd(cmd.params);
     case "verify_release":
       return verifyReleaseCmd(cmd.params);
+    case "create_access_policy":
+      return createAccessPolicyCmd(cmd.params);
+    case "check_holder":
+      return checkHolderCmd(cmd.params);
+    case "grant_access":
+      return grantAccessCmd(cmd.params);
+    case "recover_release":
+      return recoverReleaseCmd(cmd.params);
+    case "verify_recovery":
+      return verifyRecoveryCmd(cmd.params);
     default:
       throw new Error(`Unknown command: ${cmd.command}`);
   }
@@ -361,6 +379,324 @@ async function verifyReleaseCmd(
 
   const passed = checks.every((c) => c.passed);
   return { passed, checks };
+}
+
+// ── Access commands ──────────────────────────────────────────────────
+
+async function createAccessPolicyCmd(
+  params: Record<string, unknown>
+): Promise<unknown> {
+  const manifestPath = params.manifestPath as string;
+  const receiptPath = params.receiptPath as string;
+  const label = params.label as string;
+  const ttlSeconds = (params.ttlSeconds as number) ?? 3600;
+  const outputPath = params.outputPath as string | undefined;
+
+  const manifest = assertManifest(JSON.parse(await readFile(manifestPath, "utf-8")));
+  const receipt = assertReceipt(JSON.parse(await readFile(receiptPath, "utf-8")));
+
+  const manifestId = computeManifestId(manifest);
+
+  const policy: AccessPolicy = {
+    schemaVersion: "1.0.0",
+    kind: "access-policy",
+    manifestId,
+    label,
+    benefit: {
+      kind: manifest.benefit.kind,
+      contentPointer: manifest.benefit.contentPointer,
+    },
+    rule: {
+      type: "holds-nft",
+      issuerAddress: manifest.issuerAddress,
+      qualifyingTokenIds: receipt.xrpl.nftTokenIds,
+    },
+    delivery: {
+      mode: "download-token",
+      ttlSeconds,
+    },
+    createdAt: new Date().toISOString(),
+  };
+
+  if (outputPath) {
+    await writeFile(outputPath, JSON.stringify(policy, null, 2) + "\n");
+  }
+
+  return policy;
+}
+
+async function checkHolderCmd(
+  params: Record<string, unknown>
+): Promise<unknown> {
+  const walletAddress = params.walletAddress as string;
+  const qualifyingTokenIds = params.qualifyingTokenIds as string[];
+  const network = (params.network ?? "testnet") as NetworkId;
+
+  return checkHolder(walletAddress, qualifyingTokenIds, network);
+}
+
+async function grantAccessCmd(
+  params: Record<string, unknown>
+): Promise<unknown> {
+  const manifestPath = params.manifestPath as string;
+  const receiptPath = params.receiptPath as string;
+  const policyPath = params.policyPath as string;
+  const walletAddress = params.walletAddress as string;
+  const outputPath = params.outputPath as string | undefined;
+
+  const manifest = assertManifest(JSON.parse(await readFile(manifestPath, "utf-8")));
+  const receipt = assertReceipt(JSON.parse(await readFile(receiptPath, "utf-8")));
+  const policy = assertAccessPolicy(JSON.parse(await readFile(policyPath, "utf-8")));
+
+  const now = new Date().toISOString();
+
+  // Policy coherence
+  const coherence = checkPolicyCoherence(policy, manifest, receipt);
+  if (!coherence.coherent) {
+    const grant = stampGrantHash({
+      schemaVersion: "1.0.0",
+      kind: "access-grant-receipt",
+      manifestId: policy.manifestId,
+      policyLabel: policy.label,
+      subjectAddress: walletAddress,
+      network: receipt.network,
+      decision: "deny",
+      reason: `Policy coherence failed: ${coherence.errors.join("; ")}`,
+      benefit: policy.benefit,
+      ownership: { matchedTokenIds: [], totalNftsChecked: 0 },
+      decidedAt: now,
+    });
+    if (outputPath) await writeFile(outputPath, JSON.stringify(grant, null, 2) + "\n");
+    return grant;
+  }
+
+  // Receipt integrity
+  if (receipt.receiptHash) {
+    const expectedHash = computeReceiptHash(receipt);
+    if (receipt.receiptHash !== expectedHash) {
+      const grant = stampGrantHash({
+        schemaVersion: "1.0.0",
+        kind: "access-grant-receipt",
+        manifestId: policy.manifestId,
+        policyLabel: policy.label,
+        subjectAddress: walletAddress,
+        network: receipt.network,
+        decision: "deny",
+        reason: "Issuance receipt has been tampered with",
+        benefit: policy.benefit,
+        ownership: { matchedTokenIds: [], totalNftsChecked: 0 },
+        decidedAt: now,
+      });
+      if (outputPath) await writeFile(outputPath, JSON.stringify(grant, null, 2) + "\n");
+      return grant;
+    }
+  }
+
+  // Manifest identity
+  const expectedManifestId = computeManifestId(manifest);
+  if (receipt.manifestId !== expectedManifestId) {
+    const grant = stampGrantHash({
+      schemaVersion: "1.0.0",
+      kind: "access-grant-receipt",
+      manifestId: policy.manifestId,
+      policyLabel: policy.label,
+      subjectAddress: walletAddress,
+      network: receipt.network,
+      decision: "deny",
+      reason: "Manifest identity does not match issuance receipt",
+      benefit: policy.benefit,
+      ownership: { matchedTokenIds: [], totalNftsChecked: 0 },
+      decidedAt: now,
+    });
+    if (outputPath) await writeFile(outputPath, JSON.stringify(grant, null, 2) + "\n");
+    return grant;
+  }
+
+  // Revision hash
+  const expectedRevision = computeRevisionHash(manifest);
+  if (receipt.manifestRevisionHash !== expectedRevision) {
+    const grant = stampGrantHash({
+      schemaVersion: "1.0.0",
+      kind: "access-grant-receipt",
+      manifestId: policy.manifestId,
+      policyLabel: policy.label,
+      subjectAddress: walletAddress,
+      network: receipt.network,
+      decision: "deny",
+      reason: "Manifest has been modified since issuance",
+      benefit: policy.benefit,
+      ownership: { matchedTokenIds: [], totalNftsChecked: 0 },
+      decidedAt: now,
+    });
+    if (outputPath) await writeFile(outputPath, JSON.stringify(grant, null, 2) + "\n");
+    return grant;
+  }
+
+  // Ownership check
+  const holderResult = await checkHolder(
+    walletAddress,
+    policy.rule.qualifyingTokenIds,
+    receipt.network
+  );
+
+  if (holderResult.error || !holderResult.holds) {
+    const reason = holderResult.error
+      ? `Ownership check failed: ${holderResult.error}`
+      : "Wallet does not hold any qualifying NFT for this release";
+    const grant = stampGrantHash({
+      schemaVersion: "1.0.0",
+      kind: "access-grant-receipt",
+      manifestId: policy.manifestId,
+      policyLabel: policy.label,
+      subjectAddress: walletAddress,
+      network: receipt.network,
+      decision: "deny",
+      reason,
+      benefit: policy.benefit,
+      ownership: {
+        matchedTokenIds: holderResult.matchedTokenIds,
+        totalNftsChecked: holderResult.totalNftsChecked,
+      },
+      decidedAt: now,
+    });
+    if (outputPath) await writeFile(outputPath, JSON.stringify(grant, null, 2) + "\n");
+    return grant;
+  }
+
+  // Grant access
+  const deliveryProvider = new MockDeliveryProvider();
+  const deliveryToken = await deliveryProvider.createToken(
+    policy.benefit.contentPointer,
+    policy.delivery.ttlSeconds
+  );
+
+  const grant = stampGrantHash({
+    schemaVersion: "1.0.0",
+    kind: "access-grant-receipt",
+    manifestId: policy.manifestId,
+    policyLabel: policy.label,
+    subjectAddress: walletAddress,
+    network: receipt.network,
+    decision: "allow",
+    reason: `Wallet holds ${holderResult.matchedTokenIds.length} qualifying NFT(s)`,
+    benefit: policy.benefit,
+    ownership: {
+      matchedTokenIds: holderResult.matchedTokenIds,
+      totalNftsChecked: holderResult.totalNftsChecked,
+    },
+    delivery: {
+      mode: policy.delivery.mode,
+      token: deliveryToken.token,
+      expiresAt: deliveryToken.expiresAt,
+    },
+    decidedAt: now,
+  });
+
+  if (outputPath) await writeFile(outputPath, JSON.stringify(grant, null, 2) + "\n");
+  return grant;
+}
+
+// ── Recovery commands ───────────────────────────────────────────────
+
+async function recoverReleaseCmd(
+  params: Record<string, unknown>
+): Promise<unknown> {
+  const manifestPath = params.manifestPath as string;
+  const receiptPath = params.receiptPath as string;
+  const policyPath = params.policyPath as string | undefined;
+  const outputPath = params.outputPath as string | undefined;
+
+  const manifest = assertManifest(JSON.parse(await readFile(manifestPath, "utf-8")));
+  const receipt = assertReceipt(JSON.parse(await readFile(receiptPath, "utf-8")));
+
+  let policy: AccessPolicy | undefined;
+  if (policyPath) {
+    policy = assertAccessPolicy(JSON.parse(await readFile(policyPath, "utf-8")));
+  }
+
+  const bundle = deriveRecoveryBundle(manifest, receipt, policy);
+
+  // Verify consistency immediately
+  const verification = verifyBundleConsistency(bundle, manifest, receipt, policy);
+
+  // Chain verification
+  interface ChainCheck { name: string; passed: boolean; detail: string }
+  const chainChecks: ChainCheck[] = [];
+
+  try {
+    const minterCheck = await verifyAuthorizedMinter(
+      receipt.issuerAddress,
+      receipt.operatorAddress,
+      receipt.network
+    );
+    chainChecks.push({
+      name: "chain-minter-status",
+      passed: minterCheck.verified,
+      detail: minterCheck.verified
+        ? "Authorized minter confirmed on ledger"
+        : `Minter check failed: ${minterCheck.error}`,
+    });
+
+    if (receipt.xrpl.nftTokenIds.length > 0) {
+      const firstTokenId = receipt.xrpl.nftTokenIds[0];
+      let nft = await readNftFromLedger(
+        receipt.operatorAddress,
+        firstTokenId,
+        receipt.network
+      );
+      if (!nft) {
+        nft = await readNftFromLedger(
+          receipt.issuerAddress,
+          firstTokenId,
+          receipt.network
+        );
+      }
+      chainChecks.push({
+        name: "chain-nft-exists",
+        passed: !!nft,
+        detail: nft
+          ? `NFT ${firstTokenId.slice(0, 16)}... found on ledger`
+          : `NFT ${firstTokenId.slice(0, 16)}... not found on ledger`,
+      });
+    }
+  } catch (err) {
+    chainChecks.push({
+      name: "chain-connectivity",
+      passed: false,
+      detail: `Could not connect to ${receipt.network}: ${err instanceof Error ? err.message : String(err)}`,
+    });
+  }
+
+  if (outputPath) {
+    await writeFile(outputPath, JSON.stringify(bundle, null, 2) + "\n");
+  }
+
+  return {
+    bundle,
+    verification,
+    chainChecks,
+    allPassed: verification.valid && chainChecks.every((c) => c.passed),
+  };
+}
+
+async function verifyRecoveryCmd(
+  params: Record<string, unknown>
+): Promise<unknown> {
+  const bundlePath = params.bundlePath as string;
+  const manifestPath = params.manifestPath as string;
+  const receiptPath = params.receiptPath as string;
+  const policyPath = params.policyPath as string | undefined;
+
+  const bundleRaw = JSON.parse(await readFile(bundlePath, "utf-8"));
+  const manifest = assertManifest(JSON.parse(await readFile(manifestPath, "utf-8")));
+  const receipt = assertReceipt(JSON.parse(await readFile(receiptPath, "utf-8")));
+
+  let policy: AccessPolicy | undefined;
+  if (policyPath) {
+    policy = assertAccessPolicy(JSON.parse(await readFile(policyPath, "utf-8")));
+  }
+
+  return verifyBundleConsistency(bundleRaw, manifest, receipt, policy);
 }
 
 // ── Main: read stdin, dispatch, write stdout ────────────────────────

@@ -67,7 +67,7 @@ export function MintPanel() {
         {r.xrpl.nftTokenIds.map((tokenId, i) => (
           <ArtifactCard key={tokenId}>
             <ArtifactField label={`Token #${i + 1}`} value={tokenId} mono />
-            <ArtifactField label="TX Hash" value={r.xrpl.txHashes?.[i] ?? ""} mono />
+            <ArtifactField label="TX Hash" value={r.xrpl.mintTxHashes?.[i] ?? ""} mono />
           </ArtifactCard>
         ))}
 

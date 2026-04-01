@@ -42,6 +42,19 @@ export interface VerifyResult {
   checks: VerifyCheck[];
 }
 
+export interface HolderCheckResult {
+  holds: boolean;
+  matchedTokenIds: string[];
+  totalNftsChecked: number;
+  walletAddress: string;
+  error?: string;
+}
+
+export interface BundleVerificationResult {
+  valid: boolean;
+  checks: VerifyCheck[];
+}
+
 // ── Artifact types (display-side mirrors of canonical shapes) ───────
 
 export interface ReleaseManifest {
@@ -85,9 +98,9 @@ export interface IssuanceReceipt {
   issuedAt: string;
   xrpl: {
     nftTokenIds: string[];
-    txHashes: string[];
+    mintTxHashes: string[];
     transferFee: number;
-    taxon: number;
+    tokenTaxon: number;
   };
   pointers: {
     metadataUri: string;
@@ -95,7 +108,95 @@ export interface IssuanceReceipt {
     coverCid: string;
     mediaCid: string;
   };
-  storageProvider: string;
+  storageProvider?: string;
+}
+
+export interface AccessPolicy {
+  schemaVersion: string;
+  kind: string;
+  manifestId: string;
+  label: string;
+  benefit: {
+    kind: string;
+    contentPointer: string;
+  };
+  rule: {
+    type: string;
+    issuerAddress: string;
+    qualifyingTokenIds: string[];
+  };
+  delivery: {
+    mode: string;
+    ttlSeconds: number;
+  };
+  createdAt: string;
+}
+
+export interface AccessGrantReceipt {
+  schemaVersion: string;
+  kind: string;
+  manifestId: string;
+  policyLabel: string;
+  subjectAddress: string;
+  network: string;
+  decision: "allow" | "deny";
+  reason: string;
+  benefit: {
+    kind: string;
+    contentPointer: string;
+  };
+  ownership: {
+    matchedTokenIds: string[];
+    totalNftsChecked: number;
+  };
+  delivery?: {
+    mode: string;
+    token: string;
+    expiresAt: string;
+  };
+  decidedAt: string;
+  grantHash?: string;
+}
+
+export interface RecoveryBundle {
+  schemaVersion: string;
+  kind: string;
+  manifestId: string;
+  revisionHash: string;
+  receiptHash: string;
+  title: string;
+  artist: string;
+  editionSize: number;
+  network: string;
+  issuerAddress: string;
+  operatorAddress: string;
+  tokenIds: string[];
+  txHashes: string[];
+  transferFee: number;
+  metadataUri: string;
+  licenseUri: string;
+  coverCid: string;
+  mediaCid: string;
+  licenseType: string;
+  licenseSummary: string;
+  benefit: {
+    kind: string;
+    description: string;
+    contentPointer: string;
+  };
+  generatedAt: string;
+  recoveryVersion: string;
+  instructions: string[];
+  accessPolicyLabel?: string;
+  qualifyingTokenIds?: string[];
+  bundleHash?: string;
+}
+
+export interface RecoverResult {
+  bundle: RecoveryBundle;
+  verification: BundleVerificationResult;
+  chainChecks: VerifyCheck[];
+  allPassed: boolean;
 }
 
 // ── File operations (direct Rust, no Node.js) ───────────────────────
@@ -145,4 +246,59 @@ export async function verifyRelease(
   receiptPath: string
 ): Promise<VerifyResult> {
   return engineCall<VerifyResult>("verify_release", { manifestPath, receiptPath });
+}
+
+// ── Access commands ─────────────────────────────────────────────────
+
+/** Create an access policy from manifest + receipt. */
+export async function createAccessPolicy(opts: {
+  manifestPath: string;
+  receiptPath: string;
+  label: string;
+  ttlSeconds?: number;
+  outputPath?: string;
+}): Promise<AccessPolicy> {
+  return engineCall<AccessPolicy>("create_access_policy", opts);
+}
+
+/** Check if a wallet holds qualifying NFTs. */
+export async function checkHolderAccess(opts: {
+  walletAddress: string;
+  qualifyingTokenIds: string[];
+  network: string;
+}): Promise<HolderCheckResult> {
+  return engineCall<HolderCheckResult>("check_holder", opts);
+}
+
+/** Run the full grant-access flow. */
+export async function grantAccess(opts: {
+  manifestPath: string;
+  receiptPath: string;
+  policyPath: string;
+  walletAddress: string;
+  outputPath?: string;
+}): Promise<AccessGrantReceipt> {
+  return engineCall<AccessGrantReceipt>("grant_access", opts);
+}
+
+// ── Recovery commands ───────────────────────────────────────────────
+
+/** Generate a recovery bundle + verify consistency + chain checks. */
+export async function recoverRelease(opts: {
+  manifestPath: string;
+  receiptPath: string;
+  policyPath?: string;
+  outputPath?: string;
+}): Promise<RecoverResult> {
+  return engineCall<RecoverResult>("recover_release", opts);
+}
+
+/** Verify an existing recovery bundle against source artifacts. */
+export async function verifyRecovery(opts: {
+  bundlePath: string;
+  manifestPath: string;
+  receiptPath: string;
+  policyPath?: string;
+}): Promise<BundleVerificationResult> {
+  return engineCall<BundleVerificationResult>("verify_recovery", opts);
 }
