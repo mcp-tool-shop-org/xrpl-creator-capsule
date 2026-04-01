@@ -1,6 +1,18 @@
 import type { ReactNode } from "react";
 
-type Status = "empty" | "loaded" | "verified" | "error";
+export type Status =
+  | "empty"
+  | "loading"
+  | "loaded"
+  | "valid"
+  | "invalid"
+  | "resolved"
+  | "minting"
+  | "minted"
+  | "verifying"
+  | "verified"
+  | "mismatch"
+  | "error";
 
 interface Props {
   title: string;
@@ -10,15 +22,31 @@ interface Props {
 
 const statusColors: Record<Status, string> = {
   empty: "var(--text-dim)",
+  loading: "var(--accent)",
   loaded: "var(--accent)",
+  valid: "var(--success)",
+  invalid: "var(--error)",
+  resolved: "var(--success)",
+  minting: "var(--accent)",
+  minted: "var(--success)",
+  verifying: "var(--accent)",
   verified: "var(--success)",
+  mismatch: "var(--error)",
   error: "var(--error)",
 };
 
 const statusLabels: Record<Status, string> = {
   empty: "No artifact",
+  loading: "Loading\u2026",
   loaded: "Loaded",
+  valid: "Valid",
+  invalid: "Invalid",
+  resolved: "Resolved",
+  minting: "Minting\u2026",
+  minted: "Minted",
+  verifying: "Verifying\u2026",
   verified: "Verified",
+  mismatch: "Mismatch",
   error: "Error",
 };
 
@@ -76,7 +104,7 @@ export function ArtifactField({
           wordBreak: "break-all",
         }}
       >
-        {value || "—"}
+        {value || "\u2014"}
       </div>
     </div>
   );
@@ -86,32 +114,34 @@ export function ActionButton({
   label,
   onClick,
   variant = "primary",
+  disabled = false,
 }: {
   label: string;
   onClick: () => void;
   variant?: "primary" | "secondary";
+  disabled?: boolean;
 }) {
   return (
     <button
       onClick={onClick}
+      disabled={disabled}
       style={{
         padding: "8px 18px",
         fontSize: 13,
         fontWeight: 600,
         border:
-          variant === "primary"
-            ? "none"
-            : "1px solid var(--border)",
+          variant === "primary" ? "none" : "1px solid var(--border)",
         borderRadius: 6,
         background:
           variant === "primary"
-            ? "var(--accent)"
+            ? disabled
+              ? "var(--text-dim)"
+              : "var(--accent)"
             : "transparent",
         color:
-          variant === "primary"
-            ? "#fff"
-            : "var(--text-muted)",
-        cursor: "pointer",
+          variant === "primary" ? "#fff" : "var(--text-muted)",
+        cursor: disabled ? "not-allowed" : "pointer",
+        opacity: disabled ? 0.6 : 1,
         transition: "all 0.15s",
       }}
     >
@@ -132,6 +162,64 @@ export function ArtifactCard({ children }: { children: ReactNode }) {
       }}
     >
       {children}
+    </div>
+  );
+}
+
+export function ErrorBanner({ message }: { message: string }) {
+  return (
+    <div
+      style={{
+        background: "var(--error)" + "18",
+        border: "1px solid var(--error)",
+        borderRadius: 6,
+        padding: "10px 14px",
+        marginBottom: 16,
+        fontSize: 13,
+        color: "var(--error)",
+        wordBreak: "break-word",
+      }}
+    >
+      {message}
+    </div>
+  );
+}
+
+export function CheckRow({
+  name,
+  passed,
+  detail,
+}: {
+  name: string;
+  passed: boolean;
+  detail: string;
+}) {
+  return (
+    <div
+      style={{
+        display: "flex",
+        alignItems: "flex-start",
+        gap: 10,
+        padding: "6px 0",
+        borderBottom: "1px solid var(--border)",
+      }}
+    >
+      <span
+        style={{
+          fontSize: 14,
+          lineHeight: "20px",
+          color: passed ? "var(--success)" : "var(--error)",
+          flexShrink: 0,
+        }}
+      >
+        {passed ? "\u2713" : "\u2717"}
+      </span>
+      <div style={{ flex: 1 }}>
+        <div style={{ fontSize: 12, fontWeight: 600, color: "var(--text)" }}>
+          {name}
+        </div>
+        <div style={{ fontSize: 12, color: "var(--text-muted)" }}>{detail}</div>
+      </div>
     </div>
   );
 }

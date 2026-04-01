@@ -3,7 +3,7 @@ import { ReleaseChamber } from "./components/ReleaseChamber";
 import { TitleBar } from "./components/TitleBar";
 import { Sidebar } from "./components/Sidebar";
 
-export type PanelId = "manifest" | "mint" | "access" | "recovery" | "governance";
+export type PanelId = "manifest" | "mint" | "verify" | "access" | "recovery" | "governance";
 
 export function App() {
   const [activePanel, setActivePanel] = useState<PanelId>("manifest");

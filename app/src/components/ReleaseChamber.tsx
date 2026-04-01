@@ -1,6 +1,7 @@
 import type { PanelId } from "../App";
 import { ManifestPanel } from "./panels/ManifestPanel";
 import { MintPanel } from "./panels/MintPanel";
+import { VerifyPanel } from "./panels/VerifyPanel";
 import { AccessPanel } from "./panels/AccessPanel";
 import { RecoveryPanel } from "./panels/RecoveryPanel";
 import { GovernancePanel } from "./panels/GovernancePanel";
@@ -12,6 +13,7 @@ interface Props {
 const panelMap: Record<PanelId, React.FC> = {
   manifest: ManifestPanel,
   mint: MintPanel,
+  verify: VerifyPanel,
   access: AccessPanel,
   recovery: RecoveryPanel,
   governance: GovernancePanel,

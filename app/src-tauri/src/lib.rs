@@ -1,3 +1,5 @@
+mod commands;
+
 use tauri::Manager;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
@@ -6,6 +8,11 @@ pub fn run() {
         .plugin(tauri_plugin_fs::init())
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_shell::init())
+        .invoke_handler(tauri::generate_handler![
+            commands::load_file,
+            commands::save_file,
+            commands::engine_call,
+        ])
         .setup(|app| {
             #[cfg(debug_assertions)]
             {
