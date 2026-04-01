@@ -1,8 +1,8 @@
 ---
-title: Getting Started
-description: Clone, build, and run your first capsule verification.
+title: Developer Setup
+description: Clone, build, and run the test suite for contributors and developers.
 sidebar:
-  order: 1
+  order: 2
 ---
 
 ## Prerequisites

@@ -2,7 +2,7 @@
 title: Security
 description: Trust model, threat boundaries, and safety mechanisms.
 sidebar:
-  order: 6
+  order: 7
 ---
 
 ## Trust model

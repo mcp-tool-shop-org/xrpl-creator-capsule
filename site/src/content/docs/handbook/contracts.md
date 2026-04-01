@@ -2,7 +2,7 @@
 title: Contract Reference
 description: Every canonical contract type with fields and validation rules.
 sidebar:
-  order: 5
+  order: 6
 ---
 
 ## ReleaseManifest

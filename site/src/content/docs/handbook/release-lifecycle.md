@@ -2,7 +2,7 @@
 title: Release Lifecycle
 description: Create, mint, verify, and govern a release from start to finish.
 sidebar:
-  order: 2
+  order: 3
 ---
 
 A creator capsule follows a clear lifecycle: define intent, mint on-chain, verify, gate access, and govern revenue. Each step produces a hash-stamped artifact that links back to the previous.

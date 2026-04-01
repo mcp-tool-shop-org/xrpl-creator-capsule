@@ -7,6 +7,8 @@ sidebar:
 
 XRPL Creator Capsule treats the XRP Ledger as a durable control plane for ownership, payment, access, and survivability around creative work. It is not a marketplace — it is the infrastructure that makes marketplaces optional.
 
+**New to Capsule?** Start with the [Beginners Guide](/xrpl-creator-capsule/handbook/beginners/) — a step-by-step walkthrough for creatives using the desktop app. No blockchain experience required.
+
 ## The thesis
 
 A creator should be able to:
@@ -41,6 +43,7 @@ The system is a TypeScript monorepo with 5 workspace packages:
 
 ## Next steps
 
-- [Getting Started](/xrpl-creator-capsule/handbook/getting-started/) — Clone, build, and run the test suite
+- [Beginners Guide](/xrpl-creator-capsule/handbook/beginners/) — Your first release in 10 minutes using the desktop app
+- [Developer Setup](/xrpl-creator-capsule/handbook/getting-started/) — Clone, build, and run the test suite
 - [Release Lifecycle](/xrpl-creator-capsule/handbook/release-lifecycle/) — Create, mint, and verify a release
 - [CLI Reference](/xrpl-creator-capsule/handbook/reference/) — All 15 commands
