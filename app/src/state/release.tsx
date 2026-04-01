@@ -126,6 +126,7 @@ interface ReleaseContextValue {
   loadWallets: () => Promise<void>;
   loadReceipt: () => Promise<void>;
   runMint: () => Promise<void>;
+  runMintFromStudio: (manifestPath: string, walletsPath: string, receiptPath: string) => Promise<void>;
 
   // Verify actions
   runVerify: () => Promise<void>;
@@ -414,6 +415,62 @@ export function ReleaseProvider({ children }: { children: ReactNode }) {
       }));
     }
   }, [manifestState.path, mintState.walletsPath, network]);
+
+  /**
+   * Studio Mode mint: accepts paths directly instead of using dialog pickers.
+   * Also populates ManifestState so Advanced mode can inspect the artifacts.
+   */
+  const runMintFromStudio = useCallback(async (
+    manifestPath: string,
+    walletsPath: string,
+    receiptPath: string,
+  ) => {
+    try {
+      // Load manifest into state so Advanced mode can see it
+      const manifestRaw = await loadFile(manifestPath);
+      const manifestData = JSON.parse(manifestRaw) as ReleaseManifest;
+      setManifest({
+        status: "loaded",
+        path: manifestPath,
+        data: manifestData,
+        validation: null,
+        resolution: null,
+        stamp: null,
+        error: null,
+      });
+
+      setMint((s) => ({
+        ...s,
+        status: "loading",
+        actionStatus: "running",
+        walletsPath,
+        error: null,
+      }));
+
+      const receipt = await engineMint({
+        manifestPath,
+        walletsPath,
+        network,
+        receiptPath,
+      });
+
+      setMint({
+        status: "loaded",
+        actionStatus: "done",
+        walletsPath,
+        receiptPath,
+        receipt,
+        error: null,
+      });
+    } catch (err) {
+      setMint((s) => ({
+        ...s,
+        actionStatus: "error",
+        error: err instanceof Error ? err.message : String(err),
+      }));
+      throw err; // Re-throw so PublishPage can catch it
+    }
+  }, [network]);
 
   // ── Verify actions ──────────────────────────────────────────────
 
@@ -983,6 +1040,7 @@ export function ReleaseProvider({ children }: { children: ReactNode }) {
         loadWallets,
         loadReceipt,
         runMint,
+        runMintFromStudio,
         runVerify,
         loadPolicy,
         createPolicy,
