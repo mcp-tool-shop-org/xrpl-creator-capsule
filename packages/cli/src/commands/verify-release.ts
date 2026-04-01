@@ -183,15 +183,23 @@ export async function verifyRelease(
         : `Minter check failed: ${minterCheck.error}`,
     });
 
-    // Verify first NFT exists on chain with correct URI
+    // Verify first NFT exists on chain with correct URI.
+    // NFTs minted by authorized minter are held by the minting account
+    // (operator), not the issuer. Check operator first, then issuer.
     if (receipt.xrpl.nftTokenIds.length > 0) {
       const firstTokenId = receipt.xrpl.nftTokenIds[0];
-      // NFTs minted by authorized minter are owned by the issuer
-      const nft = await readNftFromLedger(
-        receipt.issuerAddress,
+      let nft = await readNftFromLedger(
+        receipt.operatorAddress,
         firstTokenId,
         receipt.network
       );
+      if (!nft) {
+        nft = await readNftFromLedger(
+          receipt.issuerAddress,
+          firstTokenId,
+          receipt.network
+        );
+      }
 
       if (nft) {
         const expectedUri = convertStringToHex(manifest.metadataEndpoint);

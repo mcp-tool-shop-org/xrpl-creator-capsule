@@ -25,6 +25,7 @@ export function buildConfigureMinterPayload(
     txjson: {
       TransactionType: "AccountSet",
       NFTokenMinter: operatorAddress,
+      SetFlag: 10, // asfAuthorizedNFTokenMinter
     },
     network,
     returnUrl,

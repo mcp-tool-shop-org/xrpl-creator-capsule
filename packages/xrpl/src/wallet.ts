@@ -1,4 +1,4 @@
-import { Client, Wallet } from "xrpl";
+import { Client, Wallet, AccountSetAsfFlags } from "xrpl";
 import type { NetworkId } from "./network.js";
 import { getNetwork, assertMainnetAllowed } from "./network.js";
 
@@ -72,6 +72,7 @@ export async function authorizeOperatorAsMinter(
         TransactionType: "AccountSet",
         Account: pair.issuer.address,
         NFTokenMinter: pair.operator.address,
+        SetFlag: AccountSetAsfFlags.asfAuthorizedNFTokenMinter,
       },
       { wallet: pair.issuer }
     );

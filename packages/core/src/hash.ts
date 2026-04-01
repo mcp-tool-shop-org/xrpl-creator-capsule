@@ -45,7 +45,7 @@ export function computeRevisionHash(manifest: ReleaseManifest): string {
 /**
  * Recursively sort object keys for deterministic serialization.
  */
-function sortKeysDeep(obj: unknown): unknown {
+export function sortKeysDeep(obj: unknown): unknown {
   if (Array.isArray(obj)) return obj.map(sortKeysDeep);
   if (obj !== null && typeof obj === "object") {
     const sorted: Record<string, unknown> = {};

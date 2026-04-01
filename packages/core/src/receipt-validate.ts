@@ -1,6 +1,7 @@
 import Ajv from "ajv";
 import addFormats from "ajv-formats";
 import { createHash } from "node:crypto";
+import { sortKeysDeep } from "./hash.js";
 import { issuanceReceiptSchema } from "./receipt-schema.js";
 import type { IssuanceReceipt } from "./receipt.js";
 import type { ValidationResult } from "./validate.js";
@@ -59,7 +60,7 @@ export function assertReceipt(receipt: unknown): IssuanceReceipt {
  */
 export function computeReceiptHash(receipt: IssuanceReceipt): string {
   const { receiptHash: _rh, ...rest } = receipt;
-  const canonical = JSON.stringify(rest, Object.keys(rest).sort());
+  const canonical = JSON.stringify(sortKeysDeep(rest));
   return createHash("sha256").update(canonical).digest("hex");
 }
 

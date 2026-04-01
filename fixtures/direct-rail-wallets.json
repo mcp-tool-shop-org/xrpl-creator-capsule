@@ -1,0 +1,9 @@
+{
+  "network": "testnet",
+  "issuer": {
+    "address": "rpvoajJ4mbnorub6W8MFBEtfkeFaMTCPBX"
+  },
+  "operator": {
+    "address": "rn64Djcp45J7GkpuMKM9DsfXMTSyY6qdMh"
+  }
+}

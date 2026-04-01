@@ -1,0 +1,29 @@
+{
+  "schemaVersion": "1.0.0",
+  "title": "Midnight Frequency",
+  "artist": "Vex Morrow",
+  "editionSize": 1,
+  "coverCid": "QmYwAPJzv5CZsnA625s3Xf2nemtYgPpHdWEz79ojWnPbdG",
+  "mediaCid": "QmT78zSuBmuS4z925WZfrqQ1qHaJ56DQaTfyMUF7F8ff5o",
+  "metadataEndpoint": "https://example.com/.well-known/xrpl-nft/midnight-frequency",
+  "license": {
+    "type": "custom",
+    "summary": "You receive a personal, non-transferable license to listen to and display this release. Purchase does NOT transfer copyright or any intellectual property rights. You may not reproduce, distribute, or create derivative works without written permission from the artist.",
+    "uri": "https://example.com/releases/midnight-frequency/license"
+  },
+  "benefit": {
+    "kind": "stems",
+    "description": "Full stem pack (drums, bass, synths, vocals) for personal remixing. Non-commercial use only.",
+    "contentPointer": "QmPK1s3pNYLi9ERiq3BDxKa4XosgWwFRQUydHUtz4YgpqB"
+  },
+  "priceDrops": "50000000",
+  "transferFeePercent": 5,
+  "payoutPolicy": {
+    "treasuryAddress": "rpvoajJ4mbnorub6W8MFBEtfkeFaMTCPBX",
+    "multiSig": false,
+    "terms": "Single artist release. Revenue held in issuer account."
+  },
+  "issuerAddress": "rpvoajJ4mbnorub6W8MFBEtfkeFaMTCPBX",
+  "operatorAddress": "rn64Djcp45J7GkpuMKM9DsfXMTSyY6qdMh",
+  "createdAt": "2026-04-01T08:30:00Z"
+}

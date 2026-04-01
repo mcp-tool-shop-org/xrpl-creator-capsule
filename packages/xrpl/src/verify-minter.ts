@@ -25,13 +25,25 @@ export async function verifyAuthorizedMinter(
   try {
     await client.connect();
 
-    const response = await client.request({
+    // Try validated first, fall back to current if minter not found.
+    // This handles the case where the AccountSet tx was just validated
+    // but a different node hasn't closed that ledger yet.
+    let response = await client.request({
       command: "account_info",
       account: issuerAddress,
       ledger_index: "validated",
     });
 
-    const accountData = response.result.account_data as Record<string, unknown>;
+    let accountData = response.result.account_data as Record<string, unknown>;
+    if (!accountData.NFTokenMinter) {
+      response = await client.request({
+        command: "account_info",
+        account: issuerAddress,
+        ledger_index: "current",
+      });
+      accountData = response.result.account_data as Record<string, unknown>;
+    }
+
     const actualMinter = accountData.NFTokenMinter as string | undefined;
 
     if (!actualMinter) {

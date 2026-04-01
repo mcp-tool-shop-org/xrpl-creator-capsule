@@ -1,0 +1,3 @@
+# Live artifacts contain wallet secrets — never commit
+direct-rail/wallets.json
+_drill_*
