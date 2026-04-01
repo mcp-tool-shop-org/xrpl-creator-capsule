@@ -12,7 +12,9 @@ export type Status =
   | "verifying"
   | "verified"
   | "mismatch"
-  | "error";
+  | "error"
+  | "canceled"
+  | "timed_out";
 
 interface Props {
   title: string;
@@ -33,6 +35,8 @@ const statusColors: Record<Status, string> = {
   verified: "var(--success)",
   mismatch: "var(--error)",
   error: "var(--error)",
+  canceled: "var(--warning)",
+  timed_out: "var(--warning)",
 };
 
 const statusLabels: Record<Status, string> = {
@@ -48,6 +52,8 @@ const statusLabels: Record<Status, string> = {
   verified: "Verified",
   mismatch: "Mismatch",
   error: "Error",
+  canceled: "Canceled",
+  timed_out: "Timed Out",
 };
 
 export function PanelShell({ title, status, children }: Props) {
@@ -181,6 +187,103 @@ export function ErrorBanner({ message }: { message: string }) {
       }}
     >
       {message}
+    </div>
+  );
+}
+
+export function CancelBanner({ message, onRetry }: { message: string; onRetry?: () => void }) {
+  return (
+    <div
+      style={{
+        background: "var(--warning)" + "18",
+        border: "1px solid var(--warning)",
+        borderRadius: 6,
+        padding: "10px 14px",
+        marginBottom: 16,
+        fontSize: 13,
+        color: "var(--warning)",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "space-between",
+        gap: 12,
+      }}
+    >
+      <span>{message}</span>
+      {onRetry && (
+        <button
+          onClick={onRetry}
+          style={{
+            background: "none",
+            border: "1px solid var(--warning)",
+            borderRadius: 4,
+            color: "var(--warning)",
+            fontSize: 12,
+            padding: "3px 10px",
+            cursor: "pointer",
+            flexShrink: 0,
+          }}
+        >
+          Retry
+        </button>
+      )}
+    </div>
+  );
+}
+
+export function TimeoutBanner({ message, onRetry, onReconcile }: {
+  message: string;
+  onRetry?: () => void;
+  onReconcile?: () => void;
+}) {
+  return (
+    <div
+      style={{
+        background: "var(--warning)" + "18",
+        border: "1px solid var(--warning)",
+        borderRadius: 6,
+        padding: "10px 14px",
+        marginBottom: 16,
+        fontSize: 13,
+        color: "var(--warning)",
+      }}
+    >
+      <div style={{ marginBottom: onRetry || onReconcile ? 8 : 0 }}>{message}</div>
+      {(onRetry || onReconcile) && (
+        <div style={{ display: "flex", gap: 8 }}>
+          {onReconcile && (
+            <button
+              onClick={onReconcile}
+              style={{
+                background: "none",
+                border: "1px solid var(--warning)",
+                borderRadius: 4,
+                color: "var(--warning)",
+                fontSize: 12,
+                padding: "3px 10px",
+                cursor: "pointer",
+              }}
+            >
+              Check Status
+            </button>
+          )}
+          {onRetry && (
+            <button
+              onClick={onRetry}
+              style={{
+                background: "none",
+                border: "1px solid var(--border)",
+                borderRadius: 4,
+                color: "var(--text-dim)",
+                fontSize: 12,
+                padding: "3px 10px",
+                cursor: "pointer",
+              }}
+            >
+              Retry
+            </button>
+          )}
+        </div>
+      )}
     </div>
   );
 }

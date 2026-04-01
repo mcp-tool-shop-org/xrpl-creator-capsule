@@ -1,6 +1,7 @@
-import { createContext, useContext, useState, useCallback, type ReactNode } from "react";
+import { createContext, useContext, useState, useCallback, useEffect, useRef, type ReactNode } from "react";
 import { open, save } from "@tauri-apps/plugin-dialog";
 import { loadFile, saveFile } from "../bridge/engine";
+import { saveSession, loadSession, validateSession } from "./session";
 import type { SignerRole } from "../bridge/engine";
 
 // ── Draft shape ────────────────────────────────────────────────────
@@ -76,6 +77,10 @@ interface StudioContextValue {
 
   // Reset
   resetDraft: () => void;
+
+  // Session state
+  sessionRestored: boolean;
+  sessionError: string | null;
 }
 
 const StudioContext = createContext<StudioContextValue | null>(null);
@@ -105,7 +110,44 @@ const INIT_DRAFT: StudioDraft = {
 
 export function StudioProvider({ children }: { children: ReactNode }) {
   const [draft, setDraft] = useState<StudioDraft>(INIT_DRAFT);
-  const [activeStep, setActiveStep] = useState<StudioStep>("create");
+  const [activeStep, setActiveStepRaw] = useState<StudioStep>("create");
+  const [sessionRestored, setSessionRestored] = useState(false);
+  const [sessionError, setSessionError] = useState<string | null>(null);
+  const autosaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // ── Session restore on mount ────────────────────────────────
+  useEffect(() => {
+    (async () => {
+      try {
+        const raw = await loadSession();
+        const session = await validateSession(raw);
+        if (session.draft && session.draft.title) {
+          setDraft(session.draft);
+          setActiveStepRaw(session.activeStep || "create");
+        }
+        setSessionRestored(true);
+      } catch (err) {
+        setSessionError(err instanceof Error ? err.message : String(err));
+        setSessionRestored(true);
+      }
+    })();
+  }, []);
+
+  // ── Autosave on draft changes (debounced 2s) ───────────────
+  useEffect(() => {
+    if (!sessionRestored) return;
+    if (autosaveTimer.current) clearTimeout(autosaveTimer.current);
+    autosaveTimer.current = setTimeout(() => {
+      saveSession({ draft, activeStep }).catch(() => { /* best effort */ });
+    }, 2000);
+    return () => {
+      if (autosaveTimer.current) clearTimeout(autosaveTimer.current);
+    };
+  }, [draft, activeStep, sessionRestored]);
+
+  const setActiveStep = useCallback((step: StudioStep) => {
+    setActiveStepRaw(step);
+  }, []);
 
   const updateDraft = useCallback((partial: Partial<StudioDraft>) => {
     setDraft((prev) => ({ ...prev, ...partial }));
@@ -208,7 +250,8 @@ export function StudioProvider({ children }: { children: ReactNode }) {
 
   const resetDraft = useCallback(() => {
     setDraft(INIT_DRAFT);
-    setActiveStep("create");
+    setActiveStepRaw("create");
+    import("./session").then((m) => m.clearSession()).catch(() => {});
   }, []);
 
   // ── Readiness ────────────────────────────────────────────────
@@ -237,6 +280,8 @@ export function StudioProvider({ children }: { children: ReactNode }) {
         canProceedToReview,
         canProceedToPublish,
         resetDraft,
+        sessionRestored,
+        sessionError,
       }}
     >
       {children}

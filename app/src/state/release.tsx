@@ -39,7 +39,46 @@ import {
 // ── Status types ────────────────────────────────────────────────────
 
 export type ArtifactStatus = "empty" | "loading" | "loaded" | "error";
-export type ActionStatus = "idle" | "running" | "done" | "error";
+export type ActionStatus = "idle" | "running" | "done" | "error" | "canceled" | "timed_out";
+
+// ── Runtime instrumentation ─────────────────────────────────────────
+
+export interface ActionEvent {
+  action: string;
+  status: ActionStatus;
+  startedAt: string;
+  endedAt?: string;
+  cancelReason?: string;
+  timeoutReason?: string;
+  artifactPath?: string;
+  releaseIdentity?: string;
+  mode?: "studio" | "advanced";
+  reconciliationResult?: string;
+}
+
+/** Lightweight action log — survives the session for debugging trust gaps. */
+const actionLog: ActionEvent[] = [];
+
+export function logAction(event: ActionEvent) {
+  actionLog.push(event);
+}
+
+export function getActionLog(): readonly ActionEvent[] {
+  return actionLog;
+}
+
+export function clearActionLog() {
+  actionLog.length = 0;
+}
+
+// ── Release identity ────────────────────────────────────────────────
+
+export interface ReleaseIdentity {
+  manifestId: string | null;
+  title: string | null;
+  artist: string | null;
+  network: string;
+}
 
 // ── State shapes ────────────────────────────────────────────────────
 
@@ -170,8 +209,15 @@ interface ReleaseContextValue {
   }) => Promise<void>;
   runVerifyPayout: () => Promise<void>;
 
-  // Network
+  // Network & identity
   network: string;
+  releaseIdentity: ReleaseIdentity;
+
+  // Instrumentation
+  actionLog: readonly ActionEvent[];
+
+  // Session reset
+  resetAll: () => void;
 }
 
 const ReleaseContext = createContext<ReleaseContextValue | null>(null);
@@ -260,7 +306,10 @@ export function ReleaseProvider({ children }: { children: ReactNode }) {
         title: "Load Release Manifest",
         filters: [{ name: "JSON", extensions: ["json"] }],
       });
-      if (!result) return;
+      if (!result) {
+        logAction({ action: "load_manifest", status: "canceled", startedAt: new Date().toISOString(), cancelReason: "file_picker_dismissed" });
+        return;
+      }
 
       const filePath = typeof result === "string"
         ? result
@@ -388,16 +437,27 @@ export function ReleaseProvider({ children }: { children: ReactNode }) {
         defaultPath: "receipt.json",
         filters: [{ name: "JSON", extensions: ["json"] }],
       });
-      if (!receiptPath) return;
+      if (!receiptPath) {
+        logAction({ action: "mint", status: "canceled", startedAt: new Date().toISOString(), cancelReason: "receipt_save_dismissed" });
+        return;
+      }
 
+      const startedAt = new Date().toISOString();
       setMint((s) => ({ ...s, actionStatus: "running", error: null }));
 
-      const receipt = await engineMint({
+      const mintPromise = engineMint({
         manifestPath: manifestState.path,
         walletsPath: mintState.walletsPath,
         network,
         receiptPath,
       });
+      const timeoutPromise = new Promise<never>((_, reject) =>
+        setTimeout(() => reject(new Error("__TIMEOUT__")), 90_000)
+      );
+
+      const receipt = await Promise.race([mintPromise, timeoutPromise]);
+
+      logAction({ action: "mint", status: "done", startedAt, endedAt: new Date().toISOString(), artifactPath: receiptPath });
 
       setMint({
         status: "loaded",
@@ -408,11 +468,21 @@ export function ReleaseProvider({ children }: { children: ReactNode }) {
         error: null,
       });
     } catch (err) {
-      setMint((s) => ({
-        ...s,
-        actionStatus: "error",
-        error: err instanceof Error ? err.message : String(err),
-      }));
+      const msg = err instanceof Error ? err.message : String(err);
+      if (msg === "__TIMEOUT__") {
+        setMint((s) => ({
+          ...s,
+          actionStatus: "timed_out",
+          error: "Mint timed out. The transaction may still be processing. Check the receipt file or retry.",
+        }));
+        logAction({ action: "mint", status: "timed_out", startedAt: new Date().toISOString(), timeoutReason: "90s exceeded" });
+      } else {
+        setMint((s) => ({
+          ...s,
+          actionStatus: "error",
+          error: msg,
+        }));
+      }
     }
   }, [manifestState.path, mintState.walletsPath, network]);
 
@@ -534,7 +604,15 @@ export function ReleaseProvider({ children }: { children: ReactNode }) {
         defaultPath: "access-policy.json",
         filters: [{ name: "JSON", extensions: ["json"] }],
       });
-      if (!outputPath) return;
+      if (!outputPath) {
+        logAction({
+          action: "create_access_policy",
+          status: "canceled",
+          startedAt: new Date().toISOString(),
+          cancelReason: "save_dialog_dismissed",
+        });
+        return;
+      }
 
       setAccess((s) => ({ ...s, policyStatus: "loading", error: null }));
 
@@ -603,13 +681,25 @@ export function ReleaseProvider({ children }: { children: ReactNode }) {
         filters: [{ name: "JSON", extensions: ["json"] }],
       });
 
+      if (!outputPath) {
+        setRecovery((s) => ({ ...s, status: "canceled", error: null }));
+        logAction({
+          action: "recover",
+          status: "canceled",
+          startedAt: new Date().toISOString(),
+          cancelReason: "save_dialog_dismissed",
+          mode: "studio",
+        });
+        return;
+      }
+
       setRecovery((s) => ({ ...s, status: "running", error: null }));
 
       const result = await engineRecover({
         manifestPath: manifestState.path,
         receiptPath: mintState.receiptPath,
         policyPath: accessState.policyPath ?? undefined,
-        outputPath: outputPath ?? undefined,
+        outputPath,
       });
 
       setRecovery((s) => ({
@@ -619,6 +709,14 @@ export function ReleaseProvider({ children }: { children: ReactNode }) {
         bundlePath: outputPath,
         error: null,
       }));
+
+      logAction({
+        action: "recover",
+        status: "done",
+        startedAt: new Date().toISOString(),
+        artifactPath: outputPath,
+        mode: "studio",
+      });
     } catch (err) {
       setRecovery((s) => ({
         ...s,
@@ -1023,6 +1121,27 @@ export function ReleaseProvider({ children }: { children: ReactNode }) {
   }, [governanceState.policyPath, governanceState.proposalPath,
       governanceState.decisionPath, governanceState.executionPath]);
 
+  // ── Release identity ────────────────────────────────────────────
+
+  const releaseIdentity: ReleaseIdentity = {
+    manifestId: manifestState.data?.id ?? manifestState.stamp?.manifestId ?? null,
+    title: manifestState.data?.title ?? null,
+    artist: manifestState.data?.artist ?? null,
+    network,
+  };
+
+  // ── Session reset ──────────────────────────────────────────────
+
+  const resetAll = useCallback(() => {
+    setManifest(INIT_MANIFEST);
+    setMint(INIT_MINT);
+    setVerify(INIT_VERIFY);
+    setAccess(INIT_ACCESS);
+    setRecovery(INIT_RECOVERY);
+    setGovernance(INIT_GOVERNANCE);
+    clearActionLog();
+  }, []);
+
   // ── Context value ───────────────────────────────────────────────
 
   return (
@@ -1058,6 +1177,9 @@ export function ReleaseProvider({ children }: { children: ReactNode }) {
         createExecution,
         runVerifyPayout,
         network,
+        releaseIdentity,
+        actionLog: getActionLog(),
+        resetAll,
       }}
     >
       {children}

@@ -1,6 +1,7 @@
+import { useState } from "react";
 import { useStudio } from "../../state/studio";
-import { useRelease } from "../../state/release";
-import { ArtifactCard, ActionButton, CheckRow, ErrorBanner } from "../panels/PanelShell";
+import { useRelease, logAction } from "../../state/release";
+import { ArtifactCard, ActionButton, CheckRow, ErrorBanner, CancelBanner } from "../panels/PanelShell";
 
 export function RecoveryPage() {
   const { setActiveStep } = useStudio();
@@ -31,6 +32,12 @@ export function RecoveryPage() {
       </h2>
 
       {recovery.error && <ErrorBanner message={recovery.error} />}
+      {recovery.status === "canceled" && (
+        <CancelBanner
+          message="Recovery bundle save was canceled. No file was created. You can try again anytime."
+          onRetry={release.runRecover}
+        />
+      )}
 
       {/* What recovery means */}
       <ArtifactCard>
@@ -51,11 +58,19 @@ export function RecoveryPage() {
         </div>
 
         {!recovery.result && (
-          <ActionButton
-            label={recovery.status === "running" ? "Generating..." : "Generate Recovery Bundle"}
-            onClick={release.runRecover}
-            disabled={recovery.status === "running"}
-          />
+          <>
+            <ActionButton
+              label={recovery.status === "running" ? "Generating..." : "Generate Recovery Bundle"}
+              onClick={release.runRecover}
+              disabled={recovery.status === "running"}
+            />
+            {recovery.status === "running" && (
+              <div style={{ fontSize: 11, color: "var(--text-dim)", marginTop: 8, lineHeight: 1.5 }}>
+                Building your recovery bundle. This verifies consistency between your manifest,
+                receipt, and on-chain data. Usually takes a few seconds.
+              </div>
+            )}
+          </>
         )}
       </ArtifactCard>
 

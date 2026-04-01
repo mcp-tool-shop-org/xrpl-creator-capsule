@@ -1,8 +1,9 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef } from "react";
 import { useStudio } from "../../state/studio";
-import { useRelease } from "../../state/release";
-import { ArtifactCard, ActionButton, ErrorBanner, CheckRow } from "../panels/PanelShell";
+import { useRelease, logAction, type ActionEvent } from "../../state/release";
+import { ArtifactCard, ActionButton, ErrorBanner, CancelBanner, TimeoutBanner } from "../panels/PanelShell";
 import { saveFile } from "../../bridge/engine";
+import { saveSession } from "../../state/session";
 import { save } from "@tauri-apps/plugin-dialog";
 import type { ReleaseManifest } from "../../bridge/engine";
 
@@ -66,7 +67,10 @@ function draftToManifest(
   };
 }
 
-type PublishPhase = "ready" | "wallets" | "building" | "minting" | "done" | "error";
+type PublishPhase = "ready" | "wallets" | "building" | "minting" | "done" | "error" | "canceled" | "timed_out";
+
+/** Timeout for XRPL mint operations (90 seconds). */
+const MINT_TIMEOUT_MS = 90_000;
 
 export function PublishPage() {
   const studio = useStudio();
@@ -77,10 +81,25 @@ export function PublishPage() {
     release.mint.receipt ? "done" : "ready"
   );
   const [error, setError] = useState<string | null>(null);
+  const [cancelReason, setCancelReason] = useState<string | null>(null);
+  const [timeoutReason, setTimeoutReason] = useState<string | null>(null);
+  const publishStartRef = useRef<string | null>(null);
+  const lastMintPathsRef = useRef<{ manifestPath: string; walletsPath: string; receiptPath: string } | null>(null);
 
   const handlePublish = useCallback(async () => {
     try {
       setError(null);
+      setCancelReason(null);
+      setTimeoutReason(null);
+      publishStartRef.current = new Date().toISOString();
+
+      logAction({
+        action: "publish",
+        status: "running",
+        startedAt: publishStartRef.current,
+        releaseIdentity: draft.title ? `${draft.title} — ${draft.artist}` : undefined,
+        mode: "studio",
+      });
 
       // Step 1: Load wallets
       setPhase("wallets");
@@ -90,8 +109,17 @@ export function PublishPage() {
       // Re-check after picker
       const walletsPath = studio.draft.walletsPath;
       if (!walletsPath) {
-        setPhase("ready");
-        return; // User cancelled
+        setCancelReason("Wallet selection was canceled. Your draft is safe.");
+        setPhase("canceled");
+        logAction({
+          action: "publish",
+          status: "canceled",
+          startedAt: publishStartRef.current,
+          endedAt: new Date().toISOString(),
+          cancelReason: "wallet_picker_dismissed",
+          mode: "studio",
+        });
+        return;
       }
 
       // Step 2: Choose save location for manifest
@@ -102,7 +130,16 @@ export function PublishPage() {
         filters: [{ name: "JSON", extensions: ["json"] }],
       });
       if (!manifestPath) {
-        setPhase("ready");
+        setCancelReason("Manifest save location was canceled. Nothing was created.");
+        setPhase("canceled");
+        logAction({
+          action: "publish",
+          status: "canceled",
+          startedAt: publishStartRef.current,
+          endedAt: new Date().toISOString(),
+          cancelReason: "manifest_save_dismissed",
+          mode: "studio",
+        });
         return;
       }
 
@@ -129,20 +166,116 @@ export function PublishPage() {
         filters: [{ name: "JSON", extensions: ["json"] }],
       });
       if (!receiptPath) {
-        setPhase("ready");
+        setCancelReason("Receipt save location was canceled. Manifest was saved but nothing was minted.");
+        setPhase("canceled");
+        logAction({
+          action: "publish",
+          status: "canceled",
+          startedAt: publishStartRef.current,
+          endedAt: new Date().toISOString(),
+          cancelReason: "receipt_save_dismissed",
+          artifactPath: manifestPath,
+          mode: "studio",
+        });
         return;
       }
 
-      // Step 3: Mint through the real engine
+      // Step 3: Mint through the real engine (with timeout)
       setPhase("minting");
-      await release.runMintFromStudio(manifestPath, walletsPath, receiptPath);
+      lastMintPathsRef.current = { manifestPath, walletsPath, receiptPath };
+
+      const mintPromise = release.runMintFromStudio(manifestPath, walletsPath, receiptPath);
+      const timeoutPromise = new Promise<never>((_, reject) =>
+        setTimeout(() => reject(new Error("__TIMEOUT__")), MINT_TIMEOUT_MS)
+      );
+
+      await Promise.race([mintPromise, timeoutPromise]);
 
       setPhase("done");
+
+      // Persist artifact paths for restart recovery
+      saveSession({
+        artifactPaths: {
+          manifestPath,
+          receiptPath,
+          accessPolicyPath: null,
+          recoveryBundlePath: null,
+          governancePolicyPath: null,
+          proposalPath: null,
+          decisionPath: null,
+          executionPath: null,
+        },
+        completed: { published: true, verified: false, accessTested: false, recoveryGenerated: false },
+      }).catch(() => {});
+
+      logAction({
+        action: "publish",
+        status: "done",
+        startedAt: publishStartRef.current,
+        endedAt: new Date().toISOString(),
+        artifactPath: receiptPath,
+        releaseIdentity: `${draft.title} — ${draft.artist}`,
+        mode: "studio",
+      });
     } catch (err) {
-      setError(err instanceof Error ? err.message : String(err));
-      setPhase("error");
+      const msg = err instanceof Error ? err.message : String(err);
+      if (msg === "__TIMEOUT__") {
+        setTimeoutReason(
+          "The mint operation is taking longer than expected. " +
+          "It may still complete on the XRPL network. " +
+          "Use 'Check Status' to verify, or retry if needed."
+        );
+        setPhase("timed_out");
+        logAction({
+          action: "publish",
+          status: "timed_out",
+          startedAt: publishStartRef.current!,
+          endedAt: new Date().toISOString(),
+          timeoutReason: `mint exceeded ${MINT_TIMEOUT_MS}ms`,
+          artifactPath: lastMintPathsRef.current?.receiptPath,
+          mode: "studio",
+        });
+      } else {
+        setError(msg);
+        setPhase("error");
+        logAction({
+          action: "publish",
+          status: "error",
+          startedAt: publishStartRef.current!,
+          endedAt: new Date().toISOString(),
+          releaseIdentity: draft.title ? `${draft.title} — ${draft.artist}` : undefined,
+          mode: "studio",
+        });
+      }
     }
   }, [draft, studio, release]);
+
+  /** After a timeout, attempt to reconcile by verifying the receipt file. */
+  const handleReconcile = useCallback(async () => {
+    if (!lastMintPathsRef.current) return;
+    try {
+      const { receiptPath } = lastMintPathsRef.current;
+      const content = await import("../../bridge/engine").then((m) => m.loadFile(receiptPath));
+      const receipt = JSON.parse(content);
+      if (receipt?.xrpl?.nftTokenIds?.length > 0) {
+        // The mint actually succeeded — the timeout was just slow response
+        setPhase("done");
+        setTimeoutReason(null);
+        logAction({
+          action: "publish_reconcile",
+          status: "done",
+          startedAt: new Date().toISOString(),
+          reconciliationResult: "receipt_found_valid",
+          artifactPath: receiptPath,
+          mode: "studio",
+        });
+      } else {
+        setTimeoutReason("Receipt file exists but contains no token IDs. The mint may not have completed. You can retry safely.");
+      }
+    } catch {
+      setTimeoutReason("No receipt file found. The mint likely did not complete. You can retry safely.");
+    }
+  }, []);
 
   if (!canProceedToPublish) {
     return (
@@ -167,9 +300,19 @@ export function PublishPage() {
       </h2>
 
       {error && <ErrorBanner message={error} />}
+      {cancelReason && phase === "canceled" && (
+        <CancelBanner message={cancelReason} onRetry={() => { setCancelReason(null); setPhase("ready"); }} />
+      )}
+      {timeoutReason && phase === "timed_out" && (
+        <TimeoutBanner
+          message={timeoutReason}
+          onReconcile={handleReconcile}
+          onRetry={() => { setTimeoutReason(null); setPhase("ready"); }}
+        />
+      )}
 
       {/* Pre-publish readiness */}
-      {(phase === "ready" || phase === "error") && (
+      {(phase === "ready" || phase === "error" || phase === "canceled") && (
         <>
           <ArtifactCard>
             <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, color: "var(--text)" }}>
@@ -216,11 +359,49 @@ export function PublishPage() {
       {(phase === "wallets" || phase === "building" || phase === "minting") && (
         <ArtifactCard>
           <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 16, color: "var(--text)" }}>
-            Publishing...
+            Publishing your release...
           </div>
-          <ProgressStep label="Loading wallet credentials" active={phase === "wallets"} done={phase !== "wallets"} />
-          <ProgressStep label="Building release manifest" active={phase === "building"} done={phase === "minting" || phase === "done"} />
-          <ProgressStep label="Minting on XRPL Testnet" active={phase === "minting"} done={phase === "done"} />
+          <ProgressStep
+            label="Loading wallet credentials"
+            sublabel="Securely loading your signing keys"
+            active={phase === "wallets"}
+            done={phase !== "wallets"}
+          />
+          <ProgressStep
+            label="Building release manifest"
+            sublabel="Converting your release into a canonical artifact"
+            active={phase === "building"}
+            done={phase === "minting"}
+          />
+          <ProgressStep
+            label="Minting on XRPL Testnet"
+            sublabel="Submitting your release to the ledger — this may take a moment"
+            active={phase === "minting"}
+            done={false}
+          />
+          {phase === "minting" && (
+            <div style={{ fontSize: 11, color: "var(--text-dim)", marginTop: 12, lineHeight: 1.5 }}>
+              Your release is being submitted to the XRPL network. This typically takes 10-30 seconds.
+              Do not close the app — the transaction is in progress.
+            </div>
+          )}
+        </ArtifactCard>
+      )}
+
+      {/* Timeout state — minting took too long */}
+      {phase === "timed_out" && (
+        <ArtifactCard>
+          <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, color: "var(--warning)" }}>
+            Publish status uncertain
+          </div>
+          <p style={{ color: "var(--text-muted)", fontSize: 12, lineHeight: 1.5, marginBottom: 12 }}>
+            The mint operation timed out before confirming. This does not mean it failed —
+            the transaction may still be processing on the XRPL network.
+          </p>
+          <p style={{ color: "var(--text-muted)", fontSize: 12, lineHeight: 1.5 }}>
+            Use "Check Status" to look for the receipt file. If it exists with token IDs,
+            your release was successfully published.
+          </p>
         </ArtifactCard>
       )}
 
@@ -317,15 +498,31 @@ function StepPreview({ number, text }: { number: number; text: string }) {
   );
 }
 
-function ProgressStep({ label, active, done }: { label: string; active: boolean; done: boolean }) {
+function ProgressStep({ label, sublabel, active, done }: {
+  label: string;
+  sublabel?: string;
+  active: boolean;
+  done: boolean;
+}) {
   return (
-    <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 10 }}>
-      <span style={{ fontSize: 14, color: done ? "var(--success)" : active ? "var(--accent)" : "var(--text-dim)" }}>
+    <div style={{ display: "flex", alignItems: "flex-start", gap: 10, marginBottom: 10 }}>
+      <span style={{
+        fontSize: 14,
+        lineHeight: "20px",
+        color: done ? "var(--success)" : active ? "var(--accent)" : "var(--text-dim)",
+      }}>
         {done ? "\u2713" : active ? "\u25CF" : "\u25CB"}
       </span>
-      <span style={{ fontSize: 13, color: active ? "var(--text)" : done ? "var(--text-muted)" : "var(--text-dim)" }}>
-        {label}{active ? "..." : ""}
-      </span>
+      <div>
+        <div style={{ fontSize: 13, color: active ? "var(--text)" : done ? "var(--text-muted)" : "var(--text-dim)" }}>
+          {label}{active ? "..." : ""}
+        </div>
+        {sublabel && active && (
+          <div style={{ fontSize: 11, color: "var(--text-dim)", marginTop: 2 }}>
+            {sublabel}
+          </div>
+        )}
+      </div>
     </div>
   );
 }

@@ -27,7 +27,7 @@
   "plugins": {
     "fs": {
       "scope": {
-        "allow": ["$HOME/**", "$DOCUMENT/**", "$DESKTOP/**"],
+        "allow": ["$HOME/**", "$DOCUMENT/**", "$DESKTOP/**", "$APPDATA/**", "$APPCONFIG/**", "$APPLOCALDATA/**"],
         "deny": []
       }
     },

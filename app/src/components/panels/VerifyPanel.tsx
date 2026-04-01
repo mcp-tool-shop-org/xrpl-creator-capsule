@@ -113,6 +113,12 @@ export function VerifyPanel() {
           disabled={!canVerify || verify.status === "running"}
         />
       </div>
+      {verify.status === "running" && (
+        <div style={{ fontSize: 11, color: "var(--text-dim)", marginTop: 8, lineHeight: 1.5 }}>
+          Reconciling manifest against receipt and XRPL ledger. Checking hash integrity,
+          token existence, authorized minter status, and metadata URI consistency.
+        </div>
+      )}
     </PanelShell>
   );
 }

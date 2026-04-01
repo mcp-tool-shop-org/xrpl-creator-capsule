@@ -120,6 +120,12 @@ export function TestAccessPage() {
             disabled={testing}
           />
         </div>
+        {testing && (
+          <div style={{ fontSize: 11, color: "var(--text-dim)", marginTop: 8, lineHeight: 1.5 }}>
+            Checking token ownership on the XRPL network. This verifies whether the wallet
+            holds any of the NFTs minted for this release.
+          </div>
+        )}
       </ArtifactCard>
 
       {/* Grant result */}

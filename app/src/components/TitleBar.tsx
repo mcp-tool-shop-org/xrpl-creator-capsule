@@ -1,11 +1,19 @@
+import type { ReleaseIdentity } from "../state/release";
+
 export type AppMode = "studio" | "advanced";
 
 interface Props {
   mode: AppMode;
   onToggleMode: () => void;
+  releaseIdentity?: ReleaseIdentity;
 }
 
-export function TitleBar({ mode, onToggleMode }: Props) {
+export function TitleBar({ mode, onToggleMode, releaseIdentity }: Props) {
+  const hasRelease = !!(releaseIdentity?.title);
+  const releaseLabel = hasRelease
+    ? `${releaseIdentity!.title} — ${releaseIdentity!.artist}`
+    : null;
+
   return (
     <header
       data-tauri-drag-region
@@ -27,6 +35,26 @@ export function TitleBar({ mode, onToggleMode }: Props) {
       <span style={{ color: "var(--accent)" }}>CAPSULE</span>
       <span style={{ color: "var(--text-dim)" }}>|</span>
       <span>{mode === "studio" ? "Studio" : "Advanced"}</span>
+
+      {/* Active release indicator — always visible when a release is loaded */}
+      {releaseLabel && (
+        <>
+          <span style={{ color: "var(--text-dim)" }}>|</span>
+          <span
+            style={{
+              fontSize: 11,
+              fontWeight: 400,
+              color: "var(--text-muted)",
+              maxWidth: 300,
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+              whiteSpace: "nowrap",
+            }}
+          >
+            {releaseLabel}
+          </span>
+        </>
+      )}
 
       <div style={{ flex: 1 }} data-tauri-drag-region />
 

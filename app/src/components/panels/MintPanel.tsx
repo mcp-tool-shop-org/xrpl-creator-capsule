@@ -4,6 +4,7 @@ import {
   ArtifactField,
   ActionButton,
   ErrorBanner,
+  TimeoutBanner,
   type Status,
 } from "./PanelShell";
 import { useRelease } from "../../state/release";
@@ -12,6 +13,7 @@ function deriveStatus(
   manifest: ReturnType<typeof useRelease>["manifest"],
   mint: ReturnType<typeof useRelease>["mint"]
 ): Status {
+  if (mint.actionStatus === "timed_out") return "timed_out";
   if (mint.error) return "error";
   if (mint.actionStatus === "running") return "minting";
   if (mint.receipt) return "minted";
@@ -87,7 +89,14 @@ export function MintPanel() {
   // No receipt yet — show mint readiness
   return (
     <PanelShell title="Mint / Receipt" status={status}>
-      {mint.error && <ErrorBanner message={mint.error} />}
+      {mint.actionStatus === "timed_out" && mint.error && (
+        <TimeoutBanner
+          message={mint.error}
+          onRetry={runMint}
+          onReconcile={loadReceipt}
+        />
+      )}
+      {mint.actionStatus !== "timed_out" && mint.error && <ErrorBanner message={mint.error} />}
 
       <ArtifactCard>
         <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 12, color: "var(--text)" }}>
