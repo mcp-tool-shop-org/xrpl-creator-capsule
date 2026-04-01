@@ -1,4 +1,6 @@
+import { useState } from "react";
 import type { ReleaseIdentity } from "../state/release";
+import { exportSupportBundle } from "../support/bundle";
 
 export type AppMode = "studio" | "advanced";
 
@@ -13,6 +15,17 @@ export function TitleBar({ mode, onToggleMode, releaseIdentity }: Props) {
   const releaseLabel = hasRelease
     ? `${releaseIdentity!.title} — ${releaseIdentity!.artist}`
     : null;
+  const [exporting, setExporting] = useState(false);
+
+  const handleExportBundle = async () => {
+    setExporting(true);
+    try {
+      await exportSupportBundle(mode);
+    } catch {
+      // Silent — best effort
+    }
+    setExporting(false);
+  };
 
   return (
     <header
@@ -36,6 +49,22 @@ export function TitleBar({ mode, onToggleMode, releaseIdentity }: Props) {
       <span style={{ color: "var(--text-dim)" }}>|</span>
       <span>{mode === "studio" ? "Studio" : "Advanced"}</span>
 
+      {/* Preview badge */}
+      <span
+        style={{
+          fontSize: 9,
+          fontWeight: 700,
+          padding: "2px 6px",
+          borderRadius: 3,
+          background: "var(--warning)" + "25",
+          color: "var(--warning)",
+          textTransform: "uppercase",
+          letterSpacing: "1px",
+        }}
+      >
+        Preview
+      </span>
+
       {/* Active release indicator — always visible when a release is loaded */}
       {releaseLabel && (
         <>
@@ -57,6 +86,25 @@ export function TitleBar({ mode, onToggleMode, releaseIdentity }: Props) {
       )}
 
       <div style={{ flex: 1 }} data-tauri-drag-region />
+
+      {/* Support bundle export */}
+      <button
+        onClick={handleExportBundle}
+        disabled={exporting}
+        title="Export support bundle for issue reports"
+        style={{
+          background: "none",
+          border: "1px solid var(--border)",
+          borderRadius: 4,
+          color: "var(--text-dim)",
+          fontSize: 11,
+          padding: "3px 8px",
+          cursor: exporting ? "wait" : "pointer",
+          transition: "all 0.15s",
+        }}
+      >
+        {exporting ? "Exporting..." : "Report"}
+      </button>
 
       <button
         onClick={onToggleMode}

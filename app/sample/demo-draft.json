@@ -1,0 +1,31 @@
+{
+  "title": "Midnight Signal",
+  "artist": "Luna Vex",
+  "description": "A 3-track electronic EP exploring the space between analog warmth and digital precision. Each edition includes the full lossless masters plus an exclusive bonus remix.",
+  "editionSize": 25,
+  "coverArtPath": null,
+  "mediaFilePath": null,
+  "benefitKind": "bonus-track",
+  "benefitDescription": "Exclusive instrumental remix of 'Midnight Signal' — only available to collectors who hold this edition. Download link generated on access.",
+  "benefitContentPath": null,
+  "transferFeePercent": 5,
+  "licenseType": "personal-use",
+  "licenseSummary": "Personal, non-commercial use. No redistribution.",
+  "collaborators": [
+    {
+      "name": "Luna Vex",
+      "role": "artist",
+      "address": "rLunaVexDemoAddress1234567890",
+      "splitPercent": 70
+    },
+    {
+      "name": "Kai Drift",
+      "role": "producer",
+      "address": "rKaiDriftDemoAddress1234567890",
+      "splitPercent": 30
+    }
+  ],
+  "treasuryAddress": "",
+  "walletsPath": null,
+  "draftPath": null
+}
