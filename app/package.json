@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
+    "bundle:bridge": "node scripts/bundle-bridge.mjs",
     "preview": "vite preview",
     "tauri": "tauri"
   },
@@ -20,6 +21,7 @@
   },
   "devDependencies": {
     "@tauri-apps/cli": "^2.5.0",
+    "esbuild": "^0.25.0",
     "@types/react": "^19.1.0",
     "@types/react-dom": "^19.1.0",
     "@vitejs/plugin-react": "^4.4.1",
