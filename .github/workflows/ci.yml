@@ -7,7 +7,9 @@ on:
       - "artifacts/**"
       - "fixtures/**"
       - "package.json"
+      - "package-lock.json"
       - "tsconfig*.json"
+      - "app/**"
       - ".github/workflows/**"
   pull_request:
     paths:
@@ -15,7 +17,9 @@ on:
       - "artifacts/**"
       - "fixtures/**"
       - "package.json"
+      - "package-lock.json"
       - "tsconfig*.json"
+      - "app/**"
       - ".github/workflows/**"
   workflow_dispatch:
 
