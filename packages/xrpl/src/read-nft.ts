@@ -31,7 +31,7 @@ export async function readNftFromLedger(
       ledger_index: "validated",
     });
 
-    const nfts = response.result.account_nfts as Array<{
+    const nfts = response.result.account_nfts as unknown as Array<{
       NFTokenID: string;
       Issuer: string;
       URI: string;

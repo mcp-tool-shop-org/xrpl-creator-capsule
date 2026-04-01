@@ -94,7 +94,7 @@ export async function mintRelease(
         throw new Error(`Mint ${i + 1}/${manifest.editionSize}: no transaction metadata`);
       }
 
-      const metaObj = meta as Record<string, unknown>;
+      const metaObj = meta as unknown as Record<string, unknown>;
       if (metaObj.TransactionResult !== "tesSUCCESS") {
         throw new Error(
           `Mint ${i + 1}/${manifest.editionSize} failed: ${metaObj.TransactionResult}`

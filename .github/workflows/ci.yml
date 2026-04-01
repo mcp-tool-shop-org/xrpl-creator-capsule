@@ -70,9 +70,6 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Build workspace packages
-        run: npm run build --workspaces --if-present
-
       - name: Bundle bridge worker
         working-directory: app
         run: node scripts/bundle-bridge.mjs

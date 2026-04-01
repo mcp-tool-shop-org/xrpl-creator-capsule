@@ -34,7 +34,7 @@ export async function verifyAuthorizedMinter(
       ledger_index: "validated",
     });
 
-    let accountData = response.result.account_data as Record<string, unknown>;
+    let accountData = response.result.account_data as unknown as Record<string, unknown>;
     if (!accountData.NFTokenMinter) {
       response = await client.request({
         command: "account_info",
