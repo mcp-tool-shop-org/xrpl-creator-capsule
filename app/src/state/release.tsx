@@ -11,6 +11,11 @@ import {
   createAccessPolicy as engineCreatePolicy,
   grantAccess as engineGrant,
   recoverRelease as engineRecover,
+  createGovernancePolicy as engineCreateGovPolicy,
+  proposePayout as engineProposePayout,
+  decidePayout as engineDecidePayout,
+  executePayout as engineExecutePayout,
+  verifyPayout as engineVerifyPayout,
   type ReleaseManifest,
   type IssuanceReceipt,
   type ValidationResult,
@@ -20,6 +25,15 @@ import {
   type AccessPolicy,
   type AccessGrantReceipt,
   type RecoverResult,
+  type GovernancePolicy,
+  type PayoutProposal,
+  type PayoutDecisionReceipt,
+  type PayoutExecutionReceipt,
+  type GovernanceSigner,
+  type GovernanceApproval,
+  type PayoutOutput,
+  type ExecutedPayoutOutput,
+  type VerifyPayoutResult,
 } from "../bridge/engine";
 
 // ── Status types ────────────────────────────────────────────────────
@@ -75,6 +89,24 @@ export interface RecoveryState {
   error: string | null;
 }
 
+export interface GovernanceState {
+  policyStatus: ArtifactStatus;
+  policyPath: string | null;
+  policy: GovernancePolicy | null;
+  proposalStatus: ArtifactStatus;
+  proposalPath: string | null;
+  proposal: PayoutProposal | null;
+  decisionStatus: ArtifactStatus;
+  decisionPath: string | null;
+  decision: PayoutDecisionReceipt | null;
+  executionStatus: ArtifactStatus;
+  executionPath: string | null;
+  execution: PayoutExecutionReceipt | null;
+  verifyStatus: ActionStatus;
+  verifyResult: VerifyPayoutResult | null;
+  error: string | null;
+}
+
 // ── Context shape ───────────────────────────────────────────────────
 
 interface ReleaseContextValue {
@@ -83,6 +115,7 @@ interface ReleaseContextValue {
   verify: VerifyState;
   access: AccessState;
   recovery: RecoveryState;
+  governance: GovernanceState;
 
   // Manifest actions
   loadManifest: () => Promise<void>;
@@ -106,6 +139,35 @@ interface ReleaseContextValue {
   // Recovery actions
   runRecover: () => Promise<void>;
   runReplay: (holderAddress: string, nonHolderAddress: string) => Promise<void>;
+
+  // Governance actions
+  loadGovPolicy: () => Promise<void>;
+  createGovPolicy: (opts: {
+    treasuryAddress: string;
+    signers: GovernanceSigner[];
+    threshold: number;
+    allowedAssets?: string[];
+    createdBy: string;
+  }) => Promise<void>;
+  loadProposal: () => Promise<void>;
+  createProposal: (opts: {
+    proposalId: string;
+    outputs: PayoutOutput[];
+    createdBy: string;
+    memo?: string;
+  }) => Promise<void>;
+  loadDecision: () => Promise<void>;
+  createDecision: (opts: {
+    approvals: GovernanceApproval[];
+    decidedBy: string;
+  }) => Promise<void>;
+  loadExecution: () => Promise<void>;
+  createExecution: (opts: {
+    txHashes: string[];
+    executedOutputs: ExecutedPayoutOutput[];
+    executedBy: string;
+  }) => Promise<void>;
+  runVerifyPayout: () => Promise<void>;
 
   // Network
   network: string;
@@ -160,6 +222,24 @@ const INIT_RECOVERY: RecoveryState = {
   error: null,
 };
 
+const INIT_GOVERNANCE: GovernanceState = {
+  policyStatus: "empty",
+  policyPath: null,
+  policy: null,
+  proposalStatus: "empty",
+  proposalPath: null,
+  proposal: null,
+  decisionStatus: "empty",
+  decisionPath: null,
+  decision: null,
+  executionStatus: "empty",
+  executionPath: null,
+  execution: null,
+  verifyStatus: "idle",
+  verifyResult: null,
+  error: null,
+};
+
 // ── Provider ────────────────────────────────────────────────────────
 
 export function ReleaseProvider({ children }: { children: ReactNode }) {
@@ -168,6 +248,7 @@ export function ReleaseProvider({ children }: { children: ReactNode }) {
   const [verifyState, setVerify] = useState<VerifyState>(INIT_VERIFY);
   const [accessState, setAccess] = useState<AccessState>(INIT_ACCESS);
   const [recoveryState, setRecovery] = useState<RecoveryState>(INIT_RECOVERY);
+  const [governanceState, setGovernance] = useState<GovernanceState>(INIT_GOVERNANCE);
   const network = "testnet";
 
   // ── Manifest actions ────────────────────────────────────────────
@@ -204,6 +285,7 @@ export function ReleaseProvider({ children }: { children: ReactNode }) {
       setVerify(INIT_VERIFY);
       setAccess(INIT_ACCESS);
       setRecovery(INIT_RECOVERY);
+      setGovernance(INIT_GOVERNANCE);
     } catch (err) {
       setManifest((s) => ({
         ...s,
@@ -527,6 +609,363 @@ export function ReleaseProvider({ children }: { children: ReactNode }) {
     }
   }, [manifestState.path, mintState.receiptPath, accessState.policyPath]);
 
+  // ── Governance actions ──────────────────────────────────────────
+
+  const loadGovPolicy = useCallback(async () => {
+    try {
+      const result = await open({
+        title: "Load Governance Policy",
+        filters: [{ name: "JSON", extensions: ["json"] }],
+      });
+      if (!result) return;
+
+      const filePath = typeof result === "string"
+        ? result
+        : (result as { path: string }).path;
+
+      setGovernance((s) => ({ ...s, policyStatus: "loading", error: null }));
+
+      const content = await loadFile(filePath);
+      const policy = JSON.parse(content) as GovernancePolicy;
+
+      setGovernance((s) => ({
+        ...s,
+        policyStatus: "loaded",
+        policyPath: filePath,
+        policy,
+        // Reset downstream
+        proposalStatus: "empty", proposalPath: null, proposal: null,
+        decisionStatus: "empty", decisionPath: null, decision: null,
+        executionStatus: "empty", executionPath: null, execution: null,
+        verifyStatus: "idle", verifyResult: null,
+        error: null,
+      }));
+    } catch (err) {
+      setGovernance((s) => ({
+        ...s,
+        policyStatus: "error",
+        error: err instanceof Error ? err.message : String(err),
+      }));
+    }
+  }, []);
+
+  const createGovPolicy = useCallback(async (opts: {
+    treasuryAddress: string;
+    signers: GovernanceSigner[];
+    threshold: number;
+    allowedAssets?: string[];
+    createdBy: string;
+  }) => {
+    if (!manifestState.path) return;
+
+    try {
+      const outputPath = await save({
+        title: "Save Governance Policy",
+        defaultPath: "governance-policy.json",
+        filters: [{ name: "JSON", extensions: ["json"] }],
+      });
+      if (!outputPath) return;
+
+      setGovernance((s) => ({ ...s, policyStatus: "loading", error: null }));
+
+      const policy = await engineCreateGovPolicy({
+        manifestPath: manifestState.path,
+        treasuryAddress: opts.treasuryAddress,
+        network,
+        signers: opts.signers,
+        threshold: opts.threshold,
+        allowedAssets: opts.allowedAssets,
+        createdBy: opts.createdBy,
+        outputPath,
+      });
+
+      setGovernance((s) => ({
+        ...s,
+        policyStatus: "loaded",
+        policyPath: outputPath,
+        policy,
+        // Reset downstream
+        proposalStatus: "empty", proposalPath: null, proposal: null,
+        decisionStatus: "empty", decisionPath: null, decision: null,
+        executionStatus: "empty", executionPath: null, execution: null,
+        verifyStatus: "idle", verifyResult: null,
+        error: null,
+      }));
+    } catch (err) {
+      setGovernance((s) => ({
+        ...s,
+        policyStatus: "error",
+        error: err instanceof Error ? err.message : String(err),
+      }));
+    }
+  }, [manifestState.path, network]);
+
+  const loadProposal = useCallback(async () => {
+    try {
+      const result = await open({
+        title: "Load Payout Proposal",
+        filters: [{ name: "JSON", extensions: ["json"] }],
+      });
+      if (!result) return;
+
+      const filePath = typeof result === "string"
+        ? result
+        : (result as { path: string }).path;
+
+      setGovernance((s) => ({ ...s, proposalStatus: "loading", error: null }));
+
+      const content = await loadFile(filePath);
+      const proposal = JSON.parse(content) as PayoutProposal;
+
+      setGovernance((s) => ({
+        ...s,
+        proposalStatus: "loaded",
+        proposalPath: filePath,
+        proposal,
+        // Reset downstream
+        decisionStatus: "empty", decisionPath: null, decision: null,
+        executionStatus: "empty", executionPath: null, execution: null,
+        verifyStatus: "idle", verifyResult: null,
+        error: null,
+      }));
+    } catch (err) {
+      setGovernance((s) => ({
+        ...s,
+        proposalStatus: "error",
+        error: err instanceof Error ? err.message : String(err),
+      }));
+    }
+  }, []);
+
+  const createProposal = useCallback(async (opts: {
+    proposalId: string;
+    outputs: PayoutOutput[];
+    createdBy: string;
+    memo?: string;
+  }) => {
+    if (!governanceState.policyPath) return;
+
+    try {
+      const outputPath = await save({
+        title: "Save Payout Proposal",
+        defaultPath: "payout-proposal.json",
+        filters: [{ name: "JSON", extensions: ["json"] }],
+      });
+      if (!outputPath) return;
+
+      setGovernance((s) => ({ ...s, proposalStatus: "loading", error: null }));
+
+      const proposal = await engineProposePayout({
+        policyPath: governanceState.policyPath,
+        proposalId: opts.proposalId,
+        outputs: opts.outputs,
+        createdBy: opts.createdBy,
+        memo: opts.memo,
+        outputPath,
+      });
+
+      setGovernance((s) => ({
+        ...s,
+        proposalStatus: "loaded",
+        proposalPath: outputPath,
+        proposal,
+        // Reset downstream
+        decisionStatus: "empty", decisionPath: null, decision: null,
+        executionStatus: "empty", executionPath: null, execution: null,
+        verifyStatus: "idle", verifyResult: null,
+        error: null,
+      }));
+    } catch (err) {
+      setGovernance((s) => ({
+        ...s,
+        proposalStatus: "error",
+        error: err instanceof Error ? err.message : String(err),
+      }));
+    }
+  }, [governanceState.policyPath]);
+
+  const loadDecision = useCallback(async () => {
+    try {
+      const result = await open({
+        title: "Load Payout Decision",
+        filters: [{ name: "JSON", extensions: ["json"] }],
+      });
+      if (!result) return;
+
+      const filePath = typeof result === "string"
+        ? result
+        : (result as { path: string }).path;
+
+      setGovernance((s) => ({ ...s, decisionStatus: "loading", error: null }));
+
+      const content = await loadFile(filePath);
+      const decision = JSON.parse(content) as PayoutDecisionReceipt;
+
+      setGovernance((s) => ({
+        ...s,
+        decisionStatus: "loaded",
+        decisionPath: filePath,
+        decision,
+        // Reset downstream
+        executionStatus: "empty", executionPath: null, execution: null,
+        verifyStatus: "idle", verifyResult: null,
+        error: null,
+      }));
+    } catch (err) {
+      setGovernance((s) => ({
+        ...s,
+        decisionStatus: "error",
+        error: err instanceof Error ? err.message : String(err),
+      }));
+    }
+  }, []);
+
+  const createDecision = useCallback(async (opts: {
+    approvals: GovernanceApproval[];
+    decidedBy: string;
+  }) => {
+    if (!governanceState.policyPath || !governanceState.proposalPath) return;
+
+    try {
+      const outputPath = await save({
+        title: "Save Payout Decision",
+        defaultPath: "payout-decision.json",
+        filters: [{ name: "JSON", extensions: ["json"] }],
+      });
+      if (!outputPath) return;
+
+      setGovernance((s) => ({ ...s, decisionStatus: "loading", error: null }));
+
+      const decision = await engineDecidePayout({
+        policyPath: governanceState.policyPath,
+        proposalPath: governanceState.proposalPath,
+        approvals: opts.approvals,
+        decidedBy: opts.decidedBy,
+        outputPath,
+      });
+
+      setGovernance((s) => ({
+        ...s,
+        decisionStatus: "loaded",
+        decisionPath: outputPath,
+        decision,
+        // Reset downstream
+        executionStatus: "empty", executionPath: null, execution: null,
+        verifyStatus: "idle", verifyResult: null,
+        error: null,
+      }));
+    } catch (err) {
+      setGovernance((s) => ({
+        ...s,
+        decisionStatus: "error",
+        error: err instanceof Error ? err.message : String(err),
+      }));
+    }
+  }, [governanceState.policyPath, governanceState.proposalPath]);
+
+  const loadExecution = useCallback(async () => {
+    try {
+      const result = await open({
+        title: "Load Payout Execution",
+        filters: [{ name: "JSON", extensions: ["json"] }],
+      });
+      if (!result) return;
+
+      const filePath = typeof result === "string"
+        ? result
+        : (result as { path: string }).path;
+
+      setGovernance((s) => ({ ...s, executionStatus: "loading", error: null }));
+
+      const content = await loadFile(filePath);
+      const execution = JSON.parse(content) as PayoutExecutionReceipt;
+
+      setGovernance((s) => ({
+        ...s,
+        executionStatus: "loaded",
+        executionPath: filePath,
+        execution,
+        verifyStatus: "idle", verifyResult: null,
+        error: null,
+      }));
+    } catch (err) {
+      setGovernance((s) => ({
+        ...s,
+        executionStatus: "error",
+        error: err instanceof Error ? err.message : String(err),
+      }));
+    }
+  }, []);
+
+  const createExecution = useCallback(async (opts: {
+    txHashes: string[];
+    executedOutputs: ExecutedPayoutOutput[];
+    executedBy: string;
+  }) => {
+    if (!governanceState.policyPath || !governanceState.proposalPath || !governanceState.decisionPath) return;
+
+    try {
+      const outputPath = await save({
+        title: "Save Payout Execution",
+        defaultPath: "payout-execution.json",
+        filters: [{ name: "JSON", extensions: ["json"] }],
+      });
+      if (!outputPath) return;
+
+      setGovernance((s) => ({ ...s, executionStatus: "loading", error: null }));
+
+      const execution = await engineExecutePayout({
+        policyPath: governanceState.policyPath,
+        proposalPath: governanceState.proposalPath,
+        decisionPath: governanceState.decisionPath,
+        txHashes: opts.txHashes,
+        executedOutputs: opts.executedOutputs,
+        executedBy: opts.executedBy,
+        outputPath,
+      });
+
+      setGovernance((s) => ({
+        ...s,
+        executionStatus: "loaded",
+        executionPath: outputPath,
+        execution,
+        verifyStatus: "idle", verifyResult: null,
+        error: null,
+      }));
+    } catch (err) {
+      setGovernance((s) => ({
+        ...s,
+        executionStatus: "error",
+        error: err instanceof Error ? err.message : String(err),
+      }));
+    }
+  }, [governanceState.policyPath, governanceState.proposalPath, governanceState.decisionPath]);
+
+  const runVerifyPayout = useCallback(async () => {
+    if (!governanceState.policyPath || !governanceState.proposalPath ||
+        !governanceState.decisionPath || !governanceState.executionPath) return;
+
+    try {
+      setGovernance((s) => ({ ...s, verifyStatus: "running", verifyResult: null, error: null }));
+
+      const result = await engineVerifyPayout({
+        policyPath: governanceState.policyPath,
+        proposalPath: governanceState.proposalPath,
+        decisionPath: governanceState.decisionPath,
+        executionPath: governanceState.executionPath,
+      });
+
+      setGovernance((s) => ({ ...s, verifyStatus: "done", verifyResult: result, error: null }));
+    } catch (err) {
+      setGovernance((s) => ({
+        ...s,
+        verifyStatus: "error",
+        error: err instanceof Error ? err.message : String(err),
+      }));
+    }
+  }, [governanceState.policyPath, governanceState.proposalPath,
+      governanceState.decisionPath, governanceState.executionPath]);
+
   // ── Context value ───────────────────────────────────────────────
 
   return (
@@ -537,6 +976,7 @@ export function ReleaseProvider({ children }: { children: ReactNode }) {
         verify: verifyState,
         access: accessState,
         recovery: recoveryState,
+        governance: governanceState,
         loadManifest,
         validateManifest: validateManifestAction,
         resolveManifest: resolveManifestAction,
@@ -550,6 +990,15 @@ export function ReleaseProvider({ children }: { children: ReactNode }) {
         runGrantAccess,
         runRecover,
         runReplay,
+        loadGovPolicy,
+        createGovPolicy,
+        loadProposal,
+        createProposal,
+        loadDecision,
+        createDecision,
+        loadExecution,
+        createExecution,
+        runVerifyPayout,
         network,
       }}
     >

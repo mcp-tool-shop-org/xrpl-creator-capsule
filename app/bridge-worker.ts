@@ -28,10 +28,33 @@ import {
   stampGrantHash,
   deriveRecoveryBundle,
   verifyBundleConsistency,
+  // Governance
+  assertGovernancePolicy,
+  assertPayoutProposal,
+  assertPayoutDecision,
+  assertPayoutExecution,
+  stampPolicyHash,
+  stampProposalHash,
+  stampDecisionHash,
+  stampExecutionHash,
+  computePolicyHash,
+  computeProposalHash,
+  computeDecisionHash,
+  computeExecutionHash,
+  checkProposalAgainstPolicy,
+  evaluateApprovals,
+  checkDecisionAgainstProposal,
+  checkExecutionAgainstDecision,
   type ReleaseManifest,
   type IssuanceReceipt,
   type AccessPolicy,
   type AccessGrantReceipt,
+  type GovernancePolicy,
+  type PayoutProposal,
+  type PayoutDecisionReceipt,
+  type PayoutExecutionReceipt,
+  type GovernanceSigner,
+  type GovernanceApproval,
 } from "@capsule/core";
 import {
   importWalletPair,
@@ -87,6 +110,16 @@ async function dispatch(cmd: BridgeCommand): Promise<unknown> {
       return recoverReleaseCmd(cmd.params);
     case "verify_recovery":
       return verifyRecoveryCmd(cmd.params);
+    case "create_governance_policy":
+      return createGovernancePolicyCmd(cmd.params);
+    case "propose_payout":
+      return proposePayoutCmd(cmd.params);
+    case "decide_payout":
+      return decidePayoutCmd(cmd.params);
+    case "execute_payout":
+      return executePayoutCmd(cmd.params);
+    case "verify_payout":
+      return verifyPayoutCmd(cmd.params);
     default:
       throw new Error(`Unknown command: ${cmd.command}`);
   }
@@ -697,6 +730,301 @@ async function verifyRecoveryCmd(
   }
 
   return verifyBundleConsistency(bundleRaw, manifest, receipt, policy);
+}
+
+// ── Governance commands ─────────────────────────────────────────────
+
+async function createGovernancePolicyCmd(
+  params: Record<string, unknown>
+): Promise<unknown> {
+  const manifestPath = params.manifestPath as string;
+  const treasuryAddress = params.treasuryAddress as string;
+  const network = (params.network ?? "testnet") as "testnet" | "devnet" | "mainnet";
+  const signers = params.signers as GovernanceSigner[];
+  const threshold = params.threshold as number;
+  const allowedAssets = (params.allowedAssets as string[]) ?? ["XRP"];
+  const createdBy = params.createdBy as string;
+  const outputPath = params.outputPath as string | undefined;
+
+  const manifest = assertManifest(JSON.parse(await readFile(manifestPath, "utf-8")));
+  const manifestId = computeManifestId(manifest);
+
+  const policy: GovernancePolicy = {
+    schemaVersion: "1.0.0",
+    kind: "governance-policy",
+    manifestId,
+    network,
+    treasuryAddress,
+    signerPolicy: { signers, threshold },
+    payoutPolicy: {
+      allowedAssets,
+      allowPartialPayouts: false,
+    },
+    createdAt: new Date().toISOString(),
+    createdBy,
+  };
+
+  const stamped = stampPolicyHash(assertGovernancePolicy(policy));
+
+  if (outputPath) {
+    await writeFile(outputPath, JSON.stringify(stamped, null, 2) + "\n");
+  }
+
+  return stamped;
+}
+
+async function proposePayoutCmd(
+  params: Record<string, unknown>
+): Promise<unknown> {
+  const policyPath = params.policyPath as string;
+  const proposalId = params.proposalId as string;
+  const outputs = params.outputs as Array<{
+    address: string; amount: string; asset: string; role: string; reason: string;
+  }>;
+  const createdBy = params.createdBy as string;
+  const memo = params.memo as string | undefined;
+  const outputPath = params.outputPath as string | undefined;
+
+  const policy = assertGovernancePolicy(JSON.parse(await readFile(policyPath, "utf-8")));
+
+  const proposal: PayoutProposal = {
+    schemaVersion: "1.0.0",
+    kind: "payout-proposal",
+    manifestId: policy.manifestId,
+    policyHash: policy.policyHash!,
+    proposalId,
+    network: policy.network,
+    treasuryAddress: policy.treasuryAddress,
+    createdAt: new Date().toISOString(),
+    createdBy,
+    memo,
+    outputs: outputs as PayoutProposal["outputs"],
+  };
+
+  const validated = assertPayoutProposal(proposal);
+  const policyCheck = checkProposalAgainstPolicy(validated, policy);
+  if (!policyCheck.valid) {
+    throw new Error(`Proposal violates policy: ${policyCheck.errors.join("; ")}`);
+  }
+
+  const stamped = stampProposalHash(validated);
+
+  if (outputPath) {
+    await writeFile(outputPath, JSON.stringify(stamped, null, 2) + "\n");
+  }
+
+  return stamped;
+}
+
+async function decidePayoutCmd(
+  params: Record<string, unknown>
+): Promise<unknown> {
+  const policyPath = params.policyPath as string;
+  const proposalPath = params.proposalPath as string;
+  const approvals = params.approvals as GovernanceApproval[];
+  const decidedBy = params.decidedBy as string;
+  const outputPath = params.outputPath as string | undefined;
+
+  const policy = assertGovernancePolicy(JSON.parse(await readFile(policyPath, "utf-8")));
+  const proposal = assertPayoutProposal(JSON.parse(await readFile(proposalPath, "utf-8")));
+
+  const evaluation = evaluateApprovals(proposal, policy, approvals);
+
+  const decision: PayoutDecisionReceipt = {
+    schemaVersion: "1.0.0",
+    kind: "payout-decision-receipt",
+    manifestId: policy.manifestId,
+    policyHash: policy.policyHash!,
+    proposalId: proposal.proposalId,
+    proposalHash: proposal.proposalHash!,
+    network: policy.network,
+    treasuryAddress: policy.treasuryAddress,
+    approvals,
+    decision: {
+      outcome: evaluation.outcome,
+      thresholdMet: evaluation.thresholdMet,
+      approvedCount: evaluation.approvedCount,
+      rejectedCount: evaluation.rejectedCount,
+    },
+    decidedAt: new Date().toISOString(),
+    decidedBy,
+  };
+
+  const validated = assertPayoutDecision(decision);
+
+  // Self-verify
+  const consistencyCheck = checkDecisionAgainstProposal(validated, proposal, policy);
+  if (!consistencyCheck.valid) {
+    throw new Error(`Decision inconsistency: ${consistencyCheck.errors.join("; ")}`);
+  }
+
+  const stamped = stampDecisionHash(validated);
+
+  if (outputPath) {
+    await writeFile(outputPath, JSON.stringify(stamped, null, 2) + "\n");
+  }
+
+  return stamped;
+}
+
+async function executePayoutCmd(
+  params: Record<string, unknown>
+): Promise<unknown> {
+  const policyPath = params.policyPath as string;
+  const proposalPath = params.proposalPath as string;
+  const decisionPath = params.decisionPath as string;
+  const txHashes = params.txHashes as string[];
+  const ledgerIndexes = params.ledgerIndexes as number[] | undefined;
+  const executedOutputs = params.executedOutputs as PayoutExecutionReceipt["executedOutputs"];
+  const executedBy = params.executedBy as string;
+  const outputPath = params.outputPath as string | undefined;
+
+  const policy = assertGovernancePolicy(JSON.parse(await readFile(policyPath, "utf-8")));
+  const proposal = assertPayoutProposal(JSON.parse(await readFile(proposalPath, "utf-8")));
+  const decision = assertPayoutDecision(JSON.parse(await readFile(decisionPath, "utf-8")));
+
+  if (decision.decision.outcome !== "approved") {
+    throw new Error("Cannot execute a rejected proposal");
+  }
+
+  const execution: PayoutExecutionReceipt = {
+    schemaVersion: "1.0.0",
+    kind: "payout-execution-receipt",
+    manifestId: policy.manifestId,
+    policyHash: policy.policyHash!,
+    proposalId: proposal.proposalId,
+    proposalHash: proposal.proposalHash!,
+    decisionHash: decision.decisionHash!,
+    network: policy.network,
+    treasuryAddress: policy.treasuryAddress,
+    executedAt: new Date().toISOString(),
+    executedBy,
+    xrpl: { txHashes, ledgerIndexes },
+    executedOutputs,
+    verification: { matchesApprovedProposal: true, errors: [], warnings: [] },
+  };
+
+  const validated = assertPayoutExecution(execution);
+
+  // Full hash chain verification
+  const chainCheck = checkExecutionAgainstDecision(validated, decision, proposal, policy);
+  validated.verification = {
+    matchesApprovedProposal: chainCheck.valid,
+    errors: chainCheck.errors,
+    warnings: [],
+  };
+
+  const stamped = stampExecutionHash(validated);
+
+  if (outputPath) {
+    await writeFile(outputPath, JSON.stringify(stamped, null, 2) + "\n");
+  }
+
+  return stamped;
+}
+
+async function verifyPayoutCmd(
+  params: Record<string, unknown>
+): Promise<unknown> {
+  const policyPath = params.policyPath as string;
+  const proposalPath = params.proposalPath as string;
+  const decisionPath = params.decisionPath as string;
+  const executionPath = params.executionPath as string;
+
+  const policy = assertGovernancePolicy(JSON.parse(await readFile(policyPath, "utf-8")));
+  const proposal = assertPayoutProposal(JSON.parse(await readFile(proposalPath, "utf-8")));
+  const decision = assertPayoutDecision(JSON.parse(await readFile(decisionPath, "utf-8")));
+  const execution = assertPayoutExecution(JSON.parse(await readFile(executionPath, "utf-8")));
+
+  interface Check { name: string; passed: boolean; detail: string }
+  const checks: Check[] = [];
+
+  // Schema checks (if we got this far, schemas parsed)
+  checks.push({ name: "policy-schema", passed: true, detail: "Governance policy schema valid" });
+  checks.push({ name: "proposal-schema", passed: true, detail: "Payout proposal schema valid" });
+  checks.push({ name: "decision-schema", passed: true, detail: "Payout decision schema valid" });
+  checks.push({ name: "execution-schema", passed: true, detail: "Payout execution schema valid" });
+
+  // Hash integrity
+  if (policy.policyHash) {
+    const expected = computePolicyHash(policy);
+    const match = policy.policyHash === expected;
+    checks.push({
+      name: "policy-hash-integrity",
+      passed: match,
+      detail: match ? "Policy hash is valid" : "Policy hash mismatch — may be tampered",
+    });
+  }
+
+  if (proposal.proposalHash) {
+    const expected = computeProposalHash(proposal);
+    const match = proposal.proposalHash === expected;
+    checks.push({
+      name: "proposal-hash-integrity",
+      passed: match,
+      detail: match ? "Proposal hash is valid" : "Proposal hash mismatch — may be tampered",
+    });
+  }
+
+  if (decision.decisionHash) {
+    const expected = computeDecisionHash(decision);
+    const match = decision.decisionHash === expected;
+    checks.push({
+      name: "decision-hash-integrity",
+      passed: match,
+      detail: match ? "Decision hash is valid" : "Decision hash mismatch — may be tampered",
+    });
+  }
+
+  if (execution.executionHash) {
+    const expected = computeExecutionHash(execution);
+    const match = execution.executionHash === expected;
+    checks.push({
+      name: "execution-hash-integrity",
+      passed: match,
+      detail: match ? "Execution hash is valid" : "Execution hash mismatch — may be tampered",
+    });
+  }
+
+  // Cross-contract checks
+  const proposalVsPolicy = checkProposalAgainstPolicy(proposal, policy);
+  checks.push({
+    name: "proposal-vs-policy",
+    passed: proposalVsPolicy.valid,
+    detail: proposalVsPolicy.valid
+      ? "Proposal is consistent with policy"
+      : `Proposal violates policy: ${proposalVsPolicy.errors.join("; ")}`,
+  });
+
+  const decisionVsProposal = checkDecisionAgainstProposal(decision, proposal, policy);
+  checks.push({
+    name: "decision-vs-proposal",
+    passed: decisionVsProposal.valid,
+    detail: decisionVsProposal.valid
+      ? "Decision is consistent with proposal and policy"
+      : `Decision inconsistency: ${decisionVsProposal.errors.join("; ")}`,
+  });
+
+  const executionVsDecision = checkExecutionAgainstDecision(execution, decision, proposal, policy);
+  checks.push({
+    name: "execution-vs-decision",
+    passed: executionVsDecision.valid,
+    detail: executionVsDecision.valid
+      ? "Execution is consistent with full hash chain"
+      : `Execution inconsistency: ${executionVsDecision.errors.join("; ")}`,
+  });
+
+  // Outcome check
+  checks.push({
+    name: "decision-outcome",
+    passed: decision.decision.outcome === "approved",
+    detail: decision.decision.outcome === "approved"
+      ? `Approved (${decision.decision.approvedCount}/${policy.signerPolicy.threshold} threshold)`
+      : `Rejected (${decision.decision.approvedCount}/${policy.signerPolicy.threshold} threshold)`,
+  });
+
+  const passed = checks.every((c) => c.passed);
+  return { passed, checks };
 }
 
 // ── Main: read stdin, dispatch, write stdout ────────────────────────

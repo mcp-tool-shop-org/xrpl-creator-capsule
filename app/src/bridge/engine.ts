@@ -199,6 +199,126 @@ export interface RecoverResult {
   allPassed: boolean;
 }
 
+// ── Governance types ───────────────────────────────────────────────
+
+export type SignerRole = "artist" | "producer" | "label" | "manager" | "collaborator" | "other";
+
+export interface GovernanceSigner {
+  address: string;
+  role: SignerRole;
+  label?: string;
+}
+
+export interface GovernancePolicy {
+  schemaVersion: string;
+  kind: string;
+  manifestId: string;
+  network: string;
+  treasuryAddress: string;
+  signerPolicy: {
+    signers: GovernanceSigner[];
+    threshold: number;
+  };
+  payoutPolicy: {
+    allowedAssets: string[];
+    allowPartialPayouts: boolean;
+    maxOutputsPerProposal?: number;
+    notes?: string;
+  };
+  createdAt: string;
+  createdBy: string;
+  policyHash?: string;
+}
+
+export interface PayoutOutput {
+  address: string;
+  amount: string;
+  asset: string;
+  role: SignerRole;
+  reason: string;
+}
+
+export interface PayoutProposal {
+  schemaVersion: string;
+  kind: string;
+  manifestId: string;
+  policyHash: string;
+  proposalId: string;
+  network: string;
+  treasuryAddress: string;
+  createdAt: string;
+  createdBy: string;
+  memo?: string;
+  outputs: PayoutOutput[];
+  proposalHash?: string;
+}
+
+export interface GovernanceApproval {
+  signerAddress: string;
+  approved: boolean;
+  decidedAt: string;
+  note?: string;
+}
+
+export interface PayoutDecisionReceipt {
+  schemaVersion: string;
+  kind: string;
+  manifestId: string;
+  policyHash: string;
+  proposalId: string;
+  proposalHash: string;
+  network: string;
+  treasuryAddress: string;
+  approvals: GovernanceApproval[];
+  decision: {
+    outcome: "approved" | "rejected";
+    thresholdMet: boolean;
+    approvedCount: number;
+    rejectedCount: number;
+  };
+  decidedAt: string;
+  decidedBy: string;
+  decisionHash?: string;
+}
+
+export interface ExecutedPayoutOutput {
+  address: string;
+  amount: string;
+  asset: string;
+  role: SignerRole;
+  reason: string;
+}
+
+export interface PayoutExecutionReceipt {
+  schemaVersion: string;
+  kind: string;
+  manifestId: string;
+  policyHash: string;
+  proposalId: string;
+  proposalHash: string;
+  decisionHash: string;
+  network: string;
+  treasuryAddress: string;
+  executedAt: string;
+  executedBy: string;
+  xrpl: {
+    txHashes: string[];
+    ledgerIndexes?: number[];
+  };
+  executedOutputs: ExecutedPayoutOutput[];
+  verification: {
+    matchesApprovedProposal: boolean;
+    errors: string[];
+    warnings: string[];
+  };
+  executionHash?: string;
+}
+
+export interface VerifyPayoutResult {
+  passed: boolean;
+  checks: VerifyCheck[];
+}
+
 // ── File operations (direct Rust, no Node.js) ───────────────────────
 
 export async function loadFile(path: string): Promise<string> {
@@ -301,4 +421,67 @@ export async function verifyRecovery(opts: {
   policyPath?: string;
 }): Promise<BundleVerificationResult> {
   return engineCall<BundleVerificationResult>("verify_recovery", opts);
+}
+
+// ── Governance commands ────────────────────────────────────────────
+
+/** Create a governance policy from manifest + signer config. */
+export async function createGovernancePolicy(opts: {
+  manifestPath: string;
+  treasuryAddress: string;
+  network: string;
+  signers: GovernanceSigner[];
+  threshold: number;
+  allowedAssets?: string[];
+  createdBy: string;
+  outputPath?: string;
+}): Promise<GovernancePolicy> {
+  return engineCall<GovernancePolicy>("create_governance_policy", opts);
+}
+
+/** Create a payout proposal against a governance policy. */
+export async function proposePayout(opts: {
+  policyPath: string;
+  proposalId: string;
+  outputs: PayoutOutput[];
+  createdBy: string;
+  memo?: string;
+  outputPath?: string;
+}): Promise<PayoutProposal> {
+  return engineCall<PayoutProposal>("propose_payout", opts);
+}
+
+/** Evaluate approvals and produce a decision receipt. */
+export async function decidePayout(opts: {
+  policyPath: string;
+  proposalPath: string;
+  approvals: GovernanceApproval[];
+  decidedBy: string;
+  outputPath?: string;
+}): Promise<PayoutDecisionReceipt> {
+  return engineCall<PayoutDecisionReceipt>("decide_payout", opts);
+}
+
+/** Record payout execution with XRPL transaction data. */
+export async function executePayout(opts: {
+  policyPath: string;
+  proposalPath: string;
+  decisionPath: string;
+  txHashes: string[];
+  ledgerIndexes?: number[];
+  executedOutputs: ExecutedPayoutOutput[];
+  executedBy: string;
+  outputPath?: string;
+}): Promise<PayoutExecutionReceipt> {
+  return engineCall<PayoutExecutionReceipt>("execute_payout", opts);
+}
+
+/** Verify the full governance hash chain (policy → proposal → decision → execution). */
+export async function verifyPayout(opts: {
+  policyPath: string;
+  proposalPath: string;
+  decisionPath: string;
+  executionPath: string;
+}): Promise<VerifyPayoutResult> {
+  return engineCall<VerifyPayoutResult>("verify_payout", opts);
 }
