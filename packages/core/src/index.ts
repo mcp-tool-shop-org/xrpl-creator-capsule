@@ -54,3 +54,41 @@ export {
   verifyBundleConsistency,
 } from "./recovery-bundle-validate.js";
 export type { BundleVerificationResult } from "./recovery-bundle-validate.js";
+
+// ── Governance ──────────────────────────────────────────────────────
+
+export type { GovernancePolicy, GovernanceSigner, SignerRole } from "./governance-policy.js";
+export { governancePolicySchema } from "./governance-policy-schema.js";
+
+export type { PayoutProposal, PayoutOutput } from "./payout-proposal.js";
+export { payoutProposalSchema } from "./payout-proposal-schema.js";
+
+export type { PayoutDecisionReceipt, GovernanceApproval } from "./payout-decision.js";
+export { payoutDecisionReceiptSchema } from "./payout-decision-schema.js";
+
+export type { PayoutExecutionReceipt, ExecutedPayoutOutput } from "./payout-execution.js";
+export { payoutExecutionReceiptSchema } from "./payout-execution-schema.js";
+
+export {
+  validateGovernancePolicy,
+  validatePayoutProposal,
+  validatePayoutDecision,
+  validatePayoutExecution,
+  assertGovernancePolicy,
+  assertPayoutProposal,
+  assertPayoutDecision,
+  assertPayoutExecution,
+  computePolicyHash,
+  stampPolicyHash,
+  computeProposalHash,
+  stampProposalHash,
+  computeDecisionHash,
+  stampDecisionHash,
+  computeExecutionHash,
+  stampExecutionHash,
+  checkProposalAgainstPolicy,
+  evaluateApprovals,
+  checkDecisionAgainstProposal,
+  checkExecutionAgainstDecision,
+} from "./governance-validate.js";
+export type { GovernanceCheckResult } from "./governance-validate.js";

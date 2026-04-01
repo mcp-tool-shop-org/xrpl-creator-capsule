@@ -1,0 +1,29 @@
+{
+  "schemaVersion": "1.0.0",
+  "kind": "payout-proposal",
+  "manifestId": "303dd8bf6f0afe7aa06e48c1fff3f64b97b39e770c8895197c4b0f6f0208fdb4",
+  "policyHash": "0c2f2a5c7b07bf37d61e0404ad582c3886258a40bcf27c162b45faf63195fb50",
+  "proposalId": "payout-001-golden",
+  "network": "testnet",
+  "treasuryAddress": "rpvoajJ4mbnorub6W8MFBEtfkeFaMTCPBX",
+  "createdAt": "2026-04-01T01:00:00.000Z",
+  "createdBy": "capsule-cli",
+  "memo": "Phase D golden path — split revenue 60/40",
+  "outputs": [
+    {
+      "address": "rHb9CJAWyB4rj91VRWn96DkukG4bwdtyTh",
+      "amount": "60.0",
+      "asset": "XRP",
+      "role": "artist",
+      "reason": "Creator share (60%)"
+    },
+    {
+      "address": "rPT1Sjq2YGrBMTttX4GZHjKu9dyfzbpAYe",
+      "amount": "40.0",
+      "asset": "XRP",
+      "role": "producer",
+      "reason": "Producer share (40%)"
+    }
+  ],
+  "proposalHash": "94c0eee0e9afd695ab615c024c9ac64616f4f02e0fa4c734128546c591e633c0"
+}

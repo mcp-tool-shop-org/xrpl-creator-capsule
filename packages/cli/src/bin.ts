@@ -10,6 +10,11 @@ import { mintReleaseCommand } from "./commands/mint-release.js";
 import { verifyRelease } from "./commands/verify-release.js";
 import { grantAccess } from "./commands/grant-access.js";
 import { recoverRelease } from "./commands/recover-release.js";
+import { createGovernancePolicy } from "./commands/create-governance-policy.js";
+import { proposePayout } from "./commands/propose-payout.js";
+import { decidePayout } from "./commands/decide-payout.js";
+import { executePayout } from "./commands/execute-payout.js";
+import { verifyPayout } from "./commands/verify-payout.js";
 import { configureMinterViaXaman, mintReleaseViaXaman } from "./commands/xaman-flow.js";
 import { MockDeliveryProvider } from "@capsule/storage";
 import type { NetworkId } from "@capsule/xrpl";
@@ -26,6 +31,11 @@ const COMMANDS: Record<string, string> = {
   "grant-access": "Evaluate access request and emit grant receipt",
   "create-access-policy": "Generate an access policy from manifest + receipt",
   "recover-release": "Reconstruct a release from artifacts + chain state",
+  "create-governance-policy": "Create a governance policy for a release treasury",
+  "propose-payout": "Create a payout proposal against a governance policy",
+  "decide-payout": "Collect approvals and emit a decision receipt",
+  "execute-payout": "Record payout execution and verify hash chain",
+  "verify-payout": "Verify all 4 governance artifacts and their relationships",
 };
 
 function parseNetwork(args: string[]): NetworkId {
@@ -434,6 +444,217 @@ async function main(): Promise<void> {
         process.exit(1);
       } else {
         console.log("\nRecovery COMPLETE — release is fully reconstructable");
+      }
+      break;
+    }
+
+    case "create-governance-policy": {
+      const { values } = parseArgs({
+        args: process.argv.slice(3),
+        options: {
+          manifest: { type: "string", short: "m" },
+          treasury: { type: "string" },
+          network: { type: "string", default: "testnet" },
+          signers: { type: "string" }, // JSON array
+          threshold: { type: "string", default: "2" },
+          assets: { type: "string", default: "XRP" }, // comma-separated
+          "allow-partial": { type: "boolean", default: false },
+          "max-outputs": { type: "string" },
+          "created-by": { type: "string", default: "capsule-cli" },
+          out: { type: "string", short: "o", default: "governance-policy.json" },
+        },
+      });
+
+      if (!values.manifest || !values.treasury || !values.signers) {
+        console.error(
+          "Usage: capsule create-governance-policy --manifest <file> --treasury <address> --signers '<json>' [--threshold N]"
+        );
+        process.exit(1);
+      }
+
+      const policy = await createGovernancePolicy({
+        manifestPath: values.manifest,
+        treasuryAddress: values.treasury,
+        network: values.network as NetworkId,
+        signers: JSON.parse(values.signers),
+        threshold: parseInt(values.threshold!, 10),
+        allowedAssets: values.assets!.split(","),
+        allowPartialPayouts: values["allow-partial"],
+        maxOutputsPerProposal: values["max-outputs"]
+          ? parseInt(values["max-outputs"], 10)
+          : undefined,
+        createdBy: values["created-by"]!,
+        outputPath: values.out!,
+      });
+
+      console.log(`Governance policy created`);
+      console.log(`  Manifest: ${policy.manifestId.slice(0, 16)}...`);
+      console.log(`  Treasury: ${policy.treasuryAddress}`);
+      console.log(`  Signers: ${policy.signerPolicy.signers.length}`);
+      console.log(`  Threshold: ${policy.signerPolicy.threshold}`);
+      console.log(`  Policy hash: ${policy.policyHash!.slice(0, 16)}...`);
+      console.log(`Written to: ${values.out}`);
+      break;
+    }
+
+    case "propose-payout": {
+      const { values } = parseArgs({
+        args: process.argv.slice(3),
+        options: {
+          policy: { type: "string", short: "p" },
+          id: { type: "string" },
+          outputs: { type: "string" }, // JSON array
+          memo: { type: "string" },
+          "created-by": { type: "string", default: "capsule-cli" },
+          out: { type: "string", short: "o", default: "payout-proposal.json" },
+        },
+      });
+
+      if (!values.policy || !values.id || !values.outputs) {
+        console.error(
+          "Usage: capsule propose-payout --policy <file> --id <proposal-id> --outputs '<json>'"
+        );
+        process.exit(1);
+      }
+
+      const proposal = await proposePayout({
+        policyPath: values.policy,
+        proposalId: values.id,
+        outputs: JSON.parse(values.outputs),
+        createdBy: values["created-by"]!,
+        memo: values.memo,
+        outputPath: values.out!,
+      });
+
+      console.log(`Payout proposal created`);
+      console.log(`  Proposal ID: ${proposal.proposalId}`);
+      console.log(`  Outputs: ${proposal.outputs.length}`);
+      console.log(`  Proposal hash: ${proposal.proposalHash!.slice(0, 16)}...`);
+      console.log(`Written to: ${values.out}`);
+      break;
+    }
+
+    case "decide-payout": {
+      const { values } = parseArgs({
+        args: process.argv.slice(3),
+        options: {
+          policy: { type: "string", short: "p" },
+          proposal: { type: "string" },
+          approvals: { type: "string" }, // JSON array
+          "decided-by": { type: "string", default: "capsule-cli" },
+          out: { type: "string", short: "o", default: "payout-decision.json" },
+        },
+      });
+
+      if (!values.policy || !values.proposal || !values.approvals) {
+        console.error(
+          "Usage: capsule decide-payout --policy <file> --proposal <file> --approvals '<json>'"
+        );
+        process.exit(1);
+      }
+
+      const decision = await decidePayout({
+        policyPath: values.policy,
+        proposalPath: values.proposal,
+        approvals: JSON.parse(values.approvals),
+        decidedBy: values["decided-by"]!,
+        outputPath: values.out!,
+      });
+
+      console.log(`Payout decision recorded`);
+      console.log(`  Outcome: ${decision.decision.outcome}`);
+      console.log(`  Threshold met: ${decision.decision.thresholdMet}`);
+      console.log(`  Approved: ${decision.decision.approvedCount}, Rejected: ${decision.decision.rejectedCount}`);
+      console.log(`  Decision hash: ${decision.decisionHash!.slice(0, 16)}...`);
+      console.log(`Written to: ${values.out}`);
+
+      if (decision.decision.outcome === "rejected") {
+        process.exit(1);
+      }
+      break;
+    }
+
+    case "execute-payout": {
+      const { values } = parseArgs({
+        args: process.argv.slice(3),
+        options: {
+          policy: { type: "string", short: "p" },
+          proposal: { type: "string" },
+          decision: { type: "string" },
+          "tx-hashes": { type: "string" }, // JSON array
+          "executed-outputs": { type: "string" }, // JSON array
+          "executed-by": { type: "string", default: "capsule-cli" },
+          out: { type: "string", short: "o", default: "payout-execution.json" },
+        },
+      });
+
+      if (
+        !values.policy ||
+        !values.proposal ||
+        !values.decision ||
+        !values["tx-hashes"] ||
+        !values["executed-outputs"]
+      ) {
+        console.error(
+          "Usage: capsule execute-payout --policy <file> --proposal <file> --decision <file> --tx-hashes '<json>' --executed-outputs '<json>'"
+        );
+        process.exit(1);
+      }
+
+      const execution = await executePayout({
+        policyPath: values.policy,
+        proposalPath: values.proposal,
+        decisionPath: values.decision,
+        txHashes: JSON.parse(values["tx-hashes"]),
+        executedOutputs: JSON.parse(values["executed-outputs"]),
+        executedBy: values["executed-by"]!,
+        outputPath: values.out!,
+      });
+
+      console.log(`Payout execution recorded`);
+      console.log(`  TX hashes: ${execution.xrpl.txHashes.length}`);
+      console.log(`  Outputs: ${execution.executedOutputs.length}`);
+      console.log(`  Verification: ${execution.verification.matchesApprovedProposal ? "PASS" : "FAIL"}`);
+      console.log(`  Execution hash: ${execution.executionHash!.slice(0, 16)}...`);
+      console.log(`Written to: ${values.out}`);
+      break;
+    }
+
+    case "verify-payout": {
+      const { values } = parseArgs({
+        args: process.argv.slice(3),
+        options: {
+          policy: { type: "string", short: "p" },
+          proposal: { type: "string" },
+          decision: { type: "string" },
+          execution: { type: "string" },
+        },
+      });
+
+      if (!values.policy || !values.proposal || !values.decision || !values.execution) {
+        console.error(
+          "Usage: capsule verify-payout --policy <file> --proposal <file> --decision <file> --execution <file>"
+        );
+        process.exit(1);
+      }
+
+      const result = await verifyPayout({
+        policyPath: values.policy,
+        proposalPath: values.proposal,
+        decisionPath: values.decision,
+        executionPath: values.execution,
+      });
+
+      for (const check of result.checks) {
+        const icon = check.passed ? "PASS" : "FAIL";
+        console.log(`  [${icon}] ${check.name}: ${check.detail}`);
+      }
+
+      if (result.passed) {
+        console.log("\nGovernance verification PASSED — full hash chain valid");
+      } else {
+        console.error("\nGovernance verification FAILED");
+        process.exit(1);
       }
       break;
     }

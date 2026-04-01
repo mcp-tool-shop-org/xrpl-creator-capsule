@@ -1,0 +1,32 @@
+{
+  "schemaVersion": "1.0.0",
+  "kind": "governance-policy",
+  "manifestId": "303dd8bf6f0afe7aa06e48c1fff3f64b97b39e770c8895197c4b0f6f0208fdb4",
+  "network": "testnet",
+  "treasuryAddress": "rpvoajJ4mbnorub6W8MFBEtfkeFaMTCPBX",
+  "signerPolicy": {
+    "signers": [
+      {
+        "address": "rHb9CJAWyB4rj91VRWn96DkukG4bwdtyTh",
+        "role": "artist",
+        "label": "Artist (creator)"
+      },
+      {
+        "address": "rPT1Sjq2YGrBMTttX4GZHjKu9dyfzbpAYe",
+        "role": "producer",
+        "label": "Producer"
+      }
+    ],
+    "threshold": 2
+  },
+  "payoutPolicy": {
+    "allowedAssets": [
+      "XRP"
+    ],
+    "allowPartialPayouts": false,
+    "maxOutputsPerProposal": 10
+  },
+  "createdAt": "2026-04-01T00:00:00.000Z",
+  "createdBy": "capsule-cli",
+  "policyHash": "0c2f2a5c7b07bf37d61e0404ad582c3886258a40bcf27c162b45faf63195fb50"
+}
