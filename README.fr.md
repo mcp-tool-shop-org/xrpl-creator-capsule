@@ -8,52 +8,42 @@
 
 <p align="center">
   <a href="https://github.com/mcp-tool-shop-org/xrpl-creator-capsule/actions"><img src="https://github.com/mcp-tool-shop-org/xrpl-creator-capsule/actions/workflows/ci.yml/badge.svg" alt="CI" /></a>
+  <a href="https://github.com/mcp-tool-shop-org/xrpl-creator-capsule/releases"><img src="https://img.shields.io/badge/preview-v1.0.0--rc.2-orange" alt="Preview RC.2" /></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="MIT License" /></a>
-  <a href="https://mcp-tool-shop-org.github.io/xrpl-creator-capsule/"><img src="https://img.shields.io/badge/Landing_Page-live-brightgreen" alt="Landing Page" /></a>
+  <a href="https://mcp-tool-shop-org.github.io/xrpl-creator-capsule/"><img src="https://img.shields.io/badge/handbook-live-brightgreen" alt="Handbook" /></a>
 </p>
 
-Système de publication géré par les créateurs sur le registre XRP. Publiez des œuvres, vendez-les directement, débloquez des avantages pour les collectionneurs, gérez les revenus, le tout soutenu par une vérité immuable enregistrée qui survit à la disparition de l'interface utilisateur.
+Système de publication de contenu détenu par les créateurs sur la blockchain XRP Ledger. Permet de créer des œuvres, de les vendre directement, d'offrir des avantages aux collectionneurs et de gérer les revenus, le tout grâce à une preuve immuable enregistrée sur la blockchain.
 
-## Ce que cela fait
+> **Version préliminaire.** RC.2 est une version de test pour le réseau de test. L'architecture du système prend en charge à la fois le réseau de test et le réseau principal, mais toutes les preuves de confiance ont été validées uniquement sur le réseau de test. Le réseau principal est un chemin sécurisé et réfléchi, et n'est pas la configuration par défaut.
 
-XRPL Creator Capsule considère le registre XRP comme une couche de contrôle durable pour la propriété, les paiements, l'accès et la pérennité des œuvres créatives. Ce n'est pas une place de marché ; c'est l'infrastructure qui rend les places de marché facultatives.
+## Deux façons de l'utiliser :
 
-Une capsule de créateur regroupe :
+### Application de bureau (recommandée pour les créateurs)
 
-- **Intention du créateur** : Un manifeste de publication signé avec une identité déterministe (ID de manifeste SHA-256).
-- **Vérité de la création** : Éditions NFT créées sur XRPL avec des reçus de création inviolables.
-- **Vérité de l'accès** : Avantages liés à la propriété, vérifiés par des contrôles de détenteurs enregistrés.
-- **Vérité de la durabilité** : Paquets de récupération qui reconstruisent la publication complète sans l'application d'origine.
-- **Vérité de la gouvernance** : Les revenus sont gérés par une chaîne d'approbation vérifiable (politique → proposition → décision → exécution).
+Téléchargez le programme d'installation pour Windows depuis [GitHub Releases](https://github.com/mcp-tool-shop-org/xrpl-creator-capsule/releases/tag/v1.0.0-rc.2) et suivez le [Guide pour débutants](https://mcp-tool-shop-org.github.io/xrpl-creator-capsule/handbook/beginners/).
 
-Chaque artefact est horodaté et référencé. Chaque affirmation peut être vérifiée par rapport au registre.
+Le **mode Studio** vous guide à travers un processus en 6 étapes :
 
-## Architecture
+1. Décrivez votre publication (titre, artiste, nombre d'exemplaires, fichiers)
+2. Définissez les avantages pour les collectionneurs (morceaux bonus, pistes séparées, illustrations haute résolution)
+3. Consultez les conditions générales et les informations de sécurité
+4. Publiez sur le réseau de test XRPL
+5. Testez l'accès des collectionneurs
+6. Générez un ensemble de récupération
 
-```
-packages/
-  core/       Canonical contracts, schemas, validation, hashing
-  xrpl/       XRPL client (connect, mint, verify, holder checks)
-  storage/    Content store + delivery provider interfaces
-  xaman/      Wallet-mediated signing via Xaman
-  cli/        15 CLI commands for the full release lifecycle
-artifacts/    Live Testnet proof artifacts
-fixtures/     Sanitized fixtures for testing
-```
+Nécessite [Node.js 22+](https://nodejs.org/) (un environnement d'exécution intégré sera disponible dans une version ultérieure).
 
-Monorepo avec 5 espaces de travail npm. TypeScript, Vitest, Node 22+.
-
-## Démarrage rapide
+### Interface en ligne de commande (CLI) (pour les développeurs et les intégrateurs)
 
 ```bash
 git clone https://github.com/mcp-tool-shop-org/xrpl-creator-capsule.git
 cd xrpl-creator-capsule
 npm install
-npm run build
-bash verify.sh
+bash verify.sh    # 265 tests, zero network calls
 ```
 
-## Commandes CLI
+15 commandes couvrant l'ensemble du cycle de vie de la publication :
 
 | Commande | Objectif |
 |---------|---------|
@@ -73,16 +63,51 @@ bash verify.sh
 | `execute-payout` | Enregistrer l'exécution du paiement et vérifier la chaîne de hachage. |
 | `verify-payout` | Vérifier les 4 artefacts de gouvernance et leurs relations. |
 
-## Phases vérifiées
+## Ce que cela prouve
+
+XRPL Creator Capsule considère le registre XRP comme une couche de contrôle durable pour la propriété, les paiements, l'accès et la pérennité des œuvres créatives. Ce n'est pas une place de marché ; c'est l'infrastructure qui rend les places de marché facultatives.
 
 | Phase | Ce que cela prouve | Tests |
 |-------|---------------|-------|
 | A — Intention du créateur | L'identité du manifeste est déterministe et inviolable. | 27 |
 | B — Vérité de la création | Les NFT sur XRPL correspondent exactement au manifeste (test en direct sur le réseau de test). | 36 |
 | C — Vérité de l'accès | La propriété débloque un accès réel hors chaîne. | 34 |
-| E — Vérité de la durabilité | La publication survit à la disparition de l'interface utilisateur (test de "mort" réussi). | 28 |
 | D — Vérité de la gouvernance | Les revenus sont gérés par une chaîne d'approbation vérifiable. | 67 |
-| **Total** | | **240** |
+| E — Vérité de la durabilité | La publication survit à la disparition de l'interface utilisateur (test de "mort" réussi). | 28 |
+| Confiance du runtime de bureau | Changement de mode, redémarrage, interruption, délai d'attente, synchronisation | 73 |
+| **Total** | | **265** |
+
+## Architecture
+
+```
+app/              Desktop app (Tauri v2 + React)
+  src/            Studio Mode + Advanced Mode UI
+  src-tauri/      Rust backend (file I/O, bridge dispatch)
+  bridge-worker   Engine bridge (stdin/stdout JSON-RPC)
+packages/
+  core/           Canonical contracts, schemas, validation, hashing
+  xrpl/           XRPL client (connect, mint, verify, holder checks)
+  storage/        Content store + delivery provider interfaces
+  xaman/          Wallet-mediated signing via Xaman
+  cli/            15 CLI commands
+artifacts/        Live Testnet proof artifacts
+site/             Handbook (Astro Starlight)
+```
+
+Monorepo avec 5 packages de base + application de bureau. TypeScript, Vitest, Tauri v2, Node 22+.
+
+## Configuration du réseau
+
+Le système est pleinement conscient du réseau : le réseau de test et le réseau principal sont des cibles distinctes et configurables.
+
+| | Réseau de test | Réseau principal |
+|-|---------|---------|
+| **Default** | Oui | No |
+| **Trust-proven** | Oui (preuves actives, 265 tests) | Non encore |
+| **CLI guard** | Aucun requis | `--network mainnet --allow-mainnet-write` |
+| **Desktop app** | Configuration par défaut du mode Studio | Non disponible dans RC.2 |
+
+**Considérez cette version comme une version préliminaire pour le réseau de test.** L'architecture n'est pas limitée au réseau de test, mais la preuve de confiance a été validée sur le réseau de test. La compatibilité avec le réseau principal nécessite une signature Xaman active et une promotion délibérée, et non un simple paramètre.
 
 ## Modèle de confiance
 
@@ -104,19 +129,16 @@ bash verify.sh
 - `xrpl` est verrouillé à la version exacte 4.2.5 (suite à un avis de chaîne d'approvisionnement npm).
 - Aucune télémétrie n'est collectée ou envoyée.
 
-## Vérification
+## Limitations connues
 
-```bash
-bash verify.sh
-```
+- **Node.js est requis** pour l'application de bureau (un environnement d'exécution intégré est prévu).
+- **La signature QR Xaman n'est pas encore active** — un fichier d'informations d'identification du portefeuille est requis (basé sur une clé secrète, uniquement pour le réseau de test).
+- **Le téléchargement IPFS est en attente** — les pointeurs de fichiers utilisent des chemins locaux, le stockage réel basé sur le contenu arrivera plus tard.
+- **Uniquement pour Windows** — un programme d'installation pour macOS est prévu pour une version ultérieure de RC.
 
-Effectue la vérification des types TypeScript et l'ensemble complet des 240 tests.
+## Signaler les problèmes
 
-## Statut
-
-**Phase 1 MVP : terminée.** La proposition de base du produit — XRPL en tant que couche de contrôle durable pour les publications des créateurs — est validée dans les cinq phases, avec des artefacts de testnet en direct.
-
-**En attente :** Démonstration en direct de Xaman (l'architecture de l'adaptateur est disponible, en attente des informations d'identification externes). Il s'agit d'une étape de finalisation, et non d'une nouvelle phase de développement.
+Cliquez sur **Signaler** dans la barre de titre de l'application de bureau pour exporter un ensemble de données de diagnostic, puis ouvrez un [billet GitHub](https://github.com/mcp-tool-shop-org/xrpl-creator-capsule/issues/new/choose).
 
 ## Licence
 

@@ -10,3 +10,4 @@ site/node_modules/
 .polyglot-cache.json
 app/src-tauri/target/
 app/src-tauri/resources/bridge-worker.cjs
+app/vite.config.d.ts

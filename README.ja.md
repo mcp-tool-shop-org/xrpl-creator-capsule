@@ -8,52 +8,42 @@
 
 <p align="center">
   <a href="https://github.com/mcp-tool-shop-org/xrpl-creator-capsule/actions"><img src="https://github.com/mcp-tool-shop-org/xrpl-creator-capsule/actions/workflows/ci.yml/badge.svg" alt="CI" /></a>
+  <a href="https://github.com/mcp-tool-shop-org/xrpl-creator-capsule/releases"><img src="https://img.shields.io/badge/preview-v1.0.0--rc.2-orange" alt="Preview RC.2" /></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="MIT License" /></a>
-  <a href="https://mcp-tool-shop-org.github.io/xrpl-creator-capsule/"><img src="https://img.shields.io/badge/Landing_Page-live-brightgreen" alt="Landing Page" /></a>
+  <a href="https://mcp-tool-shop-org.github.io/xrpl-creator-capsule/"><img src="https://img.shields.io/badge/handbook-live-brightgreen" alt="Handbook" /></a>
 </p>
 
-XRP Ledger 上での、クリエイターが所有権を持つリリースシステム。作品を公開し、直接販売し、コレクター向けの特典を付与し、収益を管理します。これらはすべて、フロントエンドが停止しても存続する、信頼性の高いオンチェーンの情報によって支えられています。
+XRP Ledger 上での、クリエイターが所有するコンテンツの公開システム。作品を公開し、直接販売したり、コレクター向けの特典を提供したり、収益を管理したりできます。これらはすべて、改ざんが困難なオンチェーンの証明によって支えられています。
 
-## 機能
+> **プレビュー版リリース。** RC.2 は、テストネット用のプレビュー版製品です。このシステムのアーキテクチャは、テストネットとメインネットの両方に対応していますが、すべての信頼性の検証はテストネットでのみ行われています。メインネットは、慎重に検討された運用を行うためのものであり、デフォルトの設定ではありません。
 
-XRPL Creator Capsule は、XRP Ledger を、クリエイティブな作品の所有権、支払い、アクセス、および可用性を管理するための、堅牢な基盤として活用します。これはマーケットプレイスではなく、マーケットプレイスをオプションにするためのインフラストラクチャです。
+## 利用方法が2つあります
 
-クリエイターカプセルは、以下の要素を統合します。
+### デスクトップアプリケーション（クリエイター向け推奨）
 
-- **クリエイターの意図 (Creator Intent)**：決定論的なID（SHA-256 マニフェストID）を持つ、署名されたリリースマニフェスト。
-- **発行の真実 (Mint Truth)**：XRP Ledger 上で発行された NFT エディションと、改ざん防止機能を持つ発行レシート。
-- **アクセスの真実 (Access Truth)**：オンチェーンのホルダーチェックによって検証される、所有権に基づく特典。
-- **耐久性の真実 (Durability Truth)**：元のアプリケーションがなくても、完全なリリースを再構築できるリカバリーバンドル。
-- **ガバナンスの真実 (Governance Truth)**：監査可能な承認チェーン（ポリシー → 提案 → 決定 → 実行）を通じて管理される収益。
+[GitHub Releases](https://github.com/mcp-tool-shop-org/xrpl-creator-capsule/releases/tag/v1.0.0-rc.2) からWindowsインストーラーをダウンロードし、[初心者向けガイド](https://mcp-tool-shop-org.github.io/xrpl-creator-capsule/handbook/beginners/)に従ってください。
 
-すべてのデータはハッシュで識別され、相互参照されます。すべての情報は、Ledger に対して検証可能です。
+**スタジオモード**では、6つのステップでガイドされたワークフローを提供します。
 
-## アーキテクチャ
+1. 公開するコンテンツについて説明します（タイトル、アーティスト名、エディション数、ファイル）。
+2. コレクター向けの特典を設定します（ボーナストラック、ステム、高解像度画像など）。
+3. 利用規約と安全に関する情報を確認します。
+4. XRPLテストネットに公開します。
+5. コレクターが特典にアクセスできるかテストします。
+6. リカバリーバンドルを生成します。
 
-```
-packages/
-  core/       Canonical contracts, schemas, validation, hashing
-  xrpl/       XRPL client (connect, mint, verify, holder checks)
-  storage/    Content store + delivery provider interfaces
-  xaman/      Wallet-mediated signing via Xaman
-  cli/        15 CLI commands for the full release lifecycle
-artifacts/    Live Testnet proof artifacts
-fixtures/     Sanitized fixtures for testing
-```
+[Node.js 22+](https://nodejs.org/) が必要です（将来のリリースで、バンドルされたランタイムが提供される予定です）。
 
-モノレポで、5つの npm ワークスペースを使用。TypeScript、Vitest、Node 22 以降。
-
-## クイックスタート
+### コマンドラインインターフェース（開発者および統合担当者向け）
 
 ```bash
 git clone https://github.com/mcp-tool-shop-org/xrpl-creator-capsule.git
 cd xrpl-creator-capsule
 npm install
-npm run build
-bash verify.sh
+bash verify.sh    # 265 tests, zero network calls
 ```
 
-## CLI コマンド
+公開ライフサイクル全体をカバーする15のコマンドがあります。
 
 | コマンド | 目的 |
 |---------|---------|
@@ -73,16 +63,51 @@ bash verify.sh
 | `execute-payout` | 支払い実行を記録し、ハッシュチェーンを検証する。 |
 | `verify-payout` | すべてのガバナンスアーティファクトとその関係を検証する。 |
 
-## 検証済みフェーズ
+## 検証内容
+
+XRPL Creator Capsule は、XRP Ledger を、クリエイティブな作品の所有権、支払い、アクセス、および可用性を管理するための、堅牢な基盤として活用します。これはマーケットプレイスではなく、マーケットプレイスをオプションにするためのインフラストラクチャです。
 
 | フェーズ | 検証内容 | テスト |
 |-------|---------------|-------|
 | A — クリエイターの意図 | マニフェストのIDは決定論的で、改ざん防止機能がある。 | 27 |
 | B — 発行の真実 | XRP Ledger 上の NFT は、マニフェストと完全に一致する（ライブテストネット）。 | 36 |
 | C — アクセスの真実 | 所有権が、実際のオフチェーンアクセスを許可する。 | 34 |
-| E — 耐久性の真実 | リリースは、フロントエンドが停止しても存続する（フロントエンド停止テストをクリア）。 | 28 |
 | D — ガバナンスの真実 | 収益は、監査可能な承認チェーンを通じて管理される。 | 67 |
-| **Total** | | **240** |
+| E — 耐久性の真実 | リリースは、フロントエンドが停止しても存続する（フロントエンド停止テストをクリア）。 | 28 |
+| デスクトップランタイムの信頼性 | モードの切り替え、再起動、中断、タイムアウト、タイミング | 73 |
+| **Total** | | **265** |
+
+## アーキテクチャ
+
+```
+app/              Desktop app (Tauri v2 + React)
+  src/            Studio Mode + Advanced Mode UI
+  src-tauri/      Rust backend (file I/O, bridge dispatch)
+  bridge-worker   Engine bridge (stdin/stdout JSON-RPC)
+packages/
+  core/           Canonical contracts, schemas, validation, hashing
+  xrpl/           XRPL client (connect, mint, verify, holder checks)
+  storage/        Content store + delivery provider interfaces
+  xaman/          Wallet-mediated signing via Xaman
+  cli/            15 CLI commands
+artifacts/        Live Testnet proof artifacts
+site/             Handbook (Astro Starlight)
+```
+
+5つのエンジンパッケージとデスクトップアプリケーションを含むモノレポ。TypeScript、Vitest、Tauri v2、Node 22+を使用しています。
+
+## ネットワークの状態
+
+このシステムは、ネットワークの状態を完全に認識しています。テストネットとメインネットは、それぞれ異なる、設定可能な環境です。
+
+| | テストネット | メインネット |
+|-|---------|---------|
+| **Default** | はい | No |
+| **Trust-proven** | はい（ライブ証明、265件のテストあり） | まだいいえ |
+| **CLI guard** | 不要 | `--network mainnet --allow-mainnet-write` |
+| **Desktop app** | スタジオモードのデフォルト設定 | RC.2では公開されていません |
+
+**このリリースは、テストネットのプレビュー版としてお考えください。** アーキテクチャはテストネット専用ではありませんが、信頼性の検証はテストネットで行われています。メインネットでの利用には、Xamanによる署名と、意図的なプロモーションが必要です。
 
 ## 信頼モデル
 
@@ -104,19 +129,16 @@ bash verify.sh
 - `xrpl` は、バージョン 4.2.5 に固定されている（npm サプライチェーンに関する注意喚起の後）。
 - テレメトリは収集または送信されない。
 
-## 検証
+## 既知の制限事項
 
-```bash
-bash verify.sh
-```
+- デスクトップアプリケーションには、[Node.js](https://nodejs.org/) が必要です（バンドルされたランタイムは、今後のリリースで提供予定）。
+- **Xaman QRによる署名はまだ利用できません**。ウォレットの認証情報ファイルが必要です（シードベース、テストネットのみ）。
+- **IPFSへのアップロードはまだ未対応**。ファイルポインタはローカルパスを使用しており、コンテンツアドレス指定によるストレージは今後の実装予定です。
+- **Windowsのみ**。macOSのインストーラーは、今後のRCで提供予定です。
 
-TypeScriptの型チェックと、240個のテストスイートを実行します。
+## 問題の報告
 
-## ステータス
-
-**フェーズ1：MVP（最小限の実行可能な製品）は完了しました。** XRPLをクリエイターのリリースに対する堅牢な制御基盤として活用するという主要なコンセプトが、5つのフェーズすべてで、実際のテストネットの成果物を通じて検証されました。
-
-**保留中:** Xamanの動作確認（アダプターのアーキテクチャは実装済みで、外部認証情報を待機中）。これは最終的な確認であり、新しいビルドフェーズではありません。
+デスクトップのタイトルバーにある「報告」をクリックして、サポートバンドルをエクスポートし、[GitHub issue](https://github.com/mcp-tool-shop-org/xrpl-creator-capsule/issues/new/choose) を開いてください。
 
 ## ライセンス
 
