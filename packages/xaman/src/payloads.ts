@@ -58,6 +58,20 @@ export function buildMintPayload(
     );
   }
 
+  // Bounds check mirrors packages/xrpl/src/mint.ts's percentToTransferFee
+  // (its twin guard for the same 0-50% XRPL TransferFee constraint).
+  // @capsule/xaman does not depend on @capsule/xrpl (see package.json —
+  // only @capsule/core and xumm-sdk), so the guard is duplicated here
+  // rather than imported. Today assertManifest (packages/core's schema)
+  // enforces this range upstream, but buildMintPayload should not silently
+  // emit an invalid TransferFee if ever called with an unvalidated
+  // manifest. Keep both guards in sync if XRPL's range ever changes.
+  if (manifest.transferFeePercent < 0 || manifest.transferFeePercent > 50) {
+    throw new Error(
+      `TransferFee must be 0–50%, got ${manifest.transferFeePercent}%`
+    );
+  }
+
   const transferFee = Math.round(manifest.transferFeePercent * 1000);
 
   return {
