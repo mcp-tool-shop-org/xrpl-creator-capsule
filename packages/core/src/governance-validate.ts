@@ -296,6 +296,66 @@ export function checkDecisionAgainstProposal(
   return { valid: errors.length === 0, errors };
 }
 
+/**
+ * Canonical amount-string format for PayoutOutput.amount / ExecutedPayoutOutput.amount:
+ * an unsigned integer (XRP drops) or an unsigned decimal string (token
+ * amounts). Mirrors the `amount` pattern in payout-proposal-schema.ts and
+ * payout-execution-schema.ts.
+ */
+const AMOUNT_FORMAT = /^[0-9]+(\.[0-9]+)?$/;
+
+/**
+ * Compare two governance amount strings exactly, without ever coercing
+ * through a float.
+ *
+ * These amounts are XRP drops (integers by construction) or decimal
+ * token-amount strings. parseFloat/Number is unsafe for comparing either:
+ * parseFloat of a malformed string ('', 'N/A', a thousands-separated paste
+ * like '75,000,000') either yields NaN -- and NaN compared with anything is
+ * always false, so a ">" overage guard fails OPEN -- or silently truncates
+ * at the first non-numeric character ('75,000,000' -> 75), which can fail
+ * open just as badly. A naive `!==` string check has the opposite problem:
+ * it fails CLOSED on merely-differently-formatted-but-equal values (e.g.
+ * '75000000' vs '075000000', or '1.50' vs '1.5').
+ *
+ * This validates format BEFORE any arithmetic, unconditionally -- it does
+ * not trust that a caller already ran schema validation (execute-payout.ts
+ * does not, today, before calling checkExecutionAgainstDecision), so the
+ * gate holds even if a future caller again forgets to schema-validate first.
+ *
+ * Returns `{ ok: true, cmp }` with cmp negative/zero/positive as `actual` is
+ * less than/equal to/greater than `expected` (exact comparison via BigInt
+ * over zero-padded fractional digits -- never a float), or
+ * `{ ok: false, error }` naming exactly which side was malformed.
+ */
+function compareAmounts(
+  actual: string,
+  expected: string
+): { ok: true; cmp: number } | { ok: false; error: string } {
+  if (!AMOUNT_FORMAT.test(actual)) {
+    return {
+      ok: false,
+      error: `actual amount "${actual}" is not a valid amount string (expected an unsigned integer or decimal matching ^[0-9]+(\\.[0-9]+)?$)`,
+    };
+  }
+  if (!AMOUNT_FORMAT.test(expected)) {
+    return {
+      ok: false,
+      error: `expected amount "${expected}" is not a valid amount string (expected an unsigned integer or decimal matching ^[0-9]+(\\.[0-9]+)?$)`,
+    };
+  }
+
+  const [actualInt, actualFrac = ""] = actual.split(".");
+  const [expectedInt, expectedFrac = ""] = expected.split(".");
+  const fracLen = Math.max(actualFrac.length, expectedFrac.length);
+  const actualValue = BigInt(actualInt + actualFrac.padEnd(fracLen, "0"));
+  const expectedValue = BigInt(expectedInt + expectedFrac.padEnd(fracLen, "0"));
+
+  if (actualValue < expectedValue) return { ok: true, cmp: -1 };
+  if (actualValue > expectedValue) return { ok: true, cmp: 1 };
+  return { ok: true, cmp: 0 };
+}
+
 /** Validate that an execution is consistent with decision and proposal. */
 export function checkExecutionAgainstDecision(
   execution: PayoutExecutionReceipt,
@@ -352,7 +412,10 @@ export function checkExecutionAgainstDecision(
         if (actual.address !== expected.address) {
           errors.push(`Output ${i}: address mismatch (expected ${expected.address}, got ${actual.address})`);
         }
-        if (actual.amount !== expected.amount) {
+        const amountCheck = compareAmounts(actual.amount, expected.amount);
+        if (!amountCheck.ok) {
+          errors.push(`Output ${i}: ${amountCheck.error}`);
+        } else if (amountCheck.cmp !== 0) {
           errors.push(`Output ${i}: amount mismatch (expected ${expected.amount}, got ${actual.amount})`);
         }
         if (actual.asset !== expected.asset) {
@@ -381,7 +444,10 @@ export function checkExecutionAgainstDecision(
         continue;
       }
       const expected = remaining[matchIndex];
-      if (parseFloat(actual.amount) > parseFloat(expected.amount)) {
+      const amountCheck = compareAmounts(actual.amount, expected.amount);
+      if (!amountCheck.ok) {
+        errors.push(`Executed output ${i}: ${amountCheck.error}`);
+      } else if (amountCheck.cmp > 0) {
         errors.push(
           `Executed output ${i}: amount ${actual.amount} exceeds proposed amount ${expected.amount} for ${actual.address}`
         );
