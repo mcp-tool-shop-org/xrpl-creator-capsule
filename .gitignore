@@ -11,3 +11,4 @@ site/node_modules/
 app/src-tauri/target/
 app/src-tauri/resources/bridge-worker.cjs
 app/vite.config.d.ts
+.swarm/
