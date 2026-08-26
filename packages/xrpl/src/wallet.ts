@@ -14,6 +14,19 @@ export interface FundedWalletPair extends WalletPair {
   network: NetworkId;
 }
 
+export interface AuthorizeMinterResult {
+  /** The issuer address the AccountSet transaction was submitted against */
+  issuerAddress: string;
+  /**
+   * The AccountSet transaction's on-chain hash — real, verifiable proof
+   * the authorization happened. This is the only place this hash is ever
+   * available; verifyAuthorizedMinter is a read-only account_info call
+   * with no tx hash of its own, so callers that need it in an
+   * IssuanceReceipt (authorizedMinterTxHash) must capture it here.
+   */
+  txHash: string;
+}
+
 /**
  * Generate a fresh issuer + operator wallet pair.
  * Keys are generated locally — no network call.
@@ -58,7 +71,7 @@ export async function authorizeOperatorAsMinter(
   pair: WalletPair,
   network: NetworkId,
   allowMainnetWrite: boolean = false
-): Promise<string> {
+): Promise<AuthorizeMinterResult> {
   assertMainnetAllowed(network, allowMainnetWrite);
 
   const config = getNetwork(network);
@@ -85,7 +98,7 @@ export async function authorizeOperatorAsMinter(
       }
     }
 
-    return pair.issuer.address;
+    return { issuerAddress: pair.issuer.address, txHash: tx.result.hash };
   } finally {
     await client.disconnect();
   }
