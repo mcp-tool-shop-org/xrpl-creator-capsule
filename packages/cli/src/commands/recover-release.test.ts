@@ -305,3 +305,122 @@ describe("recover-release — death drill (artifacts-only reconstruction)", () =
     expect(result.bundle.qualifyingTokenIds).toEqual([TOKEN_ID]);
   });
 });
+
+describe("recover-release — chain verification spans every edition", () => {
+  // F-45ccda83: the Chain Verification section used to fetch and check only
+  // receipt.xrpl.nftTokenIds[0]. For editionSize > 1, editions 2..N were
+  // never confirmed against ledger state — recoverRelease could report full
+  // reconstruction success while later editions were never actually minted.
+  // No prior test in this file used editionSize > 1, so this gap was also
+  // untested.
+
+  const MULTI_TOKEN_A = "000813881524A73075237DE0F84728ECEF5D41B72CC5934332CC1D3100F69D01";
+  const MULTI_TOKEN_B = "000813881524A73075237DE0F84728ECEF5D41B72CC5934332CC1D3100F69D02";
+  const MULTI_TOKEN_C = "000813881524A73075237DE0F84728ECEF5D41B72CC5934332CC1D3100F69D03";
+
+  function makeMultiManifest(): ReleaseManifest {
+    return { ...makeManifest(), editionSize: 3, title: "Triple Pressing" };
+  }
+
+  function makeMultiReceipt(manifest: ReleaseManifest): IssuanceReceipt {
+    return stampReceiptHash({
+      schemaVersion: "1.0.0",
+      kind: "issuance-receipt",
+      manifestId: computeManifestId(manifest),
+      manifestRevisionHash: computeRevisionHash(manifest),
+      network: "testnet",
+      issuedAt: "2026-04-01T08:00:00Z",
+      issuerAddress: ISSUER,
+      operatorAddress: OPERATOR,
+      release: { title: manifest.title, artist: manifest.artist, editionSize: 3, transferFee: 5000 },
+      pointers: {
+        metadataUri: manifest.metadataEndpoint,
+        licenseUri: manifest.license.uri,
+        coverCid: manifest.coverCid,
+        mediaCid: manifest.mediaCid,
+      },
+      xrpl: {
+        authorizedMinterVerified: true,
+        mintTxHashes: ["AABB001", "AABB002", "AABB003"],
+        nftTokenIds: [MULTI_TOKEN_A, MULTI_TOKEN_B, MULTI_TOKEN_C],
+        tokenTaxon: 0,
+        flags: 8,
+        transferFee: 5000,
+      },
+      storage: { provider: "mock", mediaResolved: true, coverResolved: true },
+      verification: {
+        manifestMatchesPointers: true,
+        issuerOperatorSeparated: true,
+        networkAllowed: true,
+        errors: [],
+        warnings: [],
+      },
+    });
+  }
+
+  it("fails Chain Verification when a later edition (not #1) was never minted on-chain", async () => {
+    const manifest = makeMultiManifest();
+    const receipt = makeMultiReceipt(manifest);
+    const paths = await writeArtifacts(manifest, receipt);
+
+    mockVerifyMinter.mockResolvedValue({
+      verified: true,
+      issuerAddress: ISSUER,
+      expectedOperator: OPERATOR,
+      actualMinter: OPERATOR,
+    });
+    // Edition 1 is genuinely minted; edition 2 is fabricated/never landed.
+    mockReadNft.mockImplementation(async (_account: string, tokenId: string) => {
+      if (tokenId === MULTI_TOKEN_B) return null;
+      return {
+        nftTokenId: tokenId,
+        issuer: ISSUER,
+        uri: "hex-encoded-uri",
+        flags: 8,
+        transferFee: 5000,
+        taxon: 0,
+      };
+    });
+
+    const result = await recoverRelease(paths.manifestPath, paths.receiptPath);
+
+    expect(result.reconstruction.passed).toBe(false);
+    const chainSection = result.reconstruction.sections.find((s) => s.name === "Chain Verification");
+    expect(chainSection?.passed).toBe(false);
+    expect(chainSection?.lines.some((l) => l.includes("2/3"))).toBe(true);
+
+    // Every edition must actually have been asked about, not just the first.
+    const checkedTokenIds = mockReadNft.mock.calls.map((call) => call[1]);
+    expect(checkedTokenIds).toContain(MULTI_TOKEN_A);
+    expect(checkedTokenIds).toContain(MULTI_TOKEN_B);
+    expect(checkedTokenIds).toContain(MULTI_TOKEN_C);
+  });
+
+  it("still passes Chain Verification when every edition of a legitimate multi-edition release is confirmed", async () => {
+    const manifest = makeMultiManifest();
+    const receipt = makeMultiReceipt(manifest);
+    const paths = await writeArtifacts(manifest, receipt);
+
+    mockVerifyMinter.mockResolvedValue({
+      verified: true,
+      issuerAddress: ISSUER,
+      expectedOperator: OPERATOR,
+      actualMinter: OPERATOR,
+    });
+    mockReadNft.mockImplementation(async (_account: string, tokenId: string) => ({
+      nftTokenId: tokenId,
+      issuer: ISSUER,
+      uri: "hex-encoded-uri",
+      flags: 8,
+      transferFee: 5000,
+      taxon: 0,
+    }));
+
+    const result = await recoverRelease(paths.manifestPath, paths.receiptPath);
+
+    expect(result.reconstruction.passed).toBe(true);
+    const chainSection = result.reconstruction.sections.find((s) => s.name === "Chain Verification");
+    expect(chainSection?.passed).toBe(true);
+    expect(chainSection?.lines.some((l) => l.includes("3/3"))).toBe(true);
+  });
+});

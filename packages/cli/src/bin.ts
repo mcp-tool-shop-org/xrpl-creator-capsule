@@ -231,6 +231,10 @@ async function main(): Promise<void> {
       const network = values.network as NetworkId;
 
       if (values.via === "xaman") {
+        if (!values.operator) {
+          console.error("--operator is required with --via xaman");
+          process.exit(1);
+        }
         if (network === "devnet") {
           console.error("Xaman does not support devnet");
           process.exit(1);
