@@ -126,25 +126,27 @@ describe("buildMintPayload — transferFee computation", () => {
     expect(payload.txjson.TransferFee).toBe(50000);
   });
 
-  // Documents CURRENT behavior, not a fix. packages/xrpl/src/mint.ts's
-  // percentToTransferFee defensively throws outside 0-50%; this sibling
-  // function in @capsule/xaman has no equivalent guard, so a manifest
-  // object that reaches buildMintPayload without having passed through
+  // F-b458d21c / DIRECTOR-w9-transferfee-bound: was documenting CURRENT
+  // (permissive) behavior as a pin — packages/xrpl/src/mint.ts's
+  // percentToTransferFee defensively throws outside 0-50%, but this sibling
+  // function in @capsule/xaman had no equivalent guard, so a manifest object
+  // that reaches buildMintPayload without having passed through
   // @capsule/core's assertManifest (whose schema DOES enforce 0-50, see
   // packages/core/src/schema.ts) would silently produce a TransferFee
   // outside XRPL's own valid 0-50000 field range, deferring the failure to
   // either Xaman or ledger submission instead of failing fast with a clear
-  // message here. Flagged for the coordinator rather than fixed — this
-  // agent's scope is tests only, and the two-module inconsistency may be
-  // intentional (payloads.ts's contract may assume assertManifest already
-  // ran upstream).
-  it("does not (currently) reject an out-of-range transferFeePercent the way mint.ts's percentToTransferFee does", async () => {
+  // message here. Director-directed fix (wave 9): buildMintPayload now
+  // mirrors mint.ts's guard directly (duplicated, not imported — see the
+  // comment on the guard in payloads.ts for why), so this is now a spec
+  // test asserting the fixed, bounded behavior instead of pinning the old
+  // permissive one.
+  it("rejects an out-of-range transferFeePercent the way mint.ts's percentToTransferFee does", async () => {
     const manifest = await loadManifest();
     const outOfRange = { ...manifest, transferFeePercent: 75 };
 
-    const payload = buildMintPayload(outOfRange, "testnet");
-
-    expect(payload.txjson.TransferFee).toBe(75000);
+    expect(() => buildMintPayload(outOfRange, "testnet")).toThrow(
+      "TransferFee must be 0–50%, got 75%"
+    );
   });
 });
 
