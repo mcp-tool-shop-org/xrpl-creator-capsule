@@ -20,7 +20,7 @@ vi.mock("xrpl", async (importOriginal) => {
   };
 });
 
-import { readNftFromLedger } from "./read-nft.js";
+import { readNftFromLedger, LedgerReadError } from "./read-nft.js";
 
 const ACCOUNT = "rHb9CJAWyB4rj91VRWn96DkukG4bwdtyTh";
 const ISSUER = "rPT1Sjq2YGrBMTttX4GZHjKu9dyfzbpAYe";
@@ -111,6 +111,46 @@ describe("readNftFromLedger", () => {
     const info = await readNftFromLedger(ACCOUNT, "NONEXISTENT", "testnet");
 
     expect(info).toBeNull();
+    expect(mockDisconnect).toHaveBeenCalledTimes(1);
+  });
+
+  // F-b8314c10 (MEDIUM): fetchAllAccountNfts had no catch at all — only
+  // the outer try/finally that disconnects. Any ledger/network error
+  // (including actNotFound for an account that doesn't exist yet) crashed
+  // with a raw xrpl.js exception instead of resolving cleanly.
+  // verify-release.ts and recover-release.ts call this per-edition in a
+  // loop, so a raw throw here aborts the whole command rather than
+  // reporting that edition's chain-check failed. actNotFound now resolves
+  // to null — this function's existing "not found" contract, which callers
+  // already treat as "keep checking the next candidate/edition." Other
+  // transport failures still throw (fail loud, not open) but as a clean,
+  // named LedgerReadError instead of an unidentified raw exception, so the
+  // two cases stay distinguishable.
+
+  it("resolves to null instead of throwing when the account does not exist (actNotFound)", async () => {
+    mockRequest.mockRejectedValueOnce(
+      new Error("Account not found: actNotFound")
+    );
+
+    const info = await readNftFromLedger(ACCOUNT, TOKEN_PAGE_1, "testnet");
+
+    expect(info).toBeNull();
+    expect(mockDisconnect).toHaveBeenCalledTimes(1);
+  });
+
+  it("throws a structured LedgerReadError (not a raw exception) on a non-actNotFound transport failure", async () => {
+    mockRequest.mockRejectedValueOnce(new Error("connection timed out"));
+
+    let caught: unknown;
+    try {
+      await readNftFromLedger(ACCOUNT, TOKEN_PAGE_1, "testnet");
+    } catch (err) {
+      caught = err;
+    }
+
+    expect(caught).toBeInstanceOf(LedgerReadError);
+    expect((caught as Error).message).toContain("connection timed out");
+    expect((caught as LedgerReadError).cause).toBeInstanceOf(Error);
     expect(mockDisconnect).toHaveBeenCalledTimes(1);
   });
 });
