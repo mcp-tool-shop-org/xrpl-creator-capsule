@@ -4,7 +4,6 @@
  * Orchestrates: policy coherence → holder check → delivery token → receipt.
  */
 
-import { readFile } from "node:fs/promises";
 import {
   assertManifest,
   assertReceipt,
@@ -21,6 +20,7 @@ import {
 } from "@capsule/core";
 import { checkHolder } from "@capsule/xrpl";
 import type { DeliveryProvider } from "@capsule/storage";
+import { readJsonFile } from "../lib/json-input.js";
 
 export interface GrantAccessOptions {
   manifestPath: string;
@@ -37,15 +37,9 @@ export async function grantAccess(
 
   // ── Load and validate all artifacts ─────────────────────────────
 
-  const manifest = assertManifest(
-    JSON.parse(await readFile(manifestPath, "utf-8"))
-  );
-  const receipt = assertReceipt(
-    JSON.parse(await readFile(receiptPath, "utf-8"))
-  );
-  const policy = assertAccessPolicy(
-    JSON.parse(await readFile(policyPath, "utf-8"))
-  );
+  const manifest = assertManifest(await readJsonFile(manifestPath, "manifest"));
+  const receipt = assertReceipt(await readJsonFile(receiptPath, "receipt"));
+  const policy = assertAccessPolicy(await readJsonFile(policyPath, "policy"));
 
   const now = new Date().toISOString();
 

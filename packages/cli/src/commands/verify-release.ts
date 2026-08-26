@@ -1,4 +1,3 @@
-import { readFile } from "node:fs/promises";
 import {
   assertManifest,
   assertReceipt,
@@ -13,6 +12,7 @@ import {
   readNftFromLedger,
 } from "@capsule/xrpl";
 import { convertStringToHex } from "xrpl";
+import { readJsonFile } from "../lib/json-input.js";
 
 export interface VerifyCheck {
   name: string;
@@ -41,11 +41,8 @@ export async function verifyRelease(
 
   // ── Load and validate both artifacts ─────────────────────────────
 
-  const manifestRaw = await readFile(manifestPath, "utf-8");
-  const manifest = assertManifest(JSON.parse(manifestRaw));
-
-  const receiptRaw = await readFile(receiptPath, "utf-8");
-  const receipt = assertReceipt(JSON.parse(receiptRaw));
+  const manifest = assertManifest(await readJsonFile(manifestPath, "manifest"));
+  const receipt = assertReceipt(await readJsonFile(receiptPath, "receipt"));
 
   // ── Manifest identity ────────────────────────────────────────────
 

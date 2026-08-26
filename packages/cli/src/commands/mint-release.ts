@@ -1,4 +1,4 @@
-import { readFile, writeFile } from "node:fs/promises";
+import { writeFile } from "node:fs/promises";
 import {
   assertManifest,
   type IssuanceReceipt,
@@ -9,6 +9,7 @@ import {
   issueRelease,
   type NetworkId,
 } from "@capsule/xrpl";
+import { readJsonFile } from "../lib/json-input.js";
 
 export interface MintReleaseOptions {
   manifestPath: string;
@@ -27,13 +28,14 @@ export interface MintReleaseOptions {
 export async function mintReleaseCommand(
   opts: MintReleaseOptions
 ): Promise<IssuanceReceipt> {
-  // Load and validate manifest
-  const manifestRaw = await readFile(opts.manifestPath, "utf-8");
-  const manifest = assertManifest(JSON.parse(manifestRaw));
+  // Load and validate manifest — F-5a0ce89b: manifest and wallets are the
+  // two separate possible parse-failure sources in this command, right
+  // before an expensive/possibly-mainnet mint. readJsonFile names which
+  // one is malformed instead of surfacing a bare JSON.parse SyntaxError.
+  const manifest = assertManifest(await readJsonFile(opts.manifestPath, "manifest"));
 
   // Load wallets
-  const walletRaw = await readFile(opts.walletsPath, "utf-8");
-  const wallets = importWalletPair(JSON.parse(walletRaw));
+  const wallets = importWalletPair(await readJsonFile(opts.walletsPath, "wallets"));
 
   // Storage — Phase B uses mock, real storage comes later
   const storage = new MockContentStore();

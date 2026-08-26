@@ -5,7 +5,7 @@
  * stamps the policy hash, and writes to disk.
  */
 
-import { readFile, writeFile } from "node:fs/promises";
+import { writeFile } from "node:fs/promises";
 import {
   assertManifest,
   computeManifestId,
@@ -13,6 +13,7 @@ import {
   stampPolicyHash,
 } from "@capsule/core";
 import type { GovernancePolicy, GovernanceSigner } from "@capsule/core";
+import { readJsonFile } from "../lib/json-input.js";
 
 export interface CreateGovernancePolicyOpts {
   manifestPath: string;
@@ -30,9 +31,7 @@ export interface CreateGovernancePolicyOpts {
 export async function createGovernancePolicy(
   opts: CreateGovernancePolicyOpts
 ): Promise<GovernancePolicy> {
-  const manifest = assertManifest(
-    JSON.parse(await readFile(opts.manifestPath, "utf-8"))
-  );
+  const manifest = assertManifest(await readJsonFile(opts.manifestPath, "manifest"));
   const manifestId = computeManifestId(manifest);
 
   const raw: GovernancePolicy = {

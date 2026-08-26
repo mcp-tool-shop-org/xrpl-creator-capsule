@@ -5,7 +5,7 @@
  * stamps the proposal hash, and writes to disk.
  */
 
-import { readFile, writeFile } from "node:fs/promises";
+import { writeFile } from "node:fs/promises";
 import {
   assertGovernancePolicy,
   assertPayoutProposal,
@@ -13,6 +13,7 @@ import {
   checkProposalAgainstPolicy,
 } from "@capsule/core";
 import type { PayoutProposal, PayoutOutput } from "@capsule/core";
+import { readJsonFile } from "../lib/json-input.js";
 
 export interface ProposePayoutOpts {
   policyPath: string;
@@ -26,9 +27,7 @@ export interface ProposePayoutOpts {
 export async function proposePayout(
   opts: ProposePayoutOpts
 ): Promise<PayoutProposal> {
-  const policy = assertGovernancePolicy(
-    JSON.parse(await readFile(opts.policyPath, "utf-8"))
-  );
+  const policy = assertGovernancePolicy(await readJsonFile(opts.policyPath, "policy"));
 
   const raw: PayoutProposal = {
     schemaVersion: "1.0.0",

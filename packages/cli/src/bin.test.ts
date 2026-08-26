@@ -1,4 +1,5 @@
 import { describe, it, expect, vi, afterEach } from "vitest";
+import { runBin } from "./test-support/run-bin.js";
 
 /**
  * bin.ts is a self-executing CLI entrypoint: importing it runs `main()`
@@ -9,49 +10,14 @@ import { describe, it, expect, vi, afterEach } from "vitest";
  * bin.ts relies on that to stop control flow from falling through to the
  * next check after logging an error.
  *
- * bin.ts's own top-level `main().catch(fn)` never attaches a further
- * `.catch`, so once `process.exit` throws instead of truly terminating,
- * `fn`'s own re-entrant `process.exit()` call becomes an intentionally
- * unhandled rejection — a side effect of exercising a self-executing CLI
- * entrypoint in-process, not a real bug. We temporarily swap out Node's
- * `unhandledRejection` listeners for the run so that expected rejection
- * isn't reported as a test failure, then restore exactly what was there
- * (Vitest's own handler included).
+ * The harness that makes this work (`runBin`) lives in
+ * ./test-support/run-bin.ts — see that file's doc comment for the full
+ * explanation of the process.exit/unhandledRejection dance. It's shared
+ * with the other bin.ts-level test files added in wave 7 Stage C
+ * (bin-help, bin-network, bin-json-args, bin-mainnet-write).
  */
 
 const ORIGINAL_ARGV = process.argv;
-
-async function runBin(argv: string[]) {
-  vi.resetModules();
-  process.argv = ["node", "bin.js", ...argv];
-
-  // Matches Node's real process.exit signature (string | number | null |
-  // undefined); narrowing this to number alone type-errors under tsc -b.
-  const exitSpy = vi.spyOn(process, "exit").mockImplementation((code?: string | number | null) => {
-    throw new Error(`__PROCESS_EXIT_${code}__`);
-  });
-  const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
-  const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
-
-  const savedListeners = process.listeners("unhandledRejection");
-  process.removeAllListeners("unhandledRejection");
-  process.on("unhandledRejection", () => {});
-
-  try {
-    await import("./bin.js");
-    // Flush the microtask queue so bin.ts's top-level main().catch(...)
-    // chain (including its own re-entrant process.exit call) fully
-    // settles before we assert.
-    await new Promise((resolve) => setTimeout(resolve, 0));
-  } finally {
-    process.removeAllListeners("unhandledRejection");
-    for (const listener of savedListeners) {
-      process.on("unhandledRejection", listener as NodeJS.UnhandledRejectionListener);
-    }
-  }
-
-  return { exitSpy, errorSpy, logSpy };
-}
 
 describe("bin.ts — mint-release --via xaman operator gate (F-fb319d5e)", () => {
   afterEach(() => {

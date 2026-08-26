@@ -6,7 +6,7 @@
  * to the result via websocket.
  */
 
-import { readFile, writeFile } from "node:fs/promises";
+import { writeFile } from "node:fs/promises";
 import {
   assertManifest,
   computeManifestId,
@@ -21,6 +21,7 @@ import {
   type XamanNetwork,
   type XamanResolvedResult,
 } from "@capsule/xaman";
+import { readJsonFile } from "../lib/json-input.js";
 
 export interface XamanFlowConfig {
   apiKey: string;
@@ -166,8 +167,7 @@ export async function mintReleaseViaXaman(
   const config = requireXamanConfig();
   const client = new XamanClient(config);
 
-  const manifestRaw = await readFile(manifestPath, "utf-8");
-  const manifest = assertManifest(JSON.parse(manifestRaw));
+  const manifest = assertManifest(await readJsonFile(manifestPath, "manifest"));
 
   const manifestId = computeManifestId(manifest);
   const revisionHash = computeRevisionHash(manifest);

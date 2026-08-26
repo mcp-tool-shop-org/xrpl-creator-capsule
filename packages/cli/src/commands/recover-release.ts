@@ -5,7 +5,6 @@
  * still legible, verifiable, and recoverable without the original app.
  */
 
-import { readFile } from "node:fs/promises";
 import {
   assertManifest,
   assertReceipt,
@@ -25,6 +24,7 @@ import {
   readNftFromLedger,
   checkHolder,
 } from "@capsule/xrpl";
+import { readJsonFile } from "../lib/json-input.js";
 
 export interface RecoveryResult {
   bundle: RecoveryBundle;
@@ -42,6 +42,55 @@ export interface ReconstructionSection {
   lines: string[];
 }
 
+/**
+ * Build the "Mint Facts" report lines from the receipt's parallel
+ * nftTokenIds/mintTxHashes arrays (F-506382f2).
+ *
+ * assertReceipt() (packages/core/src/receipt-validate.ts) already rejects
+ * a receipt whose nftTokenIds and mintTxHashes arrays differ in length —
+ * recoverRelease() calls it on every receipt before this function ever
+ * runs, so today a length mismatch can't actually reach here through the
+ * CLI's normal file-based flow. This still re-asserts the invariant
+ * locally and renders an explicit "MISSING" marker instead of
+ * parallel-indexing into a shorter array, as defense-in-depth: it keeps
+ * this section correct on its own if that upstream guarantee is ever
+ * loosened, or if this rendering logic is ever reused somewhere that
+ * doesn't go through assertReceipt first. Exported so it can be
+ * unit-tested directly against mismatched arrays without needing to
+ * fabricate a receipt that bypasses schema validation.
+ *
+ * Marker text ("MISSING") chosen for coordinator alignment with the
+ * analogous fix in app/src/components/panels/RecoveryPanel.tsx, which
+ * renders `bundle.txHashes[i] ?? ""` — same defect family (parallel-index
+ * access with no length guard), fixed by a parallel wave-7 desktop-app
+ * agent.
+ */
+export function buildMintFactsLines(
+  nftTokenIds: string[],
+  mintTxHashes: string[],
+  transferFee: number
+): { lines: string[]; passed: boolean } {
+  const lines: string[] = [];
+  const lengthMismatch = nftTokenIds.length !== mintTxHashes.length;
+
+  if (lengthMismatch) {
+    lines.push(
+      `WARNING: nftTokenIds (${nftTokenIds.length}) and mintTxHashes ` +
+        `(${mintTxHashes.length}) are different lengths — this receipt is ` +
+        `malformed. Tx hashes below marked MISSING are index guesses, not ` +
+        `confirmed data.`
+    );
+  }
+
+  for (let i = 0; i < nftTokenIds.length; i++) {
+    lines.push(`  Token ${i + 1}: ${nftTokenIds[i]}`);
+    lines.push(`    Tx: ${i < mintTxHashes.length ? mintTxHashes[i] : "MISSING"}`);
+  }
+  lines.push(`Transfer fee: ${transferFee} basis points`);
+
+  return { lines, passed: !lengthMismatch };
+}
+
 export async function recoverRelease(
   manifestPath: string,
   receiptPath: string,
@@ -51,18 +100,12 @@ export async function recoverRelease(
 
   // ── Load artifacts ──────────────────────────────────────────────
 
-  const manifest = assertManifest(
-    JSON.parse(await readFile(manifestPath, "utf-8"))
-  );
-  const receipt = assertReceipt(
-    JSON.parse(await readFile(receiptPath, "utf-8"))
-  );
+  const manifest = assertManifest(await readJsonFile(manifestPath, "manifest"));
+  const receipt = assertReceipt(await readJsonFile(receiptPath, "receipt"));
 
   let policy: AccessPolicy | undefined;
   if (policyPath) {
-    policy = assertAccessPolicy(
-      JSON.parse(await readFile(policyPath, "utf-8"))
-    );
+    policy = assertAccessPolicy(await readJsonFile(policyPath, "policy"));
   }
 
   // ── Derive bundle ───────────────────────────────────────────────
@@ -119,14 +162,13 @@ export async function recoverRelease(
 
   // ── Section 3: Mint Facts ───────────────────────────────────────
 
-  const mintLines: string[] = [];
-  for (let i = 0; i < receipt.xrpl.nftTokenIds.length; i++) {
-    mintLines.push(`  Token ${i + 1}: ${receipt.xrpl.nftTokenIds[i]}`);
-    mintLines.push(`    Tx: ${receipt.xrpl.mintTxHashes[i]}`);
-  }
-  mintLines.push(`Transfer fee: ${receipt.xrpl.transferFee} basis points`);
+  const mintFacts = buildMintFactsLines(
+    receipt.xrpl.nftTokenIds,
+    receipt.xrpl.mintTxHashes,
+    receipt.xrpl.transferFee
+  );
 
-  sections.push({ name: "Mint Facts", passed: true, lines: mintLines });
+  sections.push({ name: "Mint Facts", passed: mintFacts.passed, lines: mintFacts.lines });
 
   // ── Section 4: Durable Pointers ─────────────────────────────────
 

@@ -5,7 +5,6 @@
  * and runs every cross-contract check. Reports pass/fail.
  */
 
-import { readFile } from "node:fs/promises";
 import { Client } from "xrpl";
 import {
   assertGovernancePolicy,
@@ -22,6 +21,7 @@ import {
   type ExecutedPayoutOutput,
 } from "@capsule/core";
 import { getNetwork } from "@capsule/xrpl";
+import { readJsonFile } from "../lib/json-input.js";
 
 export interface VerifyPayoutOpts {
   policyPath: string;
@@ -116,24 +116,16 @@ export async function verifyPayout(
   const checks: VerifyCheck[] = [];
 
   // Load + schema-validate all 4 artifacts
-  const policy = assertGovernancePolicy(
-    JSON.parse(await readFile(opts.policyPath, "utf-8"))
-  );
+  const policy = assertGovernancePolicy(await readJsonFile(opts.policyPath, "policy"));
   checks.push({ name: "Policy schema", passed: true, detail: "Valid GovernancePolicy" });
 
-  const proposal = assertPayoutProposal(
-    JSON.parse(await readFile(opts.proposalPath, "utf-8"))
-  );
+  const proposal = assertPayoutProposal(await readJsonFile(opts.proposalPath, "proposal"));
   checks.push({ name: "Proposal schema", passed: true, detail: "Valid PayoutProposal" });
 
-  const decision = assertPayoutDecision(
-    JSON.parse(await readFile(opts.decisionPath, "utf-8"))
-  );
+  const decision = assertPayoutDecision(await readJsonFile(opts.decisionPath, "decision"));
   checks.push({ name: "Decision schema", passed: true, detail: "Valid PayoutDecisionReceipt" });
 
-  const execution = assertPayoutExecution(
-    JSON.parse(await readFile(opts.executionPath, "utf-8"))
-  );
+  const execution = assertPayoutExecution(await readJsonFile(opts.executionPath, "execution"));
   checks.push({ name: "Execution schema", passed: true, detail: "Valid PayoutExecutionReceipt" });
 
   // Hash integrity
