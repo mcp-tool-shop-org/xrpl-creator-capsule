@@ -25,7 +25,9 @@ async function runBin(argv: string[]) {
   vi.resetModules();
   process.argv = ["node", "bin.js", ...argv];
 
-  const exitSpy = vi.spyOn(process, "exit").mockImplementation((code?: number) => {
+  // Matches Node's real process.exit signature (string | number | null |
+  // undefined); narrowing this to number alone type-errors under tsc -b.
+  const exitSpy = vi.spyOn(process, "exit").mockImplementation((code?: string | number | null) => {
     throw new Error(`__PROCESS_EXIT_${code}__`);
   });
   const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
