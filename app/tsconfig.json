@@ -13,6 +13,6 @@
     "noEmit": true,
     "lib": ["ES2022", "DOM", "DOM.Iterable"]
   },
-  "include": ["src"],
+  "include": ["src", "bridge-worker.ts", "bridge-worker-commands.ts", "bridge-worker.test.ts"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }

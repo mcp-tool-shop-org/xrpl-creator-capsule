@@ -29,6 +29,9 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+permissions:
+  contents: read
+
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -42,8 +45,59 @@ jobs:
           node-version: ${{ matrix.node-version }}
           cache: npm
       - run: npm ci
-      - run: npx tsc --noEmit
-      - run: npx vitest run
+      # Build mode over both project graphs. A bare `tsc --noEmit` against the
+      # solution-style root config resolves ZERO files and always exits 0, so
+      # this step reported success for the life of the repo while type-checking
+      # nothing. app/ is a separate graph and must be named explicitly.
+      - name: Type check
+        run: npx tsc -b tsconfig.json app/tsconfig.json
+      - name: Test (engine)
+        run: npx vitest run
+      # The root vitest config excludes app/**, so without this the desktop
+      # app's tests never ran here even though app/** is a trigger path above.
+      - name: Test (desktop app)
+        working-directory: app
+        run: npx vitest run
+
+  # The Rust half of the desktop app had no automated check at all: the test job
+  # never compiled it, and build-desktop runs only on release, so a change under
+  # src-tauri could merge with nothing ever building it.
+  cargo-check:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      # tauri::generate_context!() embeds the frontend bundle at COMPILE time,
+      # so app/dist has to exist before cargo will even check this crate.
+      - name: Build frontend
+        working-directory: app
+        run: npm run build
+
+      - name: Install Rust stable
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Rust cache
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: app/src-tauri
+
+      # --all-targets so #[cfg(test)] code compiles too; otherwise the path
+      # containment tests could rot without anything noticing.
+      - name: cargo check
+        working-directory: app/src-tauri
+        run: cargo check --all-targets --locked
+
+      - name: cargo test
+        working-directory: app/src-tauri
+        run: cargo test --locked
 
   build-desktop:
     if: github.event_name == 'release'
