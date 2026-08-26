@@ -43,9 +43,27 @@ import { dispatch, type BridgeCommand, type BridgeResult, type BridgeErr } from 
  * fs.writeSync(1, ...) writes directly and synchronously to fd 1
  * (stdout) — it does not return until the OS has accepted the write, so
  * there is nothing left pending for process.exit() to race.
+ *
+ * One writeSync call is NOT enough on POSIX, though: write(2) to a pipe
+ * may accept fewer bytes than requested (pipe capacity is ~64KB), and
+ * fs.writeSync returns that short count rather than looping. A single
+ * call truncated multi-megabyte responses on Linux — caught by CI's
+ * ubuntu runner (bridge-worker-stdout-flush.test.ts) while every local
+ * Windows run passed, because libuv completes fd-1 sync writes fully on
+ * Windows. So: loop until every byte is written, retrying EAGAIN (fd 1
+ * can be nonblocking on some POSIX setups).
  */
 function writeStdoutSync(text: string): void {
-  writeSync(1, text);
+  const buf = Buffer.from(text, "utf-8");
+  let offset = 0;
+  while (offset < buf.length) {
+    try {
+      offset += writeSync(1, buf, offset, buf.length - offset);
+    } catch (err) {
+      if ((err as NodeJS.ErrnoException).code === "EAGAIN") continue;
+      throw err;
+    }
+  }
 }
 
 async function main() {
