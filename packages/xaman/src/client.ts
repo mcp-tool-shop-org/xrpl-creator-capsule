@@ -34,6 +34,44 @@ export interface XamanClientConfig {
   apiSecret: string;
 }
 
+/**
+ * Thrown when a XamanClient SDK call fails, or when the SDK's own
+ * already-handled "no payload returned" check trips.
+ *
+ * This is the @capsule/xaman counterpart to @capsule/xrpl's
+ * PartialMintError and packages/cli's PartialXamanMintError — same
+ * message + `cause`-preserves-the-original-error convention, applied here
+ * to a single SDK call rather than a partial multi-step run. Before this
+ * (F-981008bf), none of createPayload / subscribeToPayload /
+ * getPayloadResult normalized failures: a raw xumm-sdk rejection (e.g. a
+ * transient network drop while a user is mid-scan of a Xaman QR code)
+ * propagated straight out of this class with no try/catch anywhere beyond
+ * the already-handled null-response checks, indistinguishable from any
+ * other bug to the CLI/desktop caller. Every XamanClient failure now
+ * throws this ONE type, with a creator-comprehensible message and the
+ * original SDK error preserved as `cause` rather than discarded.
+ */
+export class XamanRequestError extends Error {
+  /** Which XamanClient operation failed. */
+  readonly operation: "createPayload" | "subscribeToPayload" | "getPayloadResult";
+  /** The payload UUID involved, when one exists yet (absent for createPayload). */
+  readonly payloadId?: string;
+
+  constructor(
+    message: string,
+    info: {
+      operation: XamanRequestError["operation"];
+      payloadId?: string;
+    },
+    options?: { cause?: unknown }
+  ) {
+    super(message, options);
+    this.name = "XamanRequestError";
+    this.operation = info.operation;
+    this.payloadId = info.payloadId;
+  }
+}
+
 export class XamanClient {
   private sdk: XummSdk;
 
@@ -55,37 +93,49 @@ export class XamanClient {
       mainnet: "MAINNET",
     };
 
-    const payload = await this.sdk.payload.create({
-      txjson: {
-        TransactionType: this.inferTxType(request),
-        ...request.txjson,
-      },
-      options: {
-        submit: true,
-        force_network: networkMap[request.network],
-        return_url: request.returnUrl
-          ? { web: request.returnUrl }
-          : undefined,
-      },
-      custom_meta: request.metadata
-        ? {
-            identifier: request.kind,
-            blob: request.metadata,
-          }
-        : { identifier: request.kind },
-    });
+    try {
+      const payload = await this.sdk.payload.create({
+        txjson: {
+          TransactionType: this.inferTxType(request),
+          ...request.txjson,
+        },
+        options: {
+          submit: true,
+          force_network: networkMap[request.network],
+          return_url: request.returnUrl
+            ? { web: request.returnUrl }
+            : undefined,
+        },
+        custom_meta: request.metadata
+          ? {
+              identifier: request.kind,
+              blob: request.metadata,
+            }
+          : { identifier: request.kind },
+      });
 
-    if (!payload) {
-      throw new Error("Failed to create Xaman payload");
+      if (!payload) {
+        throw new XamanRequestError(
+          "Xaman returned no payload for the sign request",
+          { operation: "createPayload" }
+        );
+      }
+
+      return {
+        payloadId: payload.uuid,
+        qrPngUrl: payload.refs.qr_png,
+        qrMatrix: payload.refs.qr_matrix,
+        deeplink: payload.next.always,
+        websocketUrl: payload.refs.websocket_status,
+      };
+    } catch (err) {
+      if (err instanceof XamanRequestError) throw err;
+      throw new XamanRequestError(
+        `Failed to create Xaman payload: ${err instanceof Error ? err.message : String(err)}`,
+        { operation: "createPayload" },
+        { cause: err }
+      );
     }
-
-    return {
-      payloadId: payload.uuid,
-      qrPngUrl: payload.refs.qr_png,
-      qrMatrix: payload.refs.qr_matrix,
-      deeplink: payload.next.always,
-      websocketUrl: payload.refs.websocket_status,
-    };
   }
 
   /**
@@ -100,20 +150,45 @@ export class XamanClient {
     payloadId: string,
     onEvent?: (event: XamanStatusEvent) => void
   ): Promise<XamanResolvedResult> {
-    const subscription = await this.sdk.payload.subscribe(payloadId, (event) => {
-      if (onEvent && event.data) {
-        const data = event.data as Record<string, unknown>;
-        onEvent({
-          payloadId,
-          opened: Boolean(data.opened),
-          resolved: Boolean(data.signed || data.return_url),
-          raw: data,
-        });
-      }
-    });
+    let resolvedData: unknown;
+    try {
+      const subscription = await this.sdk.payload.subscribe(payloadId, (event) => {
+        if (onEvent && event.data) {
+          const data = event.data as Record<string, unknown>;
+          onEvent({
+            payloadId,
+            opened: Boolean(data.opened),
+            resolved: Boolean(data.signed || data.return_url),
+            raw: data,
+          });
+        }
+      });
 
-    // The subscription resolves when the payload is finalized
-    const resolvedData = await subscription.resolved;
+      // The subscription resolves when the payload is finalized
+      resolvedData = await subscription.resolved;
+    } catch (subscribeErr) {
+      // F-981008bf: the subscription itself failed to establish, or was
+      // lost mid-wait (e.g. a transient network drop on the caller's side
+      // while a user is mid-scan of a Xaman QR code). The payload persists
+      // server-side on Xaman regardless of THIS connection and may still
+      // get signed successfully moments later, so fall back to a single
+      // one-shot status read instead of reporting the payload itself as
+      // failed. Only if that fallback ALSO fails do we give up and throw —
+      // clearly naming both problems rather than letting the raw
+      // subscription exception propagate as if signing had failed.
+      try {
+        return await this.fetchPayloadResult(payloadId);
+      } catch (fallbackErr) {
+        throw new XamanRequestError(
+          `Xaman payload subscription lost for ${payloadId} and the fallback status check ` +
+            `also failed. The payload may still resolve on Xaman's side even though this ` +
+            `connection could not confirm it — retry getPayloadResult(${payloadId}) later. ` +
+            `Subscription error: ${subscribeErr instanceof Error ? subscribeErr.message : String(subscribeErr)}`,
+          { operation: "subscribeToPayload", payloadId },
+          { cause: subscribeErr }
+        );
+      }
+    }
 
     if (!resolvedData) {
       return {
@@ -134,6 +209,27 @@ export class XamanClient {
    * Use this for verification after the fact, NOT for polling.
    */
   async getPayloadResult(payloadId: string): Promise<XamanResolvedResult> {
+    try {
+      return await this.fetchPayloadResult(payloadId);
+    } catch (err) {
+      throw new XamanRequestError(
+        `Failed to get Xaman payload ${payloadId} status: ${err instanceof Error ? err.message : String(err)}`,
+        { operation: "getPayloadResult", payloadId },
+        { cause: err }
+      );
+    }
+  }
+
+  /**
+   * Shared, UNNORMALIZED core for a one-shot payload status read: calls the
+   * SDK and maps its response, throwing a plain Error on failure. Callers
+   * (getPayloadResult, and subscribeToPayload's post-drop fallback above)
+   * each wrap this in their own XamanRequestError so the reported
+   * `operation` matches what the CALLER was actually trying to do, rather
+   * than always saying "getPayloadResult" even when this was really a
+   * subscribeToPayload fallback probe.
+   */
+  private async fetchPayloadResult(payloadId: string): Promise<XamanResolvedResult> {
     const payload = await this.sdk.payload.get(payloadId);
 
     if (!payload) {

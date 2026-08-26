@@ -1,4 +1,4 @@
-export { XamanClient } from "./client.js";
+export { XamanClient, XamanRequestError } from "./client.js";
 export type { XamanClientConfig } from "./client.js";
 
 export {

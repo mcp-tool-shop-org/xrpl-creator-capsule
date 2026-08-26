@@ -20,7 +20,7 @@ export type { MintResult } from "./mint.js";
 export { verifyAuthorizedMinter } from "./verify-minter.js";
 export type { MinterVerification } from "./verify-minter.js";
 
-export { readNftFromLedger } from "./read-nft.js";
+export { readNftFromLedger, LedgerReadError } from "./read-nft.js";
 export type { NftInfo } from "./read-nft.js";
 
 export { issueRelease } from "./issue-release.js";

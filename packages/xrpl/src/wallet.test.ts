@@ -86,4 +86,61 @@ describe("authorizeOperatorAsMinter", () => {
     expect(result.issuerAddress).toBe(pair.issuer.address);
     expect(result.txHash).toBe("ACCOUNTSET_TX_HASH");
   });
+
+  // F-80ca3721 (MEDIUM, fail-open — same defect family as the fixed
+  // F-072a5390 in packages/xaman/src/verify.ts: a check that silently
+  // no-ops instead of validating). The success check only ran INSIDE an
+  // `if (typeof meta === "object" && meta !== null && "TransactionResult"
+  // in meta)` guard — when meta is missing or unexpectedly shaped, that
+  // whole block was skipped and execution fell through to `return
+  // pair.issuer.address` as if the AccountSet had succeeded, with no check
+  // having run at all. mint.ts guards this identical malformed-meta shape
+  // by throwing; this must now do the same instead of silently reporting
+  // success.
+  it("throws instead of silently returning success when submitAndWait's meta is malformed (not an object)", async () => {
+    const pair = generateWalletPair();
+    mockSubmitAndWait.mockResolvedValueOnce({
+      result: {
+        hash: "SOME_HASH",
+        // xrpl.js types `meta` as `string | TransactionMetadata |
+        // undefined` — a raw/undecoded string response is a real shape
+        // this can take, and is NOT `typeof meta === "object"`.
+        meta: "not_an_object",
+      },
+    });
+
+    await expect(authorizeOperatorAsMinter(pair, "testnet")).rejects.toThrow(
+      /meta/i
+    );
+  });
+
+  it("throws instead of silently returning success when submitAndWait's meta is completely missing", async () => {
+    const pair = generateWalletPair();
+    mockSubmitAndWait.mockResolvedValueOnce({
+      result: {
+        hash: "SOME_HASH",
+        // meta entirely absent — undefined.
+      },
+    });
+
+    await expect(authorizeOperatorAsMinter(pair, "testnet")).rejects.toThrow(
+      /meta/i
+    );
+  });
+
+  // Must-not-regress baseline: a real on-chain failure (well-formed meta,
+  // non-success TransactionResult) must still throw exactly as before.
+  it("still throws when meta is well-formed but TransactionResult is not tesSUCCESS", async () => {
+    const pair = generateWalletPair();
+    mockSubmitAndWait.mockResolvedValueOnce({
+      result: {
+        hash: "SOME_HASH",
+        meta: { TransactionResult: "tecNO_PERMISSION" },
+      },
+    });
+
+    await expect(authorizeOperatorAsMinter(pair, "testnet")).rejects.toThrow(
+      /tecNO_PERMISSION/
+    );
+  });
 });

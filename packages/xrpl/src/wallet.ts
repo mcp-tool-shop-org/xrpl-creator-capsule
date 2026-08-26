@@ -90,12 +90,24 @@ export async function authorizeOperatorAsMinter(
       { wallet: pair.issuer }
     );
 
+    // F-80ca3721 (fail-open — same defect family as the fixed F-072a5390 in
+    // packages/xaman/src/verify.ts: a check that silently no-ops instead of
+    // validating). The success check used to run ONLY inside an
+    // `if (typeof meta === "object" && ... && "TransactionResult" in meta)`
+    // guard — when meta was missing or unexpectedly shaped, that whole
+    // block was skipped and execution fell through to return the issuer
+    // address as if the AccountSet had succeeded, with no check having run
+    // at all. Mirror mint.ts's guard here: validate the shape first and
+    // throw naming what was malformed, so a malformed/missing meta can
+    // never fall through to a fabricated "success".
     const meta = tx.result.meta;
-    if (typeof meta === "object" && meta !== null && "TransactionResult" in meta) {
-      const result = (meta as { TransactionResult: string }).TransactionResult;
-      if (result !== "tesSUCCESS") {
-        throw new Error(`AccountSet failed: ${result}`);
-      }
+    if (typeof meta !== "object" || meta === null) {
+      throw new Error("AccountSet authorization: no transaction metadata");
+    }
+
+    const metaObj = meta as unknown as Record<string, unknown>;
+    if (metaObj.TransactionResult !== "tesSUCCESS") {
+      throw new Error(`AccountSet failed: ${metaObj.TransactionResult}`);
     }
 
     return { issuerAddress: pair.issuer.address, txHash: tx.result.hash };
