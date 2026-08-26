@@ -8,6 +8,7 @@
 import { Client } from "xrpl";
 import type { NetworkId } from "./network.js";
 import { getNetwork } from "./network.js";
+import { fetchAllAccountNfts } from "./account-nfts.js";
 
 export interface HolderCheckResult {
   /** Whether the wallet holds at least one qualifying NFT */
@@ -39,15 +40,7 @@ export async function checkHolder(
   try {
     await client.connect();
 
-    const response = await client.request({
-      command: "account_nfts",
-      account: walletAddress,
-      ledger_index: "validated",
-    });
-
-    const nfts = response.result.account_nfts as Array<{
-      NFTokenID: string;
-    }>;
+    const nfts = await fetchAllAccountNfts(client, walletAddress);
 
     const qualifyingSet = new Set(qualifyingTokenIds);
     const matchedTokenIds = nfts

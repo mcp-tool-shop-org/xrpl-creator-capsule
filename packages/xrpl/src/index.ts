@@ -10,7 +10,7 @@ export {
 } from "./wallet.js";
 export type { WalletPair, FundedWalletPair } from "./wallet.js";
 
-export { mintRelease } from "./mint.js";
+export { mintRelease, PartialMintError } from "./mint.js";
 export type { MintResult } from "./mint.js";
 
 export { verifyAuthorizedMinter } from "./verify-minter.js";
