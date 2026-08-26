@@ -437,6 +437,22 @@ describe("checkExecutionAgainstDecision", () => {
     expect(result.errors.some((e) => e.includes("amount mismatch"))).toBe(true);
   });
 
+  it("rejects a malformed (non-numeric) output amount in the non-partial branch instead of silently coercing to NaN", () => {
+    const policy = makePolicy();
+    const proposal = makeProposal(policy);
+    const decision = makeDecision(policy, proposal);
+    const execution = makeExecution(policy, proposal, decision);
+    // Malformed: a naive `actual.amount !== expected.amount` string check
+    // would already flag this (fails closed, for the wrong reason), but the
+    // fix must also produce an explicit format error here, not a generic
+    // "amount mismatch" -- the two branches share one comparison strategy,
+    // and this proves the non-partial branch is gated by it too.
+    execution.executedOutputs[0].amount = "N/A";
+    const result = checkExecutionAgainstDecision(execution, decision, proposal, policy);
+    expect(result.valid).toBe(false);
+    expect(result.errors.some((e) => e.includes("not a valid amount string"))).toBe(true);
+  });
+
   it("rejects wrong output address", () => {
     const policy = makePolicy();
     const proposal = makeProposal(policy);
@@ -536,6 +552,42 @@ describe("checkExecutionAgainstDecision with allowPartialPayouts", () => {
     const result = checkExecutionAgainstDecision(restamped, decision, proposal, policy);
     expect(result.valid).toBe(false);
     expect(result.errors.some((e) => e.includes("exceeds"))).toBe(true);
+  });
+
+  it("rejects a malformed (non-numeric) executedOutput amount instead of silently passing the overage guard (fail-open regression for F-d840c801)", () => {
+    const policy = makePartialPolicy();
+    const proposal = makeProposal(policy);
+    const decision = makeDecision(policy, proposal);
+    const execution = makeExecution(policy, proposal, decision);
+    // Malformed: parseFloat("N/A") is NaN, and NaN compared with anything is
+    // always false, so the old `parseFloat(actual) > parseFloat(expected)`
+    // overage guard silently let this through instead of rejecting it.
+    execution.executedOutputs = [
+      { address: ARTIST, amount: "N/A", asset: "XRP", role: "artist", reason: "malformed" },
+    ];
+    const restamped = stampExecutionHash(execution);
+    const result = checkExecutionAgainstDecision(restamped, decision, proposal, policy);
+    expect(result.valid).toBe(false);
+    expect(result.errors.some((e) => e.includes("not a valid amount string"))).toBe(true);
+  });
+
+  it("rejects a comma-formatted executedOutput amount paste instead of silently passing the overage guard", () => {
+    const policy = makePartialPolicy();
+    const proposal = makeProposal(policy);
+    const decision = makeDecision(policy, proposal);
+    const execution = makeExecution(policy, proposal, decision);
+    // Malformed: parseFloat("75,000,000") silently truncates at the comma to
+    // 75 (not NaN) -- an even quieter failure mode, since 75 <= 75000000
+    // would clear the old overage guard too. The format gate must reject
+    // this before any arithmetic is attempted, regardless of which way
+    // parseFloat happens to misparse it.
+    execution.executedOutputs = [
+      { address: ARTIST, amount: "75,000,000", asset: "XRP", role: "artist", reason: "malformed paste" },
+    ];
+    const restamped = stampExecutionHash(execution);
+    const result = checkExecutionAgainstDecision(restamped, decision, proposal, policy);
+    expect(result.valid).toBe(false);
+    expect(result.errors.some((e) => e.includes("not a valid amount string"))).toBe(true);
   });
 
   it("rejects double-dipping the same proposal output against two executed outputs", () => {
