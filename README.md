@@ -1,5 +1,5 @@
 <p align="center">
-  <a href="README.ja.md">日本語</a> | <a href="README.zh.md">中文</a> | <a href="README.es.md">Español</a> | <a href="README.fr.md">Français</a> | <a href="README.hi.md">हिन्दी</a> | <a href="README.it.md">Italiano</a> | <a href="README.pt-BR.md">Português (BR)</a>
+  <a href="README.md">English</a> | <a href="README.ja.md">日本語</a> | <a href="README.zh.md">中文</a> | <a href="README.es.md">Español</a> | <a href="README.fr.md">Français</a> | <a href="README.hi.md">हिन्दी</a> | <a href="README.it.md">Italiano</a> | <a href="README.pt-BR.md">Português (BR)</a>
 </p>
 
 <p align="center">
@@ -8,14 +8,14 @@
 
 <p align="center">
   <a href="https://github.com/mcp-tool-shop-org/xrpl-creator-capsule/actions"><img src="https://github.com/mcp-tool-shop-org/xrpl-creator-capsule/actions/workflows/ci.yml/badge.svg" alt="CI" /></a>
-  <a href="https://github.com/mcp-tool-shop-org/xrpl-creator-capsule/releases"><img src="https://img.shields.io/badge/release-v1.0.0-brightgreen" alt="v1.0.0" /></a>
+  <a href="https://github.com/mcp-tool-shop-org/xrpl-creator-capsule/releases"><img src="https://img.shields.io/badge/release-v1.1.0-brightgreen" alt="v1.1.0" /></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="MIT License" /></a>
   <a href="https://mcp-tool-shop-org.github.io/xrpl-creator-capsule/"><img src="https://img.shields.io/badge/handbook-live-brightgreen" alt="Handbook" /></a>
 </p>
 
 Creator-owned release system on the XRP Ledger. Issue work, sell directly, unlock collector benefits, govern revenue — all backed by durable on-chain proof.
 
-> **Testnet-first release.** v1.0.0 is a Testnet product. The engine architecture supports both Testnet and Mainnet, but all trust proofs have been validated on Testnet only. Mainnet is a guarded, deliberate promotion — not the default.
+> **Testnet-first release.** This release line is a Testnet product. The engine architecture supports both Testnet and Mainnet, but all trust proofs have been validated on Testnet only. Mainnet is a guarded, deliberate promotion — not the default.
 
 ## Two ways to use it
 
@@ -40,7 +40,7 @@ Requires [Node.js 22+](https://nodejs.org/) (bundled runtime coming in a future 
 git clone https://github.com/mcp-tool-shop-org/xrpl-creator-capsule.git
 cd xrpl-creator-capsule
 npm install
-bash verify.sh    # 359 tests, zero network calls
+bash verify.sh    # full test suite (700+ tests), zero network calls
 ```
 
 15 commands covering the full release lifecycle:
@@ -67,15 +67,19 @@ bash verify.sh    # 359 tests, zero network calls
 
 XRPL Creator Capsule treats the XRP Ledger as a durable control plane for ownership, payment, access, and survivability. It is not a marketplace — it is the infrastructure that makes marketplaces optional.
 
-| Phase | What it proves | Tests |
-|-------|---------------|-------|
-| A — Creator Intent | Manifest identity is deterministic and tamper-evident | 27 |
-| B — Mint Truth | NFTs on XRPL match manifest exactly (live Testnet proof) | 36 |
-| C — Access Truth | Ownership unlocks real off-chain access | 34 |
-| D — Governance Truth | Revenue governed through auditable approval chain | 67 |
-| E — Durability Truth | Release survives frontend death (death drill passed) | 28 |
-| Desktop Runtime Trust | Mode switch, restart, interruption, timeout, timing | 94 |
-| **Total** | | **359** |
+| Phase | What it proves |
+|-------|---------------|
+| A — Creator Intent | Manifest identity is deterministic and tamper-evident |
+| B — Mint Truth | NFTs on XRPL match manifest exactly (live Testnet proof) |
+| C — Access Truth | Ownership unlocks real off-chain access |
+| D — Governance Truth | Revenue governed through auditable approval chain |
+| E — Durability Truth | Release survives frontend death (death drill passed) |
+| Desktop Runtime Trust | Mode switch, restart, interruption, timeout, timing |
+
+The suite currently runs **700+ tests** across the engine packages, CLI, and
+desktop app — `bash verify.sh` runs all of it and prints the live count, with
+zero network calls. (Exact numbers drift as the suite grows; the command is
+the source of truth.)
 
 ## Architecture
 
@@ -103,9 +107,9 @@ The system has full network awareness — Testnet and Mainnet are distinct, conf
 | | Testnet | Mainnet |
 |-|---------|---------|
 | **Default** | Yes | No |
-| **Trust-proven** | Yes (live proofs, 359 tests) | Not yet |
+| **Trust-proven** | Yes (live proofs, full suite) | Not yet |
 | **CLI guard** | None needed | `--network mainnet --allow-mainnet-write` |
-| **Desktop app** | Studio Mode default | Not exposed in v1.0.0 |
+| **Desktop app** | Studio Mode default | Not exposed in the desktop app |
 
 **Treat this release as a Testnet preview.** The architecture is not Testnet-only, but the trust proof is Testnet-proven. Mainnet readiness requires live Xaman signing and deliberate promotion — not a flag flip.
 

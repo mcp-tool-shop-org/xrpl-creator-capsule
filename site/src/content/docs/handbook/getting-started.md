@@ -26,7 +26,7 @@ npm run build
 bash verify.sh
 ```
 
-This runs TypeScript type-checking and the full 240-test suite across all packages. Every test passes without network access — XRPL calls are mocked in unit tests.
+This runs TypeScript type-checking across every project graph and the full test suite — 700+ tests spanning the engine packages, CLI, and desktop app (the command prints the live count). Every test passes without network access — XRPL calls are mocked in unit tests.
 
 ## Project structure
 

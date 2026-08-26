@@ -8,74 +8,75 @@
 
 <p align="center">
   <a href="https://github.com/mcp-tool-shop-org/xrpl-creator-capsule/actions"><img src="https://github.com/mcp-tool-shop-org/xrpl-creator-capsule/actions/workflows/ci.yml/badge.svg" alt="CI" /></a>
-  <a href="https://github.com/mcp-tool-shop-org/xrpl-creator-capsule/releases"><img src="https://img.shields.io/badge/release-v1.0.0-brightgreen" alt="v1.0.0" /></a>
+  <a href="https://github.com/mcp-tool-shop-org/xrpl-creator-capsule/releases"><img src="https://img.shields.io/badge/release-v1.1.0-brightgreen" alt="v1.1.0" /></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="MIT License" /></a>
   <a href="https://mcp-tool-shop-org.github.io/xrpl-creator-capsule/"><img src="https://img.shields.io/badge/handbook-live-brightgreen" alt="Handbook" /></a>
 </p>
 
-Système de publication de contenu détenu par les créateurs sur la blockchain XRP Ledger. Permet de créer des œuvres, de les vendre directement, d'offrir des avantages aux collectionneurs et de gérer les revenus, le tout grâce à une preuve immuable enregistrée sur la blockchain.
+Système de publication contrôlé par les créateurs sur le XRP Ledger. Publiez vos œuvres, vendez directement, offrez des avantages aux collectionneurs, gérez les revenus — tout est étayé par une preuve durable enregistrée en chaîne.
 
-> **Version préliminaire.** v1.0.0 est une version de test pour le réseau de test. L'architecture du système prend en charge à la fois le réseau de test et le réseau principal, mais toutes les preuves de confiance ont été validées uniquement sur le réseau de test. Le réseau principal est un chemin sécurisé et réfléchi, et n'est pas la configuration par défaut.
+> **Première version pour Testnet.** Cette version est un produit destiné au Testnet. L’architecture du moteur prend en charge à la fois le Testnet et le Mainnet, mais toutes les preuves de confiance ont été validées uniquement sur le Testnet. Le passage au Mainnet se fait de manière contrôlée et délibérée, ce n’est pas l’option par défaut.
 
-## Deux façons de l'utiliser :
+## Deux façons de l’utiliser
 
 ### Application de bureau (recommandée pour les créateurs)
 
-Téléchargez le programme d'installation pour Windows depuis [GitHub Releases](https://github.com/mcp-tool-shop-org/xrpl-creator-capsule/releases/latest) et suivez le [Guide pour débutants](https://mcp-tool-shop-org.github.io/xrpl-creator-capsule/handbook/beginners/).
+Téléchargez le programme d’installation Windows à partir de [GitHub Releases](https://github.com/mcp-tool-shop-org/xrpl-creator-capsule/releases/latest) et suivez le [Guide du débutant](https://mcp-tool-shop-org.github.io/xrpl-creator-capsule/handbook/beginners/).
 
 Le **mode Studio** vous guide à travers un processus en 6 étapes :
 
-1. Décrivez votre publication (titre, artiste, nombre d'exemplaires, fichiers)
-2. Définissez les avantages pour les collectionneurs (morceaux bonus, pistes séparées, illustrations haute résolution)
-3. Consultez les conditions générales et les informations de sécurité
-4. Publiez sur le réseau de test XRPL
-5. Testez l'accès des collectionneurs
+1. Décrivez votre publication (titre, artiste, nombre d’exemplaires, fichiers)
+2. Définissez les avantages pour les collectionneurs (morceaux bonus, pistes instrumentales, œuvres haute résolution)
+3. Vérifiez les conditions et la sécurité
+4. Publiez sur le XRPL Testnet
+5. Testez l’accès des collectionneurs
 6. Générez un ensemble de récupération
 
-Nécessite [Node.js 22+](https://nodejs.org/) (un environnement d'exécution intégré sera disponible dans une version ultérieure).
+Nécessite [Node.js 22+](https://nodejs.org/) (environnement d’exécution intégré dans une version ultérieure).
 
-### Interface en ligne de commande (CLI) (pour les développeurs et les intégrateurs)
+### CLI (pour les développeurs et intégrateurs)
 
 ```bash
 git clone https://github.com/mcp-tool-shop-org/xrpl-creator-capsule.git
 cd xrpl-creator-capsule
 npm install
-bash verify.sh    # 265 tests, zero network calls
+bash verify.sh    # full test suite (700+ tests), zero network calls
 ```
 
-15 commandes couvrant l'ensemble du cycle de vie de la publication :
+15 commandes couvrant l’ensemble du cycle de vie de la publication :
 
 | Commande | Objectif |
 |---------|---------|
-| `init-wallets` | Générer et financer une paire de portefeuilles émetteur + opérateur. |
-| `configure-minter` | Définir l'opérateur comme émetteur autorisé sur le compte de l'émetteur. |
-| `create-release` | Créer une publication à partir d'un fichier manifeste. |
-| `validate` | Valider un manifeste de publication par rapport au schéma. |
-| `resolve` | Vérifier que les pointeurs du manifeste sont structurellement valides. |
-| `mint-release` | Créer des éditions NFT et générer un reçu de création. |
-| `verify-release` | Réconcilier le manifeste et le reçu avec l'état de la chaîne. |
-| `create-access-policy` | Générer une politique d'accès à partir du manifeste et du reçu. |
-| `grant-access` | Évaluer une demande d'accès et générer un reçu d'autorisation. |
-| `recover-release` | Reconstruire une publication à partir d'artefacts et de l'état de la chaîne. |
-| `create-governance-policy` | Créer une politique de gouvernance pour un coffre-fort de publication. |
-| `propose-payout` | Créer une proposition de paiement selon une politique de gouvernance. |
-| `decide-payout` | Collecter les approbations et générer un reçu de décision. |
-| `execute-payout` | Enregistrer l'exécution du paiement et vérifier la chaîne de hachage. |
-| `verify-payout` | Vérifier les 4 artefacts de gouvernance et leurs relations. |
+| `init-wallets` | Générer et financer la paire portefeuille émetteur + opérateur |
+| `configure-minter` | Définir l’opérateur comme frappeur autorisé sur le compte de l’émetteur |
+| `create-release` | Créer une publication à partir d’un fichier manifeste |
+| `validate` | Valider un manifeste de publication par rapport au schéma |
+| `resolve` | Vérifier que les pointeurs du manifeste sont structurellement valides |
+| `mint-release` | Frapper des NFT et émettre un reçu d’émission |
+| `verify-release` | Réconcilier le manifeste + le reçu avec l’état de la chaîne |
+| `create-access-policy` | Générer une politique d’accès à partir du manifeste + du reçu |
+| `grant-access` | Évaluer la demande d’accès et émettre un reçu d’autorisation |
+| `recover-release` | Reconstruire une publication à partir des artefacts + de l’état de la chaîne |
+| `create-governance-policy` | Créer une politique de gouvernance pour la trésorerie d’une publication |
+| `propose-payout` | Créer une proposition de paiement par rapport à une politique de gouvernance |
+| `decide-payout` | Collecter les approbations et émettre un reçu de décision |
+| `execute-payout` | Enregistrer l’exécution du paiement et vérifier la chaîne de hachage |
+| `verify-payout` | Vérifier les 4 artefacts de gouvernance et leurs relations |
 
 ## Ce que cela prouve
 
-XRPL Creator Capsule considère le registre XRP comme une couche de contrôle durable pour la propriété, les paiements, l'accès et la pérennité des œuvres créatives. Ce n'est pas une place de marché ; c'est l'infrastructure qui rend les places de marché facultatives.
+XRPL Creator Capsule considère le XRP Ledger comme un plan de contrôle durable pour la propriété, le paiement, l’accès et la pérennité. Ce n’est pas une place de marché, c’est l’infrastructure qui rend les places de marché facultatives.
 
-| Phase | Ce que cela prouve | Tests |
-|-------|---------------|-------|
-| A — Intention du créateur | L'identité du manifeste est déterministe et inviolable. | 27 |
-| B — Vérité de la création | Les NFT sur XRPL correspondent exactement au manifeste (test en direct sur le réseau de test). | 36 |
-| C — Vérité de l'accès | La propriété débloque un accès réel hors chaîne. | 34 |
-| D — Vérité de la gouvernance | Les revenus sont gérés par une chaîne d'approbation vérifiable. | 67 |
-| E — Vérité de la durabilité | La publication survit à la disparition de l'interface utilisateur (test de "mort" réussi). | 28 |
-| Confiance du runtime de bureau | Changement de mode, redémarrage, interruption, délai d'attente, synchronisation | 73 |
-| **Total** | | **265** |
+| Phase | Ce que cela prouve |
+|-------|---------------|
+| A — Intention du créateur | L’identité du manifeste est déterministe et inviolable |
+| B — Vérité de la frappe | Les NFT sur XRPL correspondent exactement au manifeste (preuve en direct sur le Testnet) |
+| C — Vérité de l’accès | La propriété débloque un accès réel hors chaîne |
+| D — Vérité de la gouvernance | Les revenus sont gérés par le biais d’une chaîne d’approbation vérifiable |
+| E — Vérité de la durabilité | La publication survit à la disparition du frontend (test de résistance réussi) |
+| Confiance dans l’environnement d’exécution de bureau | Changement de mode, redémarrage, interruption, délai d’attente, synchronisation |
+
+La suite exécute actuellement plus de **700 tests** sur les différents packages du moteur, la CLI et l’application de bureau. `bash verify.sh` exécute tous ces tests et affiche le nombre en direct, sans effectuer d’appels réseau. (Les chiffres exacts varient à mesure que la suite s’agrandit ; la commande est la source de vérité.)
 
 ## Architecture
 
@@ -94,51 +95,50 @@ artifacts/        Live Testnet proof artifacts
 site/             Handbook (Astro Starlight)
 ```
 
-Monorepo avec 5 packages de base + application de bureau. TypeScript, Vitest, Tauri v2, Node 22+.
+Monorepositoire avec 5 packages du moteur + application de bureau. TypeScript, Vitest, Tauri v2, Node 22+.
 
-## Configuration du réseau
+## Posture réseau
 
-Le système est pleinement conscient du réseau : le réseau de test et le réseau principal sont des cibles distinctes et configurables.
+Le système dispose d’une connaissance complète du réseau : le Testnet et le Mainnet sont des cibles distinctes et configurables.
 
-| | Réseau de test | Réseau principal |
+| | Testnet | Mainnet |
 |-|---------|---------|
 | **Default** | Oui | No |
-| **Trust-proven** | Oui (preuves actives, 265 tests) | Non encore |
-| **CLI guard** | Aucun requis | `--network mainnet --allow-mainnet-write` |
-| **Desktop app** | Configuration par défaut du mode Studio | Non disponible dans v1.0.0 |
+| **Trust-proven** | Oui (preuves en direct, suite complète) | Pas encore |
+| **CLI guard** | Aucun nécessaire | `--network mainnet --allow-mainnet-write` |
+| **Desktop app** | Mode Studio par défaut | Non exposé dans l’application de bureau |
 
-**Considérez cette version comme une version préliminaire pour le réseau de test.** L'architecture n'est pas limitée au réseau de test, mais la preuve de confiance a été validée sur le réseau de test. La compatibilité avec le réseau principal nécessite une signature Xaman active et une promotion délibérée, et non un simple paramètre.
+**Considérez cette version comme un aperçu pour le Testnet.** L’architecture n’est pas limitée au Testnet, mais la preuve de confiance est prouvée sur le Testnet. La préparation du Mainnet nécessite une signature Xaman en direct et une promotion délibérée, ce n’est pas simplement un changement de paramètre.
 
 ## Modèle de confiance
 
-**Ce que ce système touche :**
-- Fichiers JSON locaux (manifestes, reçus, politiques, paquets)
-- XRPL via WebSocket (`wss://`) pour la création, la vérification et les contrôles de détenteurs.
-- Phrases de portefeuille stockées dans `wallets.json` (ignorées par Git, jamais commitées).
+**Ce que touche ce système :**
+- Fichiers JSON locaux (manifestes, reçus, politiques, ensembles)
+- XRPL via WebSocket (`wss://`) pour la frappe, la vérification et les contrôles des détenteurs
+- Phrases secrètes du portefeuille stockées localement dans `wallets.json` (ignorées par Git, jamais validées)
 
-**Ce que ce système NE touche PAS :**
-- Aucune API externe autre que les nœuds XRPL.
-- Aucune base de données, stockage cloud ou service tiers.
-- Aucune analyse, suivi ou télémétrie utilisateur.
+**Ce que ce système ne touche PAS :**
+- Aucune API externe autre que les nœuds XRPL
+- Aucune base de données, aucun stockage cloud ou service tiers
+- Aucune analyse d’utilisateur, aucun suivi ni aucune télémétrie
 
-**Frontières de sécurité :**
-- Les écritures sur le réseau principal nécessitent une option `--network mainnet --allow-mainnet-write` explicite.
-- Les informations d'identification du portefeuille restent locales et ne sont transmises qu'à XRPL pour la signature des transactions.
-- Tous les hachages utilisent SHA-256 sur une canonisation déterministe `sortKeysDeep()`.
-- Chaque artefact peut être vérifié indépendamment par rapport au registre.
-- `xrpl` est verrouillé à la version exacte 4.2.5 (suite à un avis de chaîne d'approvisionnement npm).
-- Aucune télémétrie n'est collectée ou envoyée.
+**Limites de sécurité :**
+- Les écritures sur le Mainnet nécessitent une autorisation explicite `--network mainnet --allow-mainnet-write`
+- Les informations d’identification du portefeuille restent locales — transmises uniquement à XRPL pour la signature des transactions
+- Tous les hachages utilisent SHA-256 sur une canonisation déterministe `sortKeysDeep()`
+- Chaque artefact est vérifiable indépendamment par rapport au registre
+- `xrpl` fixé à la version exacte 4.2.5 (suite aux recommandations concernant la chaîne d’approvisionnement npm)
 
 ## Limitations connues
 
-- **Node.js est requis** pour l'application de bureau (un environnement d'exécution intégré est prévu).
-- **La signature QR Xaman n'est pas encore active** — un fichier d'informations d'identification du portefeuille est requis (basé sur une clé secrète, uniquement pour le réseau de test).
-- **Le téléchargement IPFS est en attente** — les pointeurs de fichiers utilisent des chemins locaux, le stockage réel basé sur le contenu arrivera plus tard.
-- **Uniquement pour Windows** — un programme d'installation pour macOS est prévu pour une version ultérieure de RC.
+- **Node.js requis** pour l’application de bureau (environnement d’exécution intégré dans une version ultérieure)
+- **La signature QR Xaman n’est pas encore active** — un fichier d’informations d’identification du portefeuille est requis (basé sur la phrase secrète, uniquement pour le testnet)
+- **Le chargement IPFS en attente** — les pointeurs de fichiers utilisent des chemins locaux, un stockage réel basé sur le contenu sera disponible ultérieurement
+- **Uniquement pour Windows** — un programme d’installation macOS est prévu pour une future version RC
 
 ## Signaler les problèmes
 
-Cliquez sur **Signaler** dans la barre de titre de l'application de bureau pour exporter un ensemble de données de diagnostic, puis ouvrez un [billet GitHub](https://github.com/mcp-tool-shop-org/xrpl-creator-capsule/issues/new/choose).
+Cliquez sur **Signaler** dans la barre de titre de l’application de bureau pour exporter un ensemble de support, puis ouvrez un [ticket GitHub](https://github.com/mcp-tool-shop-org/xrpl-creator-capsule/issues/new/choose).
 
 ## Licence
 

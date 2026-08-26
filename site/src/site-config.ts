@@ -18,7 +18,7 @@ export const config: SiteConfig = {
     previews: [
       { label: 'Clone', code: 'git clone https://github.com/mcp-tool-shop-org/xrpl-creator-capsule.git' },
       { label: 'Build', code: 'npm install && npm run build' },
-      { label: 'Verify', code: 'bash verify.sh  # 240 tests' },
+      { label: 'Verify', code: 'bash verify.sh  # 700+ tests' },
     ],
   },
 
@@ -34,7 +34,7 @@ export const config: SiteConfig = {
         { title: 'Access Truth', desc: 'Ownership-gated benefits verified by holder checks. Hold the NFT, unlock the content.' },
         { title: 'Durability Truth', desc: 'Recovery bundles reconstruct the full release without the original app. Survives frontend death.' },
         { title: 'Governance Truth', desc: 'Revenue governed through an auditable 4-step approval chain: policy, proposal, decision, execution.' },
-        { title: '240 Tests', desc: 'Every claim is tested. Failure drills prove the system catches every category of tampering.' },
+        { title: '700+ Tests', desc: 'Every claim is tested. Failure drills prove the system catches every category of tampering.' },
       ],
     },
     {
