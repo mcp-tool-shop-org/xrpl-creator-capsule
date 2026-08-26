@@ -233,6 +233,75 @@ export function CancelBanner({ message, onRetry }: { message: string; onRetry?: 
   );
 }
 
+/**
+ * A before-the-fact confirmation gate — reuses CancelBanner/
+ * TimeoutBanner's exact visual vocabulary (warning-colored box, message
+ * plus a button row) rather than inventing a new dialog system, but
+ * with two symmetric, caller-labeled actions instead of a single
+ * implicit "Retry": this is for "are you sure" moments (F-040b05d3's
+ * Load Draft overwrite guard, F-bd945889's Start a New Release), not
+ * for recovering after something already happened.
+ */
+export function ConfirmBanner({
+  message,
+  confirmLabel = "Confirm",
+  cancelLabel = "Cancel",
+  onConfirm,
+  onCancel,
+}: {
+  message: string;
+  confirmLabel?: string;
+  cancelLabel?: string;
+  onConfirm: () => void;
+  onCancel: () => void;
+}) {
+  return (
+    <div
+      style={{
+        background: "var(--warning)" + "18",
+        border: "1px solid var(--warning)",
+        borderRadius: 6,
+        padding: "10px 14px",
+        marginBottom: 16,
+        fontSize: 13,
+        color: "var(--warning)",
+      }}
+    >
+      <div style={{ marginBottom: 8 }}>{message}</div>
+      <div style={{ display: "flex", gap: 8 }}>
+        <button
+          onClick={onConfirm}
+          style={{
+            background: "none",
+            border: "1px solid var(--warning)",
+            borderRadius: 4,
+            color: "var(--warning)",
+            fontSize: 12,
+            padding: "3px 10px",
+            cursor: "pointer",
+          }}
+        >
+          {confirmLabel}
+        </button>
+        <button
+          onClick={onCancel}
+          style={{
+            background: "none",
+            border: "1px solid var(--border)",
+            borderRadius: 4,
+            color: "var(--text-dim)",
+            fontSize: 12,
+            padding: "3px 10px",
+            cursor: "pointer",
+          }}
+        >
+          {cancelLabel}
+        </button>
+      </div>
+    </div>
+  );
+}
+
 export function TimeoutBanner({ message, onRetry, onReconcile }: {
   message: string;
   onRetry?: () => void;

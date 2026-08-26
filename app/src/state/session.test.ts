@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { invoke } from "@tauri-apps/api/core";
 import { saveSession, loadSession, clearSession, validateSession, type SessionState } from "./session";
-import { VALID_SESSION } from "../__test__/fixtures";
+import { VALID_SESSION, DRAFT } from "../__test__/fixtures";
 
 const mockInvoke = vi.mocked(invoke);
 
@@ -82,6 +82,63 @@ describe("session persistence", () => {
       const session = await loadSession();
       expect(session.savedAt).toBe("");
       expect(session.completed.published).toBe(false);
+    });
+
+    // F-343bb92d: loadSession previously only checked `version !== 1` —
+    // any other shape mismatch (e.g. a hand-edited or crash-truncated
+    // file whose `completed`/`artifactPaths` fields are malformed) typed
+    // past the `as SessionState` cast and was returned as-is, ready to
+    // throw deep inside a consumer instead of falling back like a JSON
+    // parse failure does.
+    it("returns INIT_SESSION when completed fields are malformed despite version 1", async () => {
+      const malformed = { ...VALID_SESSION, completed: { published: "yes" } };
+      mockLoadFile({
+        "/mock/app-data/capsule-session.json": JSON.stringify(malformed),
+      });
+      const session = await loadSession();
+      expect(session.savedAt).toBe("");
+      expect(session.draft).toBeNull();
+    });
+
+    it("returns INIT_SESSION when artifactPaths is missing required keys despite version 1", async () => {
+      const malformed = { ...VALID_SESSION, artifactPaths: {} };
+      mockLoadFile({
+        "/mock/app-data/capsule-session.json": JSON.stringify(malformed),
+      });
+      const session = await loadSession();
+      expect(session.savedAt).toBe("");
+    });
+
+    it("returns INIT_SESSION when activeStep is not a recognized step despite version 1", async () => {
+      const malformed = { ...VALID_SESSION, activeStep: "not-a-real-step" };
+      mockLoadFile({
+        "/mock/app-data/capsule-session.json": JSON.stringify(malformed),
+      });
+      const session = await loadSession();
+      expect(session.savedAt).toBe("");
+    });
+
+    it("returns INIT_SESSION when the embedded draft has a malformed collaborators field", async () => {
+      const malformed = {
+        ...VALID_SESSION,
+        draft: { ...DRAFT, collaborators: "not-an-array" },
+      };
+      mockLoadFile({
+        "/mock/app-data/capsule-session.json": JSON.stringify(malformed),
+      });
+      const session = await loadSession();
+      expect(session.savedAt).toBe("");
+      expect(session.draft).toBeNull();
+    });
+
+    it("still returns the parsed session when it carries unknown extra fields", async () => {
+      const withExtra = { ...VALID_SESSION, futureField: "from a newer app version" };
+      mockLoadFile({
+        "/mock/app-data/capsule-session.json": JSON.stringify(withExtra),
+      });
+      const session = await loadSession();
+      expect(session.version).toBe(1);
+      expect(session.completed.published).toBe(true);
     });
   });
 

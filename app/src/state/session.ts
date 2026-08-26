@@ -14,6 +14,7 @@
 
 import { appDataDir } from "@tauri-apps/api/path";
 import { loadFile, saveFile } from "../bridge/engine";
+import { isValidSessionState } from "./validate";
 import type { StudioDraft, StudioStep } from "./studio";
 
 // ── Persisted shape ─────────────────────────────────────────────────
@@ -105,8 +106,13 @@ export async function loadSession(): Promise<SessionState> {
   try {
     const path = await sessionFilePath();
     const content = await loadFile(path);
-    const parsed = JSON.parse(content) as SessionState;
-    if (parsed.version !== 1) return INIT_SESSION;
+    const parsed: unknown = JSON.parse(content);
+    // F-343bb92d: capsule-session.json is an ordinary user-writable file
+    // (crash mid-write, manual edit) — a structural shape check runs
+    // here instead of a bare `as SessionState` cast, falling back to
+    // INIT_SESSION on any mismatch the same way a JSON parse failure
+    // already does. This subsumes the old `version !== 1` check.
+    if (!isValidSessionState(parsed)) return INIT_SESSION;
     return parsed;
   } catch {
     return INIT_SESSION;

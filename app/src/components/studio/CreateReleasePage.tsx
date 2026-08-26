@@ -1,5 +1,5 @@
 import { useStudio, type BenefitKind, type StudioCollaborator } from "../../state/studio";
-import { ArtifactCard, ActionButton } from "../panels/PanelShell";
+import { ArtifactCard, ActionButton, ErrorBanner, ConfirmBanner } from "../panels/PanelShell";
 import type { SignerRole } from "../../bridge/engine";
 
 const ROLES: SignerRole[] = ["artist", "producer", "label", "manager", "collaborator", "other"];
@@ -15,6 +15,10 @@ export function CreateReleasePage() {
     removeCollaborator,
     saveDraft,
     loadDraft,
+    draftLoadError,
+    pendingDraftLoad,
+    confirmLoadDraft,
+    cancelLoadDraft,
     canProceedToBenefit,
     setActiveStep,
   } = useStudio();
@@ -28,6 +32,23 @@ export function CreateReleasePage() {
           <ActionButton label="Save Draft" onClick={saveDraft} variant="secondary" />
         </div>
       </div>
+
+      {/* F-343bb92d: the loaded file failed to read, parse, or pass
+          shape validation — the current draft was left untouched. */}
+      {draftLoadError && <ErrorBanner message={draftLoadError} />}
+
+      {/* F-040b05d3: the loaded file is valid, but the current draft has
+          content that was never explicitly saved to a file — confirm
+          before overwriting it. */}
+      {pendingDraftLoad && (
+        <ConfirmBanner
+          message={`Loading "${pendingDraftLoad.path.split(/[\\/]/).pop()}" will replace your current draft. Anything not explicitly saved to a file will be lost.`}
+          confirmLabel="Replace Draft"
+          cancelLabel="Keep Current Draft"
+          onConfirm={confirmLoadDraft}
+          onCancel={cancelLoadDraft}
+        />
+      )}
 
       {/* What is this release? */}
       <ArtifactCard>

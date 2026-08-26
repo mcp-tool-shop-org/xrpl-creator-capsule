@@ -73,7 +73,14 @@ export function TestAccessPage() {
         Test Collector Experience
       </h2>
 
-      {error && <ErrorBanner message={error} />}
+      {/* F-dba2ccb6: runGrantAccess() no longer throws on a timeout (it
+          resolves once the shared timeout wrapper decides either the
+          real result landed or the budget elapsed), so this page's own
+          local `error` stays null in that case — the honest "timed
+          out, may still be completing" message lives in access.error
+          instead. Falls back to access.error whenever there's nothing
+          more specific to show locally. */}
+      {(error || access.error) && <ErrorBanner message={(error ?? access.error)!} />}
 
       <ArtifactCard>
         <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 6, color: "var(--text)" }}>
