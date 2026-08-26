@@ -9,7 +9,7 @@
  * come from real ledger submissions done externally or in a later phase.
  */
 
-import { readFile, writeFile } from "node:fs/promises";
+import { writeFile } from "node:fs/promises";
 import {
   assertGovernancePolicy,
   assertPayoutProposal,
@@ -21,6 +21,7 @@ import type {
   PayoutExecutionReceipt,
   ExecutedPayoutOutput,
 } from "@capsule/core";
+import { readJsonFile } from "../lib/json-input.js";
 
 export interface ExecutePayoutOpts {
   policyPath: string;
@@ -36,15 +37,9 @@ export interface ExecutePayoutOpts {
 export async function executePayout(
   opts: ExecutePayoutOpts
 ): Promise<PayoutExecutionReceipt> {
-  const policy = assertGovernancePolicy(
-    JSON.parse(await readFile(opts.policyPath, "utf-8"))
-  );
-  const proposal = assertPayoutProposal(
-    JSON.parse(await readFile(opts.proposalPath, "utf-8"))
-  );
-  const decision = assertPayoutDecision(
-    JSON.parse(await readFile(opts.decisionPath, "utf-8"))
-  );
+  const policy = assertGovernancePolicy(await readJsonFile(opts.policyPath, "policy"));
+  const proposal = assertPayoutProposal(await readJsonFile(opts.proposalPath, "proposal"));
+  const decision = assertPayoutDecision(await readJsonFile(opts.decisionPath, "decision"));
 
   if (decision.decision.outcome !== "approved") {
     throw new Error("Cannot execute: proposal was not approved");

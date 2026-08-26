@@ -23,32 +23,153 @@ import {
 import { MockDeliveryProvider } from "@capsule/storage";
 import type { NetworkId } from "@capsule/xrpl";
 import type { XamanNetwork } from "@capsule/xaman";
+import { parseJsonArgument, readJsonFile } from "./lib/json-input.js";
 
-const COMMANDS: Record<string, string> = {
-  "init-wallets": "Generate and fund issuer + operator wallet pair",
-  "configure-minter": "Set operator as authorized minter on issuer account",
-  "create-release": "Create a release from a manifest input file",
-  validate: "Validate a Release Manifest against the schema",
-  resolve: "Check that manifest pointers (CIDs, URLs) are structurally valid",
-  "mint-release": "Mint NFT editions from a manifest and emit issuance receipt",
-  "verify-release": "Reconcile manifest + receipt against chain state",
-  "grant-access": "Evaluate access request and emit grant receipt",
-  "create-access-policy": "Generate an access policy from manifest + receipt",
-  "recover-release": "Reconstruct a release from artifacts + chain state",
-  "create-governance-policy": "Create a governance policy for a release treasury",
-  "propose-payout": "Create a payout proposal against a governance policy",
-  "decide-payout": "Collect approvals and emit a decision receipt",
-  "execute-payout": "Record payout execution and verify hash chain",
-  "verify-payout": "Verify all 4 governance artifacts and their relationships",
+interface CommandHelp {
+  /** One-line description. */
+  summary: string;
+  /** Usage line showing the command's flags (no leading "Usage:"). */
+  usage: string;
+  /** One realistic example invocation (no leading "Example:"). */
+  example: string;
+}
+
+// F-d092bb7f: --help used to print only this table's `summary` column — no
+// flags, no example — for all 15 commands, and no per-command --help/-h
+// existed at all (Node's parseArgs runs in strict mode, so any per-command
+// --help was rejected as an unrecognized option instead of answered). This
+// registry is now the single source for both the top-level command list
+// and each command's own --help output, so the two can't drift apart.
+const COMMAND_HELP: Record<string, CommandHelp> = {
+  "init-wallets": {
+    summary: "Generate and fund issuer + operator wallet pair",
+    usage:
+      "capsule init-wallets [--network <testnet|devnet|mainnet>] [-o, --output <path>] [--fund] [--authorize] [--allow-mainnet-write]",
+    example: "capsule init-wallets --network testnet --fund --authorize -o wallets.json",
+  },
+  "configure-minter": {
+    summary: "Set operator as authorized minter on issuer account",
+    usage:
+      "capsule configure-minter [-w, --wallets <path>] [--network <testnet|devnet|mainnet>] [--via xaman --operator <address>] [--allow-mainnet-write]",
+    example: "capsule configure-minter --wallets wallets.json --network testnet",
+  },
+  "create-release": {
+    summary: "Create a release from a manifest input file",
+    usage: "capsule create-release -i, --input <file> [-o, --output <file>]",
+    example: "capsule create-release --input release-input.json --output release.json",
+  },
+  validate: {
+    summary: "Validate a Release Manifest against the schema",
+    usage: "capsule validate <manifest.json>",
+    example: "capsule validate release.json",
+  },
+  resolve: {
+    summary: "Check that manifest pointers (CIDs, URLs) are structurally valid",
+    usage: "capsule resolve <manifest.json>",
+    example: "capsule resolve release.json",
+  },
+  "mint-release": {
+    summary: "Mint NFT editions from a manifest and emit issuance receipt",
+    usage:
+      "capsule mint-release -m, --manifest <file> [-w, --wallets <path>] [--network <testnet|devnet|mainnet>] [--via xaman --operator <address>] [-o, --out <file>] [--allow-mainnet-write]",
+    example: "capsule mint-release --manifest release.json --wallets wallets.json --network testnet",
+  },
+  "verify-release": {
+    summary: "Reconcile manifest + receipt against chain state",
+    usage: "capsule verify-release -m, --manifest <file> -r, --receipt <file>",
+    example: "capsule verify-release --manifest release.json --receipt issuance-receipt.json",
+  },
+  "grant-access": {
+    summary: "Evaluate access request and emit grant receipt",
+    usage:
+      "capsule grant-access -m, --manifest <file> -r, --receipt <file> -p, --policy <file> -w, --wallet <address> [-o, --out <file>]",
+    example:
+      "capsule grant-access --manifest release.json --receipt issuance-receipt.json --policy access-policy.json --wallet rCollectorAddressXXXXXXXXXXXXXXXXXX",
+  },
+  "create-access-policy": {
+    summary: "Generate an access policy from manifest + receipt",
+    usage:
+      "capsule create-access-policy -m, --manifest <file> -r, --receipt <file> [-o, --output <file>] [--ttl <seconds>]",
+    example:
+      "capsule create-access-policy --manifest release.json --receipt issuance-receipt.json --ttl 3600",
+  },
+  "recover-release": {
+    summary: "Reconstruct a release from artifacts + chain state",
+    usage:
+      "capsule recover-release -m, --manifest <file> -r, --receipt <file> [-p, --policy <file>] [-o, --out <file>]",
+    example: "capsule recover-release --manifest release.json --receipt issuance-receipt.json",
+  },
+  "create-governance-policy": {
+    summary: "Create a governance policy for a release treasury",
+    usage:
+      "capsule create-governance-policy -m, --manifest <file> --treasury <address> --signers '<json>' [--threshold <n>] [--network <testnet|devnet|mainnet>] [--assets <comma-list>] [--allow-partial] [--max-outputs <n>]",
+    example:
+      "capsule create-governance-policy --manifest release.json --treasury rTreasuryAddressXXXXXXXXXXXXXXXXXX --signers '[{\"address\":\"rSignerAddressXXXXXXXXXXXXXXXXXX\",\"weight\":1}]' --threshold 2",
+  },
+  "propose-payout": {
+    summary: "Create a payout proposal against a governance policy",
+    usage:
+      "capsule propose-payout -p, --policy <file> --id <proposal-id> --outputs '<json>' [--memo <text>]",
+    example:
+      "capsule propose-payout --policy governance-policy.json --id payout-001 --outputs '[{\"address\":\"rPayeeAddressXXXXXXXXXXXXXXXXXXXX\",\"amount\":\"1000000\",\"asset\":\"XRP\"}]'",
+  },
+  "decide-payout": {
+    summary: "Collect approvals and emit a decision receipt",
+    usage: "capsule decide-payout -p, --policy <file> --proposal <file> --approvals '<json>'",
+    example:
+      "capsule decide-payout --policy governance-policy.json --proposal payout-proposal.json --approvals '[{\"signerAddress\":\"rSignerAddressXXXXXXXXXXXXXXXXXX\",\"approved\":true}]'",
+  },
+  "execute-payout": {
+    summary: "Record payout execution and verify hash chain",
+    usage:
+      "capsule execute-payout -p, --policy <file> --proposal <file> --decision <file> --tx-hashes '<json>' --executed-outputs '<json>'",
+    example:
+      "capsule execute-payout --policy governance-policy.json --proposal payout-proposal.json --decision payout-decision.json --tx-hashes '[\"ABCD1234\"]' --executed-outputs '[{\"address\":\"rPayeeAddressXXXXXXXXXXXXXXXXXXXX\",\"amount\":\"1000000\",\"asset\":\"XRP\"}]'",
+  },
+  "verify-payout": {
+    summary: "Verify all 4 governance artifacts and their relationships",
+    usage:
+      "capsule verify-payout -p, --policy <file> --proposal <file> --decision <file> --execution <file>",
+    example:
+      "capsule verify-payout --policy governance-policy.json --proposal payout-proposal.json --decision payout-decision.json --execution payout-execution.json",
+  },
 };
 
-function parseNetwork(args: string[]): NetworkId {
-  const { values } = parseArgs({
-    args,
-    options: { network: { type: "string", default: "testnet" } },
-    allowPositionals: true,
-  });
-  const network = values.network as NetworkId;
+function printTopLevelHelp(): void {
+  console.log("Usage: capsule <command> [options]\n");
+  console.log("Run `capsule <command> --help` for a command's full flag list and an example.\n");
+  console.log("Commands:");
+  for (const [name, help] of Object.entries(COMMAND_HELP)) {
+    console.log(`  ${name.padEnd(24)} ${help.summary}`);
+    console.log(`  ${" ".repeat(24)} ${help.usage}`);
+    console.log(`  ${" ".repeat(24)} e.g. ${help.example}`);
+    console.log("");
+  }
+}
+
+function printCommandHelp(command: string): void {
+  const help = COMMAND_HELP[command];
+  console.log(`capsule ${command}\n`);
+  console.log(help.summary);
+  console.log(`\nUsage:\n  ${help.usage}`);
+  console.log(`\nExample:\n  ${help.example}`);
+}
+
+/**
+ * F-6d35beac: this used to be declared but never called anywhere — every
+ * case block that reads --network reimplemented this exact validation
+ * inline instead (and three of the five call sites skipped the validation
+ * step entirely, letting an invalid --network value fall through to a
+ * confusing failure deep inside a command instead of a clear one here).
+ * Signature changed from "parse args and validate" to "validate an
+ * already-parsed value" because each case already has its own required
+ * parseArgs() call for its other flags — re-parsing argv from scratch here
+ * too would either duplicate that work or hit Node's parseArgs strict-mode
+ * rejection of the other case's flags. This is now the single validation
+ * call site for every case that reads --network.
+ */
+function parseNetwork(value: string | undefined): NetworkId {
+  const network = (value ?? "testnet") as NetworkId;
   if (!["testnet", "devnet", "mainnet"].includes(network)) {
     console.error(`Invalid network: ${network}`);
     process.exit(1);
@@ -60,11 +181,17 @@ async function main(): Promise<void> {
   const command = process.argv[2];
 
   if (!command || command === "--help" || command === "-h") {
-    console.log("Usage: capsule <command> [options]\n");
-    console.log("Commands:");
-    for (const [name, desc] of Object.entries(COMMANDS)) {
-      console.log(`  ${name.padEnd(20)} ${desc}`);
-    }
+    printTopLevelHelp();
+    process.exit(0);
+  }
+
+  // Per-command --help/-h, intercepted once here (rather than duplicated in
+  // all 15 case blocks below) so it never reaches that command's own
+  // strict parseArgs() call, which would otherwise reject --help as an
+  // unrecognized option (F-d092bb7f).
+  const commandArgs = process.argv.slice(3);
+  if (command in COMMAND_HELP && (commandArgs.includes("--help") || commandArgs.includes("-h"))) {
+    printCommandHelp(command);
     process.exit(0);
   }
 
@@ -77,14 +204,20 @@ async function main(): Promise<void> {
           output: { type: "string", short: "o", default: "wallets.json" },
           fund: { type: "boolean", default: false },
           authorize: { type: "boolean", default: false },
+          // F-65e3918c: --authorize performs the exact same on-chain
+          // AccountSet authorization that configure-minter and mint-release
+          // gate behind --allow-mainnet-write, but this option never
+          // existed here. On mainnet, the fail-closed error from
+          // authorizeOperatorAsMinter() told the operator to pass this
+          // exact flag — which parseArgs' strict mode then rejected as
+          // unknown, a documented dead end with no way through. Declaring
+          // it here and threading it below closes the loop; the default
+          // (false) preserves today's fail-closed behavior exactly.
+          "allow-mainnet-write": { type: "boolean", default: false },
         },
       });
 
-      const network = values.network as NetworkId;
-      if (!["testnet", "devnet", "mainnet"].includes(network)) {
-        console.error(`Invalid network: ${network}`);
-        process.exit(1);
-      }
+      const network = parseNetwork(values.network);
 
       console.log(`Generating wallet pair on ${network}...`);
       const result = await initWallets({
@@ -92,6 +225,7 @@ async function main(): Promise<void> {
         outputPath: values.output!,
         fund: values.fund!,
         authorize: values.authorize!,
+        allowMainnetWrite: values["allow-mainnet-write"],
       });
 
       console.log(`Issuer:   ${result.issuerAddress}`);
@@ -114,7 +248,7 @@ async function main(): Promise<void> {
         },
       });
 
-      const network = values.network as NetworkId;
+      const network = parseNetwork(values.network);
 
       if (values.via === "xaman") {
         if (!values.operator) {
@@ -232,7 +366,7 @@ async function main(): Promise<void> {
         process.exit(1);
       }
 
-      const network = values.network as NetworkId;
+      const network = parseNetwork(values.network);
 
       if (values.via === "xaman") {
         if (!values.operator) {
@@ -345,11 +479,16 @@ async function main(): Promise<void> {
         process.exit(1);
       }
 
-      const { readFile, writeFile } = await import("node:fs/promises");
+      const { writeFile } = await import("node:fs/promises");
       const { assertManifest, assertReceipt, computeManifestId } = await import("@capsule/core");
 
-      const manifest = assertManifest(JSON.parse(await readFile(values.manifest, "utf-8")));
-      const receipt = assertReceipt(JSON.parse(await readFile(values.receipt, "utf-8")));
+      // F-5a0ce89b: same unguarded-JSON.parse pattern as the 11 command
+      // files, just living inline here instead of in its own commands/
+      // file (create-access-policy has no dedicated command module) — not
+      // in that finding's original grep list, but the identical defect, so
+      // fixed alongside it with the same helper.
+      const manifest = assertManifest(await readJsonFile(values.manifest, "manifest"));
+      const receipt = assertReceipt(await readJsonFile(values.receipt, "receipt"));
 
       const policy = {
         schemaVersion: "1.0.0" as const,
@@ -500,11 +639,13 @@ async function main(): Promise<void> {
         process.exit(1);
       }
 
+      const network = parseNetwork(values.network);
+
       const policy = await createGovernancePolicy({
         manifestPath: values.manifest,
         treasuryAddress: values.treasury,
-        network: values.network as NetworkId,
-        signers: JSON.parse(values.signers),
+        network,
+        signers: parseJsonArgument(values.signers, "--signers"),
         threshold: parseInt(values.threshold!, 10),
         allowedAssets: values.assets!.split(","),
         allowPartialPayouts: values["allow-partial"],
@@ -548,7 +689,7 @@ async function main(): Promise<void> {
       const proposal = await proposePayout({
         policyPath: values.policy,
         proposalId: values.id,
-        outputs: JSON.parse(values.outputs),
+        outputs: parseJsonArgument(values.outputs, "--outputs"),
         createdBy: values["created-by"]!,
         memo: values.memo,
         outputPath: values.out!,
@@ -584,7 +725,7 @@ async function main(): Promise<void> {
       const decision = await decidePayout({
         policyPath: values.policy,
         proposalPath: values.proposal,
-        approvals: JSON.parse(values.approvals),
+        approvals: parseJsonArgument(values.approvals, "--approvals"),
         decidedBy: values["decided-by"]!,
         outputPath: values.out!,
       });
@@ -633,8 +774,8 @@ async function main(): Promise<void> {
         policyPath: values.policy,
         proposalPath: values.proposal,
         decisionPath: values.decision,
-        txHashes: JSON.parse(values["tx-hashes"]),
-        executedOutputs: JSON.parse(values["executed-outputs"]),
+        txHashes: parseJsonArgument(values["tx-hashes"], "--tx-hashes"),
+        executedOutputs: parseJsonArgument(values["executed-outputs"], "--executed-outputs"),
         executedBy: values["executed-by"]!,
         outputPath: values.out!,
       });

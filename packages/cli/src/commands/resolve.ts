@@ -1,9 +1,9 @@
-import { readFile } from "node:fs/promises";
 import {
   assertManifest,
   resolveManifestPointers,
   type ResolutionResult,
 } from "@capsule/core";
+import { readJsonFile } from "../lib/json-input.js";
 
 /**
  * Resolve a Release Manifest's external pointers.
@@ -12,8 +12,11 @@ import {
 export async function resolveManifestFile(
   filePath: string
 ): Promise<ResolutionResult> {
-  const raw = await readFile(filePath, "utf-8");
-  const parsed = JSON.parse(raw);
+  // F-e676ca8f: this used to call JSON.parse directly with no try/catch,
+  // unlike the identical read-then-parse step in create-release.ts and
+  // validate.ts — a malformed manifest surfaced a bare JSON.parse
+  // SyntaxError instead of a message naming the file.
+  const parsed = await readJsonFile(filePath, "manifest");
   const manifest = assertManifest(parsed);
   return resolveManifestPointers(manifest);
 }

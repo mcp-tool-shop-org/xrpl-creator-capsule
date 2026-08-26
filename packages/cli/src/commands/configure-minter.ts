@@ -1,4 +1,3 @@
-import { readFile } from "node:fs/promises";
 import {
   importWalletPair,
   authorizeOperatorAsMinter,
@@ -6,6 +5,7 @@ import {
   type NetworkId,
   type MinterVerification,
 } from "@capsule/xrpl";
+import { readJsonFile } from "../lib/json-input.js";
 
 export interface ConfigureMinterOptions {
   walletsPath: string;
@@ -26,8 +26,9 @@ export interface ConfigureMinterResult {
 export async function configureMinter(
   opts: ConfigureMinterOptions
 ): Promise<ConfigureMinterResult> {
-  const raw = await readFile(opts.walletsPath, "utf-8");
-  const walletData = JSON.parse(raw);
+  // F-5a0ce89b: unguarded JSON.parse used to surface a bare SyntaxError
+  // with no indication the wallets file was the problem.
+  const walletData = await readJsonFile(opts.walletsPath, "wallets");
   const pair = importWalletPair(walletData);
 
   // Set authorized minter

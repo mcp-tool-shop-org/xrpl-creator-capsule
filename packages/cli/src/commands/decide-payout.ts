@@ -5,7 +5,7 @@
  * and emits a stamped decision receipt.
  */
 
-import { readFile, writeFile } from "node:fs/promises";
+import { writeFile } from "node:fs/promises";
 import {
   assertGovernancePolicy,
   assertPayoutProposal,
@@ -14,6 +14,7 @@ import {
   checkDecisionAgainstProposal,
 } from "@capsule/core";
 import type { PayoutDecisionReceipt, GovernanceApproval } from "@capsule/core";
+import { readJsonFile } from "../lib/json-input.js";
 
 export interface DecidePayoutOpts {
   policyPath: string;
@@ -26,12 +27,8 @@ export interface DecidePayoutOpts {
 export async function decidePayout(
   opts: DecidePayoutOpts
 ): Promise<PayoutDecisionReceipt> {
-  const policy = assertGovernancePolicy(
-    JSON.parse(await readFile(opts.policyPath, "utf-8"))
-  );
-  const proposal = assertPayoutProposal(
-    JSON.parse(await readFile(opts.proposalPath, "utf-8"))
-  );
+  const policy = assertGovernancePolicy(await readJsonFile(opts.policyPath, "policy"));
+  const proposal = assertPayoutProposal(await readJsonFile(opts.proposalPath, "proposal"));
 
   // Evaluate approvals against policy threshold
   const evaluation = evaluateApprovals(proposal, policy, opts.approvals);

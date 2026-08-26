@@ -15,6 +15,13 @@ export interface InitWalletsOptions {
   fund: boolean;
   /** Whether to authorize operator as minter on the issuer account */
   authorize: boolean;
+  /**
+   * Required to actually perform `authorize` on mainnet (F-65e3918c).
+   * Mirrors the same escape hatch already threaded through
+   * configure-minter and mint-release — without it, authorizeOperatorAsMinter
+   * fails closed with an error that names this exact flag.
+   */
+  allowMainnetWrite?: boolean;
 }
 
 export interface InitWalletsResult {
@@ -46,7 +53,7 @@ export async function initWallets(
         "Cannot authorize minter without funding on testnet/devnet. Use --fund."
       );
     }
-    await authorizeOperatorAsMinter(pair, opts.network);
+    await authorizeOperatorAsMinter(pair, opts.network, opts.allowMainnetWrite ?? false);
     authorized = true;
   }
 

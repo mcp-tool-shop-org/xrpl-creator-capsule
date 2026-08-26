@@ -11,7 +11,7 @@ import {
   type IssuanceReceipt,
   type AccessPolicy,
 } from "@capsule/core";
-import { recoverRelease } from "./recover-release.js";
+import { recoverRelease, buildMintFactsLines } from "./recover-release.js";
 
 // Mock XRPL chain calls
 vi.mock("@capsule/xrpl", () => ({
@@ -422,5 +422,60 @@ describe("recover-release — chain verification spans every edition", () => {
     const chainSection = result.reconstruction.sections.find((s) => s.name === "Chain Verification");
     expect(chainSection?.passed).toBe(true);
     expect(chainSection?.lines.some((l) => l.includes("3/3"))).toBe(true);
+  });
+});
+
+describe("buildMintFactsLines — array length mismatch (F-506382f2)", () => {
+  // The Mint Facts section used to build its lines by indexing
+  // mintTxHashes[i] for each i in nftTokenIds with no length check. If the
+  // two arrays were ever different lengths, it silently printed
+  // "Tx: undefined" for the missing entries instead of flagging the
+  // mismatch as its own reconstruction problem.
+  //
+  // assertReceipt() (packages/core/src/receipt-validate.ts) already
+  // rejects a receipt whose nftTokenIds/mintTxHashes lengths differ, and
+  // recoverRelease() calls it before ever reaching this section — so this
+  // exact scenario can no longer reach recoverRelease() through its normal
+  // file-based flow. buildMintFactsLines is exported so this defect (and
+  // its fix) can still be tested directly against the raw arrays, as
+  // defense-in-depth independent of that upstream guarantee.
+
+  it("marks the section failed and flags MISSING instead of printing undefined", () => {
+    const result = buildMintFactsLines(
+      ["TOKEN_A", "TOKEN_B", "TOKEN_C"],
+      ["TX_A"],
+      5000
+    );
+
+    expect(result.passed).toBe(false);
+    expect(
+      result.lines.some((l) => l.startsWith("WARNING") && l.includes("different lengths"))
+    ).toBe(true);
+    expect(result.lines).toContain("    Tx: MISSING");
+    expect(result.lines.join("\n")).not.toContain("undefined");
+  });
+
+  it("flags MISSING the same way when mintTxHashes is longer than nftTokenIds", () => {
+    const result = buildMintFactsLines(["TOKEN_A"], ["TX_A", "TX_B"], 5000);
+
+    expect(result.passed).toBe(false);
+    expect(result.lines.join("\n")).not.toContain("undefined");
+  });
+
+  it("passes normally with no warning when the arrays are the same length", () => {
+    const result = buildMintFactsLines(["TOKEN_A", "TOKEN_B"], ["TX_A", "TX_B"], 5000);
+
+    expect(result.passed).toBe(true);
+    expect(result.lines.some((l) => l.startsWith("WARNING"))).toBe(false);
+    expect(result.lines).toContain("    Tx: TX_A");
+    expect(result.lines).toContain("    Tx: TX_B");
+    expect(result.lines).toContain("Transfer fee: 5000 basis points");
+  });
+
+  it("handles the empty-editions case without a false mismatch warning", () => {
+    const result = buildMintFactsLines([], [], 0);
+
+    expect(result.passed).toBe(true);
+    expect(result.lines).toEqual(["Transfer fee: 0 basis points"]);
   });
 });
