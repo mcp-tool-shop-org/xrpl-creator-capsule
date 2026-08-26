@@ -84,7 +84,21 @@ export function verifySignerAddress(
   const base = verifyPayloadResult(result);
   if (!base.valid) return base;
 
-  if (result.signerAddress && result.signerAddress !== expectedAddress) {
+  // A missing signerAddress must fail closed, not no-op. This function's
+  // entire purpose is confirming which wallet signed; with no address to
+  // compare there is nothing verified, so treat it as a failure rather than
+  // silently returning valid:true (verifyPayloadResult only warns here,
+  // which is correct for its own pre-check scope, but that warning must not
+  // leak through as a passing identity check here).
+  if (!result.signerAddress) {
+    base.errors.push(
+      "No signer address in result — cannot confirm which wallet signed"
+    );
+    base.valid = false;
+    return base;
+  }
+
+  if (result.signerAddress !== expectedAddress) {
     base.errors.push(
       `Signer address ${result.signerAddress} does not match ` +
         `expected ${expectedAddress}`

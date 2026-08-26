@@ -1,6 +1,7 @@
 import { Client } from "xrpl";
 import type { NetworkId } from "./network.js";
 import { getNetwork } from "./network.js";
+import { fetchAllAccountNfts } from "./account-nfts.js";
 
 export interface NftInfo {
   nftTokenId: string;
@@ -25,20 +26,7 @@ export async function readNftFromLedger(
   try {
     await client.connect();
 
-    const response = await client.request({
-      command: "account_nfts",
-      account: ownerOrIssuer,
-      ledger_index: "validated",
-    });
-
-    const nfts = response.result.account_nfts as unknown as Array<{
-      NFTokenID: string;
-      Issuer: string;
-      URI: string;
-      Flags: number;
-      TransferFee: number;
-      NFTokenTaxon: number;
-    }>;
+    const nfts = await fetchAllAccountNfts(client, ownerOrIssuer);
 
     const match = nfts.find((n) => n.NFTokenID === nftTokenId);
     if (!match) return null;

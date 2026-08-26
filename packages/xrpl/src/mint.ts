@@ -14,6 +14,37 @@ export interface MintResult {
 }
 
 /**
+ * Thrown when mintRelease fails partway through an edition run.
+ *
+ * Every edition already submitted before the failure is a real, irreversible
+ * on-chain mint — losing track of it means a retry has no way to know those
+ * editions exist, so it mints a fresh batch and double-mints them with no
+ * receipt ever produced for the first batch. This error carries whatever
+ * tokenIds/txHashes were already confirmed on-ledger so the caller can
+ * record them (or reconcile against them) instead of discarding them.
+ */
+export class PartialMintError extends Error {
+  /** NFTokenIDs successfully minted before the failure. */
+  readonly tokenIds: string[];
+  /** Transaction hashes for the successful mints before the failure. */
+  readonly txHashes: string[];
+  /** Total editions the run was attempting to mint. */
+  readonly editionSize: number;
+
+  constructor(
+    message: string,
+    partial: { tokenIds: string[]; txHashes: string[]; editionSize: number },
+    options?: { cause?: unknown }
+  ) {
+    super(message, options);
+    this.name = "PartialMintError";
+    this.tokenIds = partial.tokenIds;
+    this.txHashes = partial.txHashes;
+    this.editionSize = partial.editionSize;
+  }
+}
+
+/**
  * Build the NFT URI from the manifest's metadata endpoint.
  * XRPL URI field is max 256 bytes, hex-encoded.
  */
@@ -75,40 +106,57 @@ export async function mintRelease(
     await client.connect();
 
     for (let i = 0; i < manifest.editionSize; i++) {
-      const tx = await client.submitAndWait(
-        {
-          TransactionType: "NFTokenMint",
-          Account: pair.operator.address,
-          Issuer: pair.issuer.address,
-          URI: uri,
-          // tfTransferable (0x00000008) — required for secondary sales
-          Flags: 0x00000008,
-          TransferFee: transferFee,
-          NFTokenTaxon: 0,
-        },
-        { wallet: pair.operator }
-      );
+      try {
+        const tx = await client.submitAndWait(
+          {
+            TransactionType: "NFTokenMint",
+            Account: pair.operator.address,
+            Issuer: pair.issuer.address,
+            URI: uri,
+            // tfTransferable (0x00000008) — required for secondary sales
+            Flags: 0x00000008,
+            TransferFee: transferFee,
+            NFTokenTaxon: 0,
+          },
+          { wallet: pair.operator }
+        );
 
-      const meta = tx.result.meta;
-      if (typeof meta !== "object" || meta === null) {
-        throw new Error(`Mint ${i + 1}/${manifest.editionSize}: no transaction metadata`);
-      }
+        const meta = tx.result.meta;
+        if (typeof meta !== "object" || meta === null) {
+          throw new Error(`Mint ${i + 1}/${manifest.editionSize}: no transaction metadata`);
+        }
 
-      const metaObj = meta as unknown as Record<string, unknown>;
-      if (metaObj.TransactionResult !== "tesSUCCESS") {
-        throw new Error(
-          `Mint ${i + 1}/${manifest.editionSize} failed: ${metaObj.TransactionResult}`
+        const metaObj = meta as unknown as Record<string, unknown>;
+        if (metaObj.TransactionResult !== "tesSUCCESS") {
+          throw new Error(
+            `Mint ${i + 1}/${manifest.editionSize} failed: ${metaObj.TransactionResult}`
+          );
+        }
+
+        // Extract NFTokenID from affected nodes
+        const nftId = extractNFTokenId(meta);
+        if (!nftId) {
+          throw new Error(`Mint ${i + 1}/${manifest.editionSize}: could not extract NFTokenID`);
+        }
+
+        tokenIds.push(nftId);
+        txHashes.push(tx.result.hash);
+      } catch (err) {
+        // Every edition pushed into tokenIds/txHashes above is already an
+        // irreversible on-chain mint. Surface it rather than letting the
+        // throw below discard it — see PartialMintError doc comment.
+        throw new PartialMintError(
+          `Mint failed at edition ${i + 1}/${manifest.editionSize} after ` +
+            `${tokenIds.length} already-confirmed mint(s): ` +
+            `${err instanceof Error ? err.message : String(err)}`,
+          {
+            tokenIds: [...tokenIds],
+            txHashes: [...txHashes],
+            editionSize: manifest.editionSize,
+          },
+          { cause: err }
         );
       }
-
-      // Extract NFTokenID from affected nodes
-      const nftId = extractNFTokenId(meta);
-      if (!nftId) {
-        throw new Error(`Mint ${i + 1}/${manifest.editionSize}: could not extract NFTokenID`);
-      }
-
-      tokenIds.push(nftId);
-      txHashes.push(tx.result.hash);
     }
 
     return { tokenIds, txHashes, network };

@@ -88,4 +88,30 @@ describe("verifySignerAddress", () => {
     expect(v.valid).toBe(false);
     expect(v.errors[0]).toMatch(/not yet resolved/);
   });
+
+  // F-072a5390 (CRITICAL, fail-open regression):
+  // Half 1 — a missing signerAddress must NOT silently verify. The entire
+  // purpose of this function is to confirm the right wallet signed
+  // (configure-minter: must be issuer; mint-release: must be operator).
+  // With no signerAddress there is nothing to compare against expectedAddress,
+  // so the identity check must FAIL rather than no-op into valid:true.
+  it("fails when signer address is missing instead of silently passing", () => {
+    const v = verifySignerAddress(
+      makeSignedResult({ signerAddress: undefined }),
+      "rHb9CJAWyB4rj91VRWn96DkukG4bwdtyTh"
+    );
+    expect(v.valid).toBe(false);
+    expect(v.errors.length).toBeGreaterThan(0);
+    expect(v.errors.some((e) => /signer address/i.test(e))).toBe(true);
+  });
+
+  // Half 2 — the fix must not regress the legitimate matching-signer path.
+  it("still passes when signer address is present and matches", () => {
+    const v = verifySignerAddress(
+      makeSignedResult({ signerAddress: "rHb9CJAWyB4rj91VRWn96DkukG4bwdtyTh" }),
+      "rHb9CJAWyB4rj91VRWn96DkukG4bwdtyTh"
+    );
+    expect(v.valid).toBe(true);
+    expect(v.errors).toHaveLength(0);
+  });
 });

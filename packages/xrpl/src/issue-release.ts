@@ -11,7 +11,7 @@ import type { WalletPair } from "./wallet.js";
 import type { NetworkId } from "./network.js";
 import { assertMainnetAllowed } from "./network.js";
 import { verifyAuthorizedMinter } from "./verify-minter.js";
-import { mintRelease, type MintResult } from "./mint.js";
+import { mintRelease, PartialMintError, type MintResult } from "./mint.js";
 
 export interface IssueReleaseOptions {
   manifest: ReleaseManifest;
@@ -109,8 +109,22 @@ export async function issueRelease(
   try {
     mintResult = await mintRelease(manifest, wallets, network, allowMainnetWrite);
   } catch (err) {
+    if (err instanceof PartialMintError) {
+      // Do not let a mid-run mint failure erase the editions that already
+      // landed on-ledger — forward exactly which ones so this cannot be
+      // silently double-minted by a naive retry.
+      throw new Error(
+        `Mint failed: ${err.message} — ${err.tokenIds.length} of ` +
+          `${err.editionSize} edition(s) were already minted on-ledger ` +
+          `before the failure and have NO receipt yet ` +
+          `(tokenIds: ${err.tokenIds.join(", ") || "none"}; ` +
+          `txHashes: ${err.txHashes.join(", ") || "none"}).`,
+        { cause: err }
+      );
+    }
     throw new Error(
-      `Mint failed: ${err instanceof Error ? err.message : String(err)}`
+      `Mint failed: ${err instanceof Error ? err.message : String(err)}`,
+      { cause: err }
     );
   }
 
