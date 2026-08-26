@@ -19,24 +19,64 @@
  * fundamentally about real OS pipe/timing behavior, not something a
  * mocked `process.stdout.write` could meaningfully prove either way.
  *
- * So this test spawns the REAL script exactly the way commands.rs does
- * (`npx tsx app/bridge-worker.ts`) and sends it a command deliberately
- * engineered to produce a MULTI-MEGABYTE error message — dispatch()'s
- * `default` case echoes an unrecognized command name verbatim into its
- * thrown Error ("Unknown command: <cmd>"), so a huge command string
- * produces a huge, fully-deterministic response payload — then reads
- * stdout to completion (not just "first chunk") and asserts the FULL
- * response arrived intact and is valid, parseable JSON with the exact
- * expected content. A truncated write would surface here as either a
- * JSON.parse failure or a shorter-than-expected `error` string.
+ * So this test spawns the REAL worker in its PRODUCTION form — the
+ * esbuild bundle scripts/bundle-bridge.mjs produces, run with plain
+ * `node` — and sends it a command deliberately engineered to produce a
+ * MULTI-MEGABYTE error message — dispatch()'s `default` case echoes an
+ * unrecognized command name verbatim into its thrown Error
+ * ("Unknown command: <cmd>"), so a huge command string produces a huge,
+ * fully-deterministic response payload — then reads stdout to
+ * completion (not just "first chunk") and asserts the FULL response
+ * arrived intact and is valid, parseable JSON with the exact expected
+ * content. A truncated write would surface here as either a JSON.parse
+ * failure or a shorter-than-expected `error` string.
+ *
+ * Why the bundle and not `npx tsx bridge-worker.ts`: tsx is not a
+ * declared dependency anywhere in this repo (commands.rs's dev mode
+ * borrows a globally-installed tsx). An earlier version of this test
+ * spawned tsx and went green only on machines with a global tsx — on
+ * CI's runner the child died at spawn, stdout came back empty, and the
+ * test failed with the very "Unexpected end of JSON input" it guards
+ * against, plus an EPIPE from writing 3MB of stdin to a dead child.
+ * Bundling with esbuild (a declared devDependency, the same invocation
+ * production uses) into a temp dir and running plain `node` is
+ * hermetic, and it exercises the exact artifact commands.rs spawns in
+ * production.
  */
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, beforeAll, afterAll } from "vitest";
 import { spawn } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
+import { mkdtemp, rm } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { build } from "esbuild";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const BRIDGE_WORKER_PATH = join(__dirname, "bridge-worker.ts");
+
+let bundleDir: string;
+let bundledWorkerPath: string;
+
+beforeAll(async () => {
+  bundleDir = await mkdtemp(join(tmpdir(), "capsule-bridge-flush-"));
+  bundledWorkerPath = join(bundleDir, "bridge-worker.cjs");
+  // Mirror scripts/bundle-bridge.mjs — the production bundle invocation.
+  await build({
+    entryPoints: [join(__dirname, "bridge-worker.ts")],
+    bundle: true,
+    platform: "node",
+    target: "node20",
+    format: "cjs",
+    outfile: bundledWorkerPath,
+    external: [],
+    sourcemap: false,
+    minify: true,
+    keepNames: true,
+  });
+}, 60_000);
+
+afterAll(async () => {
+  await rm(bundleDir, { recursive: true, force: true });
+});
 // Comfortably larger than any typical OS pipe kernel buffer (Windows
 // named pipes commonly default around 64KB) so a naive unflushed write
 // has real pressure to be caught mid-flight rather than completing in
@@ -45,10 +85,9 @@ const HUGE_COMMAND_LENGTH = 3_000_000;
 
 function runBridgeWorker(stdin: string): Promise<{ stdout: string; exitCode: number | null }> {
   return new Promise((resolve, reject) => {
-    const child = spawn("npx", ["--no-install", "tsx", BRIDGE_WORKER_PATH], {
-      cwd: join(__dirname, ".."), // monorepo root — same cwd resolve_bridge() uses in dev mode
+    const child = spawn(process.execPath, [bundledWorkerPath], {
+      cwd: join(__dirname, ".."), // monorepo root — same cwd resolve_bridge() uses
       stdio: ["pipe", "pipe", "pipe"],
-      shell: process.platform === "win32",
     });
 
     const stdoutChunks: Buffer[] = [];
@@ -56,6 +95,9 @@ function runBridgeWorker(stdin: string): Promise<{ stdout: string; exitCode: num
     child.stdout.on("data", (chunk: Buffer) => stdoutChunks.push(chunk));
     child.stderr.on("data", (chunk: Buffer) => stderrChunks.push(chunk));
     child.on("error", reject);
+    // A dead child makes the 3MB stdin write below fail with EPIPE; surface
+    // that as a rejection instead of an unhandled stream error.
+    child.stdin.on("error", reject);
     child.on("close", (exitCode) => {
       resolve({ stdout: Buffer.concat(stdoutChunks).toString("utf-8"), exitCode });
     });
