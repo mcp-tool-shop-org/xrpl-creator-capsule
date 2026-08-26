@@ -71,11 +71,12 @@ export class ErrorBoundary extends Component<Props, State> {
       // ignored — see comment above
     }
 
-    // Always ALSO console.error: the action log is in-memory only and
-    // is exportable via the "Report" button in TitleBar, which is
-    // itself part of the crashed tree and unavailable while hasError is
-    // true — and is lost entirely once "Start Fresh" reloads the page.
-    // console output is the durable trail for that case.
+    // Always ALSO console.error: the action log is persisted
+    // best-effort (actionlog.ts, F-7f36d738 follow-up), so this entry
+    // now survives "Start Fresh" and shows up in a post-restart Report
+    // bundle — but the persistence write is fire-and-forget and can
+    // itself fail (disk full, permissions). console output is the
+    // trail that still works when that does not.
     console.error("Capsule crashed:", error, info.componentStack);
   }
 

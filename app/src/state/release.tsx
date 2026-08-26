@@ -36,6 +36,8 @@ import {
   type ExecutedPayoutOutput,
   type VerifyPayoutResult,
 } from "../bridge/engine";
+import { logAction, getActionLog, clearActionLog } from "./actionlog";
+import type { ActionStatus, ActionEvent } from "./actionlog";
 
 // ── Status types ────────────────────────────────────────────────────
 
@@ -47,49 +49,16 @@ import {
 // the panels are unaffected (a timed-out action is simply no longer
 // "loading", which is correct: it re-enables the button).
 export type ArtifactStatus = "empty" | "loading" | "loaded" | "error" | "timed_out";
-export type ActionStatus =
-  | "idle"
-  | "running"
-  | "done"
-  | "error"
-  | "canceled"
-  | "timed_out"
-  // The mint itself succeeded (a real, irreversible on-chain mint
-  // happened) but the receipt could not be persisted to disk. This is
-  // deliberately distinct from "error" — see F-cf8b67bb: reporting this
-  // the same way a real mint failure is reported invites a user to
-  // "retry" an already-successful mint and double-issue on the ledger.
-  | "receipt_unsaved";
 
 // ── Runtime instrumentation ─────────────────────────────────────────
 
-export interface ActionEvent {
-  action: string;
-  status: ActionStatus;
-  startedAt: string;
-  endedAt?: string;
-  cancelReason?: string;
-  timeoutReason?: string;
-  artifactPath?: string;
-  releaseIdentity?: string;
-  mode?: "studio" | "advanced";
-  reconciliationResult?: string;
-}
-
-/** Lightweight action log — survives the session for debugging trust gaps. */
-const actionLog: ActionEvent[] = [];
-
-export function logAction(event: ActionEvent) {
-  actionLog.push(event);
-}
-
-export function getActionLog(): readonly ActionEvent[] {
-  return actionLog;
-}
-
-export function clearActionLog() {
-  actionLog.length = 0;
-}
+// F-7f36d738 follow-up: the action log (and its ActionStatus/ActionEvent
+// types) moved to actionlog.ts, which persists it across restarts so a
+// post-crash Report bundle still contains the crash that prompted it.
+// Re-exported here so the many existing import sites (ErrorBoundary,
+// session.ts, App.tsx, PublishPage, tests) stay valid unchanged.
+export { logAction, getActionLog, clearActionLog };
+export type { ActionStatus, ActionEvent };
 
 // ── Shared timeout wrapper (F-dba2ccb6) ──────────────────────────────
 

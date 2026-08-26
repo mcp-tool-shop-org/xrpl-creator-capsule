@@ -2,7 +2,9 @@
  * Support Bundle — packages diagnostic data for issue reports.
  *
  * Collects:
- *   - Action log (timestamped action history)
+ *   - Action log (timestamped action history — persisted across
+ *     restarts by actionlog.ts, so a post-crash Report still contains
+ *     the crash; see F-7f36d738)
  *   - Session state (draft, artifact paths, completion flags)
  *   - App version and environment info
  *
