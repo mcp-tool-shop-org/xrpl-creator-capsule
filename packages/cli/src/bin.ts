@@ -15,7 +15,11 @@ import { proposePayout } from "./commands/propose-payout.js";
 import { decidePayout } from "./commands/decide-payout.js";
 import { executePayout } from "./commands/execute-payout.js";
 import { verifyPayout } from "./commands/verify-payout.js";
-import { configureMinterViaXaman, mintReleaseViaXaman } from "./commands/xaman-flow.js";
+import {
+  configureMinterViaXaman,
+  mintReleaseViaXaman,
+  PartialXamanMintError,
+} from "./commands/xaman-flow.js";
 import { MockDeliveryProvider } from "@capsule/storage";
 import type { NetworkId } from "@capsule/xrpl";
 import type { XamanNetwork } from "@capsule/xaman";
@@ -239,11 +243,31 @@ async function main(): Promise<void> {
           console.error("Xaman does not support devnet");
           process.exit(1);
         }
-        const result = await mintReleaseViaXaman(
-          values.manifest,
-          network as XamanNetwork,
-          values.operator
-        );
+        let result;
+        try {
+          result = await mintReleaseViaXaman(
+            values.manifest,
+            network as XamanNetwork,
+            values.operator
+          );
+        } catch (err) {
+          if (err instanceof PartialXamanMintError) {
+            // Mirrors packages/xrpl/src/issue-release.ts's catch of
+            // PartialMintError (F-d186739a): do not let a mid-run failure
+            // erase the editions that already minted on-ledger — forward
+            // exactly which ones so this cannot be silently double-minted
+            // by a naive retry of this same command.
+            throw new Error(
+              `Xaman mint failed: ${err.message} — ${err.results.length} of ` +
+                `${err.editionSize} edition(s) were already minted on-ledger via ` +
+                `Xaman before the failure and have NO receipt yet ` +
+                `(txids: ${err.results.map((r) => r.txid ?? "unknown").join(", ") || "none"}). ` +
+                `Partial mint record: ${err.recordPath}.`,
+              { cause: err }
+            );
+          }
+          throw err;
+        }
         console.log(`\nMint complete via Xaman.`);
         console.log(`Manifest ID: ${result.manifestId.slice(0, 16)}...`);
         console.log(`Revision Hash: ${result.revisionHash.slice(0, 16)}...`);
