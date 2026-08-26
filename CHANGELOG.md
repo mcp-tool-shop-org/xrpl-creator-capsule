@@ -41,6 +41,8 @@ from 421 to 747).
   corrupted file falls back safely instead of crashing the renderer
 - Session save failures are now visible (action log + non-blocking notice)
   instead of silently swallowed; the Report button confirms success or failure
+- **Action log persists across restarts** (capped, atomic, best-effort) — a
+  support bundle exported after a crash-and-relaunch now contains the crash
 - Test coverage: every engine/CLI module and all 16 bridge-worker handlers now
   have dedicated tests, mutation-proven where load-bearing
 
