@@ -1,5 +1,5 @@
-import Ajv from "ajv";
-import addFormats from "ajv-formats";
+import { Ajv } from "ajv";
+import { addFormats } from "./ajv-formats-interop.js";
 import { createHash } from "node:crypto";
 import { recoveryBundleSchema } from "./recovery-bundle-schema.js";
 import type { RecoveryBundle } from "./recovery-bundle.js";
