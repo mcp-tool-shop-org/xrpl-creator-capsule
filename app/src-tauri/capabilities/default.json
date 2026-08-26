@@ -1,0 +1,13 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "default",
+  "description": "Capability for the main window: this app's own file/engine bridge commands (see ../permissions/desktop-commands.toml), plus the dialog plugin used for open/save pickers throughout the studio. Deliberately excludes fs and shell plugin permissions — the frontend never calls those plugins' JS APIs directly, file I/O goes through the app's own load_file/save_file commands instead, so granting them would be broader than this app needs. See F-c1882c0f.",
+  "windows": ["main"],
+  "permissions": [
+    "core:default",
+    "allow-load-file",
+    "allow-save-file",
+    "allow-engine-call",
+    "dialog:default"
+  ]
+}

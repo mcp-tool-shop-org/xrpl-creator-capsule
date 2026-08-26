@@ -3,6 +3,7 @@ import { invoke } from "@tauri-apps/api/core";
 import {
   loadFile,
   saveFile,
+  readWalletAddresses,
   validateManifest,
   resolveManifest,
   stampManifest,
@@ -51,6 +52,32 @@ describe("engine bridge", () => {
         path: "/out/file.json",
         content: '{"key":"val"}',
       });
+    });
+  });
+
+  describe("readWalletAddresses", () => {
+    it("invokes engine_call with read_wallet_addresses and returns only the two addresses", async () => {
+      const expected = { issuerAddress: "rIssuerABC", operatorAddress: "rOperatorXYZ" };
+      mockInvoke.mockResolvedValueOnce(expected);
+
+      const result = await readWalletAddresses("/w.json");
+
+      expect(mockInvoke).toHaveBeenCalledWith("engine_call", {
+        command: "read_wallet_addresses",
+        params: { walletsPath: "/w.json" },
+      });
+      // Never routes through load_file — the renderer must not receive the
+      // raw wallet JSON (seed/private key material) at all. See F-12c32f19.
+      expect(mockInvoke).not.toHaveBeenCalledWith("load_file", expect.anything());
+      expect(result).toEqual(expected);
+      expect(Object.keys(result).sort()).toEqual(["issuerAddress", "operatorAddress"]);
+    });
+
+    it("propagates a bad wallet file as a rejection", async () => {
+      mockInvoke.mockRejectedValueOnce(new Error("Wallet file must contain issuer and operator seeds"));
+      await expect(readWalletAddresses("/bad-wallets.json")).rejects.toThrow(
+        "Wallet file must contain issuer and operator seeds"
+      );
     });
   });
 

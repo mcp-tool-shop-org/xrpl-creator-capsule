@@ -319,6 +319,11 @@ export interface VerifyPayoutResult {
   checks: VerifyCheck[];
 }
 
+export interface WalletAddresses {
+  issuerAddress: string;
+  operatorAddress: string;
+}
+
 // ── File operations (direct Rust, no Node.js) ───────────────────────
 
 export async function loadFile(path: string): Promise<string> {
@@ -348,6 +353,18 @@ export async function resolveManifest(path: string): Promise<ResolutionResult> {
 /** Stamp a manifest with deterministic ID and revision hash. */
 export async function stampManifest(path: string): Promise<StampResult> {
   return engineCall<StampResult>("stamp_manifest", { path });
+}
+
+/**
+ * Read only the public classic addresses out of a wallet credentials
+ * file — never the seed/private key signing material the file also
+ * contains. Use this instead of loadFile() + JSON.parse() whenever the
+ * renderer only needs the issuer/operator addresses (e.g. to build a
+ * manifest) — the full wallet file should never be materialized outside
+ * bridge-worker.ts's isolated Node process. See F-12c32f19.
+ */
+export async function readWalletAddresses(walletsPath: string): Promise<WalletAddresses> {
+  return engineCall<WalletAddresses>("read_wallet_addresses", { walletsPath });
 }
 
 /** Mint a release on XRPL Testnet. Returns the issuance receipt. */

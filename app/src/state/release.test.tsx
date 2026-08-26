@@ -304,6 +304,65 @@ describe("release state", () => {
       expect(result.current.mint.actionStatus).toBe("error");
       expect(result.current.mint.error).toBe("Insufficient funds");
     });
+
+    it("blocks a concurrent second dispatch while the first is still unresolved, then allows a fresh call once it settles (F-74549b0b)", async () => {
+      let releaseEngineCall!: (v: unknown) => void;
+      const hang = new Promise((resolve) => { releaseEngineCall = resolve; });
+      let engineCallCount = 0;
+      mockInvoke.mockImplementation(async (cmd: string) => {
+        if (cmd === "load_file") return JSON.stringify(MANIFEST);
+        if (cmd === "save_file") return undefined;
+        if (cmd === "engine_call") {
+          engineCallCount += 1;
+          return hang;
+        }
+        return undefined;
+      });
+
+      const { result } = renderRelease();
+
+      // Start the first mint — do not await it yet, it hangs on engine_call.
+      let firstSettled = false;
+      let firstPromise!: Promise<void>;
+      act(() => {
+        firstPromise = result.current.runMintFromStudio("/m.json", "/w.json", "/r1.json");
+        firstPromise.finally(() => { firstSettled = true; });
+      });
+
+      // While the first is still unresolved, a second dispatch (as
+      // PublishPage's own retry would trigger) must be rejected WITHOUT
+      // ever calling engine_call a second time — that second call would
+      // be a second real mint_release against the same release.
+      let secondCaught: Error | undefined;
+      await act(async () => {
+        try {
+          await result.current.runMintFromStudio("/m.json", "/w.json", "/r2.json");
+        } catch (err) {
+          secondCaught = err as Error;
+        }
+      });
+
+      expect(secondCaught?.message).toMatch(/already in progress/i);
+      expect(engineCallCount).toBe(1);
+      expect(firstSettled).toBe(false);
+
+      // Now let the first attempt actually finish.
+      await act(async () => {
+        releaseEngineCall(RECEIPT);
+        await firstPromise;
+      });
+
+      expect(result.current.mint.actionStatus).toBe("done");
+      expect(result.current.mint.receiptPath).toBe("/r1.json");
+
+      // A fresh call now (first is confirmed settled) must be allowed to
+      // actually dispatch.
+      await act(async () => {
+        await result.current.runMintFromStudio("/m.json", "/w.json", "/r3.json");
+      });
+      expect(engineCallCount).toBe(2);
+      expect(result.current.mint.receiptPath).toBe("/r3.json");
+    });
   });
 
   // ── Verify ──────────────────────────────────────────────────────

@@ -281,12 +281,22 @@ describe("mint timeout and reconciliation", () => {
     hangResolve(RECEIPT);
   });
 
-  it("retry after timeout does not create duplicate-success belief", async () => {
+  it("retry while the original mint is still unresolved is blocked, and the original's result is preserved when it lands (F-74549b0b)", async () => {
+    // This replaces a prior version of this test that asserted the
+    // OPPOSITE of what's safe: it let a retry "succeed immediately"
+    // while the first mint's engine_call promise (hang1) was still
+    // unresolved, and only resolved hang1 as post-assertion "cleanup".
+    // That is precisely the double-mint hole from F-74549b0b — if both
+    // the original and the retry are real mint_release calls, and both
+    // eventually succeed, the same release gets minted twice on the
+    // XRPL ledger. The correct contract is: no second dispatch is
+    // allowed until the first is confirmed settled.
     const { result } = renderRelease();
 
     await setupMintReady(result);
 
-    // First mint: times out
+    // First mint: hangs (simulates a mint that's still running server-side
+    // when the client-side 90s timeout fires).
     let hang1Resolve!: (v: unknown) => void;
     const hang1 = new Promise((resolve) => { hang1Resolve = resolve; });
     mockInvoke.mockImplementation(async (cmd: string) => {
@@ -302,8 +312,65 @@ describe("mint timeout and reconciliation", () => {
     await act(async () => { await vi.advanceTimersByTimeAsync(90_000); });
 
     expect(result.current.mint.actionStatus).toBe("timed_out");
+    const engineCallsAfterTimeout = mockInvoke.mock.calls.filter(([cmd]) => cmd === "engine_call").length;
+    expect(engineCallsAfterTimeout).toBe(1);
 
-    // Retry: succeeds immediately
+    // Attempt an immediate retry WHILE hang1 (the original) is still
+    // unresolved — this must be blocked, not dispatched.
+    mockSave.mockResolvedValueOnce("/out/receipt-2.json");
+    await act(async () => {
+      await result.current.runMint();
+    });
+
+    // No second engine_call was ever made.
+    const engineCallsAfterBlockedRetry = mockInvoke.mock.calls.filter(([cmd]) => cmd === "engine_call").length;
+    expect(engineCallsAfterBlockedRetry).toBe(1);
+    // The blocked attempt must not fabricate a success.
+    expect(result.current.mint.actionStatus).not.toBe("done");
+    expect(result.current.mint.error).toMatch(/already in progress/i);
+
+    // NOW let the original settle.
+    await act(async () => {
+      hang1Resolve(RECEIPT);
+      await vi.advanceTimersByTimeAsync(0);
+    });
+
+    // The original's own result lands cleanly — nothing was lost, and
+    // still only ONE mint was ever actually dispatched.
+    expect(result.current.mint.actionStatus).toBe("done");
+    expect(result.current.mint.receiptPath).toBe("/out/receipt-1.json");
+    expect(result.current.mint.receipt?.manifestId).toBe("manifest-abc-123");
+    const engineCallsAfterSettle = mockInvoke.mock.calls.filter(([cmd]) => cmd === "engine_call").length;
+    expect(engineCallsAfterSettle).toBe(1);
+  });
+
+  it("a genuine retry is allowed once the prior attempt has actually finished (F-74549b0b)", async () => {
+    const { result } = renderRelease();
+
+    await setupMintReady(result);
+
+    // The previous test's blocked retry attempt returns before ever
+    // calling save() (the guard fires first), which can leave an unused
+    // queued mockResolvedValueOnce sitting in this mock's queue —
+    // vi.clearAllMocks() clears call history but not queued
+    // once-implementations. Start this test with a clean queue.
+    mockSave.mockReset();
+
+    // First attempt: fails for a real (non-timeout) reason, so it is
+    // definitely, confirmedly finished.
+    mockInvoke.mockImplementation(async (cmd: string) => {
+      if (cmd === "load_file") return JSON.stringify(MANIFEST);
+      if (cmd === "save_file") return undefined;
+      if (cmd === "engine_call") throw new Error("Insufficient reserve");
+      return undefined;
+    });
+    mockSave.mockResolvedValueOnce("/out/receipt-1.json");
+
+    await act(async () => { await result.current.runMint(); });
+    expect(result.current.mint.actionStatus).toBe("error");
+
+    // Retry now — the prior attempt is confirmed dead, so this must be
+    // allowed to actually dispatch and succeed.
     mockInvoke.mockImplementation(async (cmd: string) => {
       if (cmd === "load_file") return JSON.stringify(MANIFEST);
       if (cmd === "save_file") return undefined;
@@ -314,14 +381,10 @@ describe("mint timeout and reconciliation", () => {
 
     await act(async () => { await result.current.runMint(); });
 
-    // Clean single success — no phantom from timed-out attempt
     expect(result.current.mint.actionStatus).toBe("done");
     expect(result.current.mint.receiptPath).toBe("/out/receipt-2.json");
     expect(result.current.mint.receipt?.manifestId).toBe("manifest-abc-123");
     expect(result.current.mint.error).toBeNull();
-    expect(result.current.mint.status).toBe("loaded");
-
-    hang1Resolve(RECEIPT);
   });
 
   it("timed_out is distinct from error in both state and action log", async () => {

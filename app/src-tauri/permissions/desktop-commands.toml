@@ -1,0 +1,21 @@
+# Permissions for this app's own hand-written commands (commands.rs) —
+# these are NOT part of any plugin. Tauri v2's ACL is default-deny for
+# every command, including the app's own, so without these definitions
+# (and a capability granting them — see ../capabilities/default.json)
+# load_file / save_file / engine_call are unreachable from the webview.
+# See F-c1882c0f.
+
+[[permission]]
+identifier = "allow-load-file"
+description = "Allows reading a file from disk through the load_file command. The command itself constrains the resolved path to the app's allow-listed directories (see commands.rs::allowed_roots)."
+commands.allow = ["load_file"]
+
+[[permission]]
+identifier = "allow-save-file"
+description = "Allows writing a file to disk through the save_file command. The command itself constrains the resolved path to the app's allow-listed directories (see commands.rs::allowed_roots)."
+commands.allow = ["save_file"]
+
+[[permission]]
+identifier = "allow-engine-call"
+description = "Allows invoking the @capsule engine bridge worker (manifest, mint, access, recovery, and governance operations) through the engine_call command."
+commands.allow = ["engine_call"]
