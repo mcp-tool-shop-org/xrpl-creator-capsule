@@ -1,0 +1,15 @@
+# Attributes here apply to everything under artifacts/ at any depth
+# (patterns with no "/" match at any level below this file's directory --
+# same rule as .gitignore; see https://git-scm.com/docs/gitattributes).
+#
+# Pin the tracked text files under artifacts/ to LF on checkout, regardless
+# of a contributor's local core.autocrlf. Without this, a Windows checkout
+# (core.autocrlf=true, the Git-for-Windows default) renders these files as
+# CRLF while every tool that generates or compares them (Node's fs.writeFile,
+# JSON.stringify + "\n") emits LF -- that mismatch was producing pure
+# line-ending diffs with zero semantic content on every test run (defect
+# F-32eed6ee, most visibly on artifacts/direct-rail/*.json, the governance
+# golden-path files).
+*.json text eol=lf
+*.ts text eol=lf
+*.md text eol=lf
