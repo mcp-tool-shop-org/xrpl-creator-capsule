@@ -180,7 +180,10 @@ export function checkProposalAgainstPolicy(
     errors.push("Proposal treasuryAddress does not match policy");
   }
 
-  const expectedPolicyHash = policy.policyHash ?? computePolicyHash(policy);
+  // Always recompute from the policy's live content — never trust a
+  // self-reported policyHash field, which may be stale if the policy was
+  // mutated after stamping without re-stamping (tamper-evidence bypass).
+  const expectedPolicyHash = computePolicyHash(policy);
   if (proposal.policyHash !== expectedPolicyHash) {
     errors.push("Proposal policyHash does not match policy");
   }
@@ -247,12 +250,15 @@ export function checkDecisionAgainstProposal(
     errors.push("Decision proposalId does not match proposal");
   }
 
-  const expectedProposalHash = proposal.proposalHash ?? computeProposalHash(proposal);
+  // Always recompute from live content — never trust a self-reported hash
+  // field, which may be stale if the upstream object was mutated after
+  // stamping without re-stamping (tamper-evidence bypass).
+  const expectedProposalHash = computeProposalHash(proposal);
   if (decision.proposalHash !== expectedProposalHash) {
     errors.push("Decision proposalHash does not match proposal");
   }
 
-  const expectedPolicyHash = policy.policyHash ?? computePolicyHash(policy);
+  const expectedPolicyHash = computePolicyHash(policy);
   if (decision.policyHash !== expectedPolicyHash) {
     errors.push("Decision policyHash does not match policy");
   }
@@ -265,22 +271,25 @@ export function checkDecisionAgainstProposal(
     }
   }
 
-  // Verify threshold computation
-  const uniqueApprovers = new Set(
-    decision.approvals.filter((a) => a.approved).map((a) => a.signerAddress)
-  );
-  if (decision.decision.approvedCount !== uniqueApprovers.size) {
+  // Verify threshold computation by re-deriving the approver set with the
+  // IDENTICAL dedup rule the canonical evaluator (evaluateApprovals) uses —
+  // first vote per signer wins. Re-implementing "any approved:true row for
+  // a signer counts" independently (the previous bug) let a decision claim
+  // an outcome evaluateApprovals could never have legitimately produced
+  // from the same approvals array (e.g. a real reject followed by a forged
+  // duplicate approve row).
+  const rederived = evaluateApprovals(proposal, policy, decision.approvals);
+  if (decision.decision.approvedCount !== rederived.approvedCount) {
     errors.push(
-      `Claimed approvedCount (${decision.decision.approvedCount}) does not match unique approvals (${uniqueApprovers.size})`
+      `Claimed approvedCount (${decision.decision.approvedCount}) does not match re-derived approvals (${rederived.approvedCount})`
     );
   }
 
-  const thresholdMet = uniqueApprovers.size >= policy.signerPolicy.threshold;
-  if (decision.decision.thresholdMet !== thresholdMet) {
+  if (decision.decision.thresholdMet !== rederived.thresholdMet) {
     errors.push("ThresholdMet flag is incorrect");
   }
 
-  if (decision.decision.outcome === "approved" && !thresholdMet) {
+  if (decision.decision.outcome === "approved" && !rederived.thresholdMet) {
     errors.push("Decision is 'approved' but threshold is not met");
   }
 
@@ -301,18 +310,20 @@ export function checkExecutionAgainstDecision(
     errors.push("Cannot execute an unapproved proposal");
   }
 
-  // Hash chain
-  const expectedDecisionHash = decision.decisionHash ?? computeDecisionHash(decision);
+  // Hash chain — always recompute from live content — never trust a
+  // self-reported hash field, which may be stale if the upstream object was
+  // mutated after stamping without re-stamping (tamper-evidence bypass).
+  const expectedDecisionHash = computeDecisionHash(decision);
   if (execution.decisionHash !== expectedDecisionHash) {
     errors.push("Execution decisionHash does not match decision");
   }
 
-  const expectedProposalHash = proposal.proposalHash ?? computeProposalHash(proposal);
+  const expectedProposalHash = computeProposalHash(proposal);
   if (execution.proposalHash !== expectedProposalHash) {
     errors.push("Execution proposalHash does not match proposal");
   }
 
-  const expectedPolicyHash = policy.policyHash ?? computePolicyHash(policy);
+  const expectedPolicyHash = computePolicyHash(policy);
   if (execution.policyHash !== expectedPolicyHash) {
     errors.push("Execution policyHash does not match policy");
   }
@@ -328,7 +339,7 @@ export function checkExecutionAgainstDecision(
     errors.push("Execution treasuryAddress does not match policy");
   }
 
-  // Output reconciliation (if not partial payouts)
+  // Output reconciliation
   if (!policy.payoutPolicy.allowPartialPayouts) {
     if (execution.executedOutputs.length !== proposal.outputs.length) {
       errors.push(
@@ -348,6 +359,35 @@ export function checkExecutionAgainstDecision(
           errors.push(`Output ${i}: asset mismatch (expected ${expected.asset}, got ${actual.asset})`);
         }
       }
+    }
+  } else {
+    // Partial payouts are allowed, but every executed output must still be
+    // authorized by the proposal: it must match an approved address+asset
+    // pair, and its amount must not exceed the amount proposed for that
+    // pair. Each proposal output can back at most one executed output (it
+    // is consumed from `remaining` on match), so replaying the same
+    // proposal output against multiple executed outputs cannot be used to
+    // exceed what governance actually approved.
+    const remaining = proposal.outputs.map((o) => ({ ...o }));
+    for (let i = 0; i < execution.executedOutputs.length; i++) {
+      const actual = execution.executedOutputs[i];
+      const matchIndex = remaining.findIndex(
+        (o) => o.address === actual.address && o.asset === actual.asset
+      );
+      if (matchIndex === -1) {
+        errors.push(
+          `Executed output ${i}: address/asset pair (${actual.address}, ${actual.asset}) is not in the approved proposal`
+        );
+        continue;
+      }
+      const expected = remaining[matchIndex];
+      if (parseFloat(actual.amount) > parseFloat(expected.amount)) {
+        errors.push(
+          `Executed output ${i}: amount ${actual.amount} exceeds proposed amount ${expected.amount} for ${actual.address}`
+        );
+      }
+      // Consume this proposal output so it cannot authorize a second payment.
+      remaining.splice(matchIndex, 1);
     }
   }
 

@@ -241,6 +241,28 @@ describe("checkProposalAgainstPolicy", () => {
     expect(result.valid).toBe(false);
     expect(result.errors.some((e) => e.includes("policyHash"))).toBe(true);
   });
+
+  it("still passes for a correctly stamped policy and proposal (non-regression)", () => {
+    const policy = makePolicy();
+    const proposal = makeProposal(policy);
+    expect(checkProposalAgainstPolicy(proposal, policy).valid).toBe(true);
+  });
+
+  it("rejects a policy mutated after stamping without re-stamping policyHash", () => {
+    // policy.policyHash is stamped once, then the live payoutPolicy is
+    // mutated WITHOUT re-stamping — policyHash is now stale relative to
+    // the policy's actual content. The hash check must recompute from the
+    // live object rather than trusting the stale self-reported field, or
+    // this tampering goes undetected while the (also live) allowedAssets
+    // check waves the forged output through.
+    const policy = makePolicy();
+    const proposal = makeProposal(policy);
+    policy.payoutPolicy.allowedAssets = [...policy.payoutPolicy.allowedAssets, "USD"];
+    proposal.outputs[0].asset = "USD"; // exploit the illegitimately added asset
+    const result = checkProposalAgainstPolicy(proposal, policy);
+    expect(result.valid).toBe(false);
+    expect(result.errors.some((e) => e.includes("policyHash"))).toBe(true);
+  });
 });
 
 // ── Approval evaluation ───────────────────────────────────────────
@@ -340,6 +362,37 @@ describe("checkDecisionAgainstProposal", () => {
     const result = checkDecisionAgainstProposal(decision, proposal, policy);
     expect(result.valid).toBe(false);
   });
+
+  it("passes when the decision matches evaluateApprovals's own outcome (non-regression)", () => {
+    const policy = makePolicy();
+    const proposal = makeProposal(policy);
+    const decision = makeDecision(policy, proposal);
+    expect(checkDecisionAgainstProposal(decision, proposal, policy).valid).toBe(true);
+  });
+
+  it("rejects a forged decision built from a real reject followed by a duplicate forged approve row", () => {
+    // evaluateApprovals dedups by "first vote wins": ARTIST's real first
+    // vote here is a reject, so evaluateApprovals would score this
+    // approvedCount=1, thresholdMet=false, outcome="rejected". A decision
+    // receipt that instead claims approvedCount=2/thresholdMet=true/
+    // outcome="approved" (by exploiting the fact that a later duplicate
+    // approve row exists for ARTIST) could never have been legitimately
+    // produced by the canonical evaluator, and must be rejected.
+    const policy = makePolicy();
+    const proposal = makeProposal(policy);
+    const forged: PayoutDecisionReceipt = {
+      ...makeDecision(policy, proposal),
+      approvals: [
+        { signerAddress: ARTIST, approved: false, decidedAt: "2026-04-01T18:10:00Z" },
+        { signerAddress: ARTIST, approved: true, decidedAt: "2026-04-01T18:10:05Z" },
+        { signerAddress: PRODUCER, approved: true, decidedAt: "2026-04-01T18:11:00Z" },
+      ],
+      decision: { outcome: "approved", thresholdMet: true, approvedCount: 2, rejectedCount: 0 },
+    };
+    const result = checkDecisionAgainstProposal(forged, proposal, policy);
+    expect(result.valid).toBe(false);
+    expect(result.errors.some((e) => e.includes("approvedCount"))).toBe(true);
+  });
 });
 
 // ── Execution-Decision relationship ───────────────────────────────
@@ -422,6 +475,82 @@ describe("checkExecutionAgainstDecision", () => {
     const decision = makeDecision(policy, proposal);
     const execution = { ...makeExecution(policy, proposal, decision), network: "mainnet" as const };
     const result = checkExecutionAgainstDecision(execution, decision, proposal, policy);
+    expect(result.valid).toBe(false);
+  });
+});
+
+// ── Execution-Decision: partial payout reconciliation ─────────────
+
+describe("checkExecutionAgainstDecision with allowPartialPayouts", () => {
+  function makePartialPolicy(): GovernancePolicy {
+    const base = makePolicy();
+    base.payoutPolicy.allowPartialPayouts = true;
+    return stampPolicyHash(base);
+  }
+
+  it("accepts a legitimate partial payout that pays only some outputs, at or under proposed amounts (non-regression)", () => {
+    const policy = makePartialPolicy();
+    const proposal = makeProposal(policy);
+    const decision = makeDecision(policy, proposal);
+    const execution = makeExecution(policy, proposal, decision);
+    // Partial payout: only the artist is paid, and less than proposed.
+    execution.executedOutputs = [
+      { address: ARTIST, amount: "50000000", asset: "XRP", role: "artist", reason: "Partial artist payout" },
+    ];
+    const restamped = stampExecutionHash(execution);
+    const result = checkExecutionAgainstDecision(restamped, decision, proposal, policy);
+    expect(result.valid).toBe(true);
+  });
+
+  it("rejects a forged executedOutputs entry whose address/asset pair was never approved", () => {
+    const policy = makePartialPolicy();
+    const proposal = makeProposal(policy);
+    const decision = makeDecision(policy, proposal);
+    const execution = makeExecution(policy, proposal, decision);
+    // Forged: pay an address that never appeared in the approved proposal.
+    execution.executedOutputs = [
+      {
+        address: "r3kmLJN5D28dHuH8vZNUcopvoB9UnaFTdn",
+        amount: "1000000000",
+        asset: "XRP",
+        role: "artist",
+        reason: "forged",
+      },
+    ];
+    const restamped = stampExecutionHash(execution);
+    const result = checkExecutionAgainstDecision(restamped, decision, proposal, policy);
+    expect(result.valid).toBe(false);
+    expect(result.errors.some((e) => e.includes("not in the approved proposal"))).toBe(true);
+  });
+
+  it("rejects an executedOutput amount that exceeds the proposed amount for that address/asset", () => {
+    const policy = makePartialPolicy();
+    const proposal = makeProposal(policy);
+    const decision = makeDecision(policy, proposal);
+    const execution = makeExecution(policy, proposal, decision);
+    // Forged: pay the artist far more than the proposal approved (proposed 75000000).
+    execution.executedOutputs = [
+      { address: ARTIST, amount: "999999999", asset: "XRP", role: "artist", reason: "forged overpay" },
+    ];
+    const restamped = stampExecutionHash(execution);
+    const result = checkExecutionAgainstDecision(restamped, decision, proposal, policy);
+    expect(result.valid).toBe(false);
+    expect(result.errors.some((e) => e.includes("exceeds"))).toBe(true);
+  });
+
+  it("rejects double-dipping the same proposal output against two executed outputs", () => {
+    const policy = makePartialPolicy();
+    const proposal = makeProposal(policy);
+    const decision = makeDecision(policy, proposal);
+    const execution = makeExecution(policy, proposal, decision);
+    // Forged: pay the artist's approved amount twice by matching the same
+    // proposal output entry against two separate executed outputs.
+    execution.executedOutputs = [
+      { address: ARTIST, amount: "75000000", asset: "XRP", role: "artist", reason: "first" },
+      { address: ARTIST, amount: "75000000", asset: "XRP", role: "artist", reason: "second (double-dip)" },
+    ];
+    const restamped = stampExecutionHash(execution);
+    const result = checkExecutionAgainstDecision(restamped, decision, proposal, policy);
     expect(result.valid).toBe(false);
   });
 });
