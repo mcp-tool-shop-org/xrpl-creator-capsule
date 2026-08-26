@@ -2,6 +2,7 @@ import { createContext, useContext, useState, useCallback, useEffect, useRef, ty
 import { open, save } from "@tauri-apps/plugin-dialog";
 import { loadFile, saveFile } from "../bridge/engine";
 import { saveSession, loadSession, validateSession } from "./session";
+import { isValidStudioDraft } from "./validate";
 import type { SignerRole } from "../bridge/engine";
 
 // ── Draft shape ────────────────────────────────────────────────────
@@ -70,6 +71,20 @@ interface StudioContextValue {
   saveDraft: () => Promise<void>;
   loadDraft: () => Promise<void>;
 
+  // F-343bb92d: set when a Load Draft file fails to read, parse, or
+  // pass shape validation. The current draft is never touched in any
+  // of those cases — this is purely informational for the UI.
+  draftLoadError: string | null;
+
+  // F-040b05d3: when loadDraft() finds the loaded file valid but the
+  // CURRENT draft has meaningful unsaved content, the validated
+  // candidate is held here instead of being applied immediately.
+  // confirmLoadDraft() applies it; cancelLoadDraft() discards it. Both
+  // are no-ops if nothing is pending.
+  pendingDraftLoad: { path: string; draft: StudioDraft } | null;
+  confirmLoadDraft: () => void;
+  cancelLoadDraft: () => void;
+
   // Readiness checks
   canProceedToBenefit: boolean;
   canProceedToReview: boolean;
@@ -77,6 +92,13 @@ interface StudioContextValue {
 
   // Reset
   resetDraft: () => void;
+
+  // F-bd945889: owned here (not as component-local state) so that
+  // StudioSidebar's "Start a new release" action and StudioShell's
+  // welcome-screen visibility stay in sync — resetDraft() clears this
+  // too, which is what makes WelcomePage reappear after a reset.
+  welcomeDismissed: boolean;
+  dismissWelcome: () => void;
 
   // Session state
   sessionRestored: boolean;
@@ -106,6 +128,19 @@ const INIT_DRAFT: StudioDraft = {
   draftPath: null,
 };
 
+/**
+ * F-040b05d3: approximates "would replacing this draft lose something
+ * the creator hasn't explicitly saved anywhere." Deliberately a cheap
+ * proxy rather than a full dirty-since-last-save tracker: the creator
+ * has typed something (title or artist set) AND has no draftPath (never
+ * clicked "Save Draft" or loaded a prior draft file for this session) —
+ * exactly the "relying on the 2s autosave alone" scenario the finding
+ * names as the actual data-loss risk.
+ */
+function hasUnsavedDraftContent(draft: StudioDraft): boolean {
+  return (!!draft.title.trim() || !!draft.artist.trim()) && !draft.draftPath;
+}
+
 // ── Provider ───────────────────────────────────────────────────────
 
 export function StudioProvider({ children }: { children: ReactNode }) {
@@ -113,6 +148,9 @@ export function StudioProvider({ children }: { children: ReactNode }) {
   const [activeStep, setActiveStepRaw] = useState<StudioStep>("create");
   const [sessionRestored, setSessionRestored] = useState(false);
   const [sessionError, setSessionError] = useState<string | null>(null);
+  const [draftLoadError, setDraftLoadError] = useState<string | null>(null);
+  const [pendingDraftLoad, setPendingDraftLoad] = useState<{ path: string; draft: StudioDraft } | null>(null);
+  const [welcomeDismissed, setWelcomeDismissed] = useState(false);
   const autosaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // ── Session restore on mount ────────────────────────────────
@@ -243,14 +281,80 @@ export function StudioProvider({ children }: { children: ReactNode }) {
     });
     if (!result) return;
     const path = typeof result === "string" ? result : (result as { path: string }).path;
-    const content = await loadFile(path);
-    const loaded = JSON.parse(content) as StudioDraft;
-    setDraft({ ...loaded, draftPath: path });
+
+    // F-343bb92d: *-draft.json is an ordinary user-writable file (a
+    // normal workflow via this very button, including hand-editing).
+    // A read failure, a parse failure, or a valid-JSON-but-wrong-shape
+    // file must NEVER touch the current draft — a silent reset here
+    // would itself be data loss, unlike loadSession's fallback-to-blank
+    // behavior which is safe because there is no "current" state to
+    // lose at startup.
+    let content: string;
+    try {
+      content = await loadFile(path);
+    } catch (err) {
+      setDraftLoadError(
+        `Could not read that file (${err instanceof Error ? err.message : String(err)}).`
+      );
+      return;
+    }
+
+    let parsed: unknown;
+    try {
+      parsed = JSON.parse(content);
+    } catch {
+      setDraftLoadError("That file isn't valid JSON.");
+      return;
+    }
+
+    if (!isValidStudioDraft(parsed)) {
+      setDraftLoadError("That file isn't a valid draft.");
+      return;
+    }
+
+    setDraftLoadError(null);
+
+    // F-040b05d3: replacing the draft outright is safe only when there
+    // is nothing meaningful to lose. "Meaningful" is approximated the
+    // same way the finding itself frames the risk: the creator has
+    // typed a title/artist (there is content) AND has never explicitly
+    // saved it to a named file (draftPath is null — they are relying on
+    // the 2s autosave alone, which this same load would silently
+    // overwrite). Once a draft has an explicit draftPath, the creator
+    // has a save point of their own making and is not surprised the
+    // same way.
+    if (hasUnsavedDraftContent(draft)) {
+      setPendingDraftLoad({ path, draft: parsed });
+      return;
+    }
+
+    setDraft({ ...parsed, draftPath: path });
+  }, [draft]);
+
+  const confirmLoadDraft = useCallback(() => {
+    if (!pendingDraftLoad) return;
+    setDraft({ ...pendingDraftLoad.draft, draftPath: pendingDraftLoad.path });
+    setPendingDraftLoad(null);
+  }, [pendingDraftLoad]);
+
+  const cancelLoadDraft = useCallback(() => {
+    setPendingDraftLoad(null);
+  }, []);
+
+  const dismissWelcome = useCallback(() => {
+    setWelcomeDismissed(true);
   }, []);
 
   const resetDraft = useCallback(() => {
     setDraft(INIT_DRAFT);
     setActiveStepRaw("create");
+    // F-bd945889 interplay: a reset is a genuinely clean slate — clear
+    // any stale loadDraft confirmation/error left over from an earlier,
+    // unrelated action, and un-dismiss the welcome screen so it can
+    // reappear (StudioShell derives its visibility from this flag).
+    setPendingDraftLoad(null);
+    setDraftLoadError(null);
+    setWelcomeDismissed(false);
     import("./session").then((m) => m.clearSession()).catch(() => {});
   }, []);
 
@@ -276,10 +380,16 @@ export function StudioProvider({ children }: { children: ReactNode }) {
         removeCollaborator,
         saveDraft,
         loadDraft,
+        draftLoadError,
+        pendingDraftLoad,
+        confirmLoadDraft,
+        cancelLoadDraft,
         canProceedToBenefit,
         canProceedToReview,
         canProceedToPublish,
         resetDraft,
+        welcomeDismissed,
+        dismissWelcome,
         sessionRestored,
         sessionError,
       }}

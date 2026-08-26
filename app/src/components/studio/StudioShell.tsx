@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useCallback } from "react";
 import { useStudio } from "../../state/studio";
 import { CreateReleasePage } from "./CreateReleasePage";
 import { CollectorBenefitPage } from "./CollectorBenefitPage";
@@ -20,11 +20,19 @@ const pageMap: Record<StudioStep, React.FC> = {
 };
 
 export function StudioShell() {
-  const { draft, activeStep, setActiveStep, updateDraft, loadDraft, sessionRestored } = useStudio();
-  const [welcomed, setWelcomed] = useState(false);
+  const {
+    draft, activeStep, setActiveStep, updateDraft, loadDraft, sessionRestored,
+    welcomeDismissed, dismissWelcome,
+  } = useStudio();
 
-  // Show welcome when: session restore is done, draft is empty, and user hasn't dismissed welcome
-  const showWelcome = sessionRestored && !welcomed && !draft.title && !draft.artist && activeStep === "create";
+  // Show welcome when: session restore is done, draft is empty, and user
+  // hasn't dismissed welcome. welcomeDismissed lives in StudioContext
+  // (not component-local state) specifically so resetDraft() — called
+  // by StudioSidebar's "Start a New Release" action, a sibling
+  // component — can un-dismiss it too. See F-bd945889: without this,
+  // WelcomePage would never reappear after a reset, since a
+  // component-local flag here has no way to be reached from outside.
+  const showWelcome = sessionRestored && !welcomeDismissed && !draft.title && !draft.artist && activeStep === "create";
 
   const handleLoadSample = useCallback(async () => {
     try {
@@ -40,7 +48,7 @@ export function StudioShell() {
           const content = await loadFile(p);
           const sample = JSON.parse(content) as StudioDraft;
           updateDraft({ ...sample, draftPath: null });
-          setWelcomed(true);
+          dismissWelcome();
           loaded = true;
           break;
         } catch {
@@ -49,16 +57,16 @@ export function StudioShell() {
       }
       if (!loaded) {
         await loadDraft();
-        setWelcomed(true);
+        dismissWelcome();
       }
     } catch {
-      setWelcomed(true);
+      dismissWelcome();
     }
-  }, [updateDraft, loadDraft]);
+  }, [updateDraft, loadDraft, dismissWelcome]);
 
   const handleStartFresh = useCallback(() => {
-    setWelcomed(true);
-  }, []);
+    dismissWelcome();
+  }, [dismissWelcome]);
 
   if (showWelcome) {
     return (

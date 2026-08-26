@@ -1,5 +1,7 @@
+import { useState } from "react";
 import { useStudio, type StudioStep } from "../../state/studio";
 import { useRelease } from "../../state/release";
+import { ConfirmBanner } from "../panels/PanelShell";
 
 interface Props {
   onSwitchToAdvanced: () => void;
@@ -15,8 +17,21 @@ const steps: { id: StudioStep; label: string; icon: string }[] = [
 ];
 
 export function StudioSidebar({ onSwitchToAdvanced }: Props) {
-  const { draft, activeStep, setActiveStep, canProceedToBenefit, canProceedToReview } = useStudio();
-  const { mint, network } = useRelease();
+  const { draft, activeStep, setActiveStep, canProceedToBenefit, canProceedToReview, resetDraft } = useStudio();
+  const { mint, network, resetAll } = useRelease();
+  const [confirmingNewRelease, setConfirmingNewRelease] = useState(false);
+
+  // F-bd945889: resetDraft() and resetAll() were both implemented and
+  // unit-tested but never called from any component — the only path to
+  // a blank draft was WelcomePage, which only ever shows before a
+  // creator has typed anything. This is the discoverable entry point.
+  // Same confirm vocabulary as the Load Draft overwrite guard
+  // (F-040b05d3) — see ConfirmBanner in PanelShell.tsx.
+  const handleConfirmNewRelease = () => {
+    resetDraft();
+    resetAll();
+    setConfirmingNewRelease(false);
+  };
 
   const stepEnabled = (id: StudioStep): boolean => {
     switch (id) {
@@ -119,6 +134,40 @@ export function StudioSidebar({ onSwitchToAdvanced }: Props) {
       </div>
 
       <div style={{ flex: 1 }} />
+
+      {/* Start a new release (F-bd945889) */}
+      <div style={{ padding: "0 16px 8px", borderTop: "1px solid var(--border)", paddingTop: 8 }}>
+        {confirmingNewRelease ? (
+          <ConfirmBanner
+            message="Start a new release? This clears the current draft. Anything not explicitly saved to a file will be lost."
+            confirmLabel="Start New"
+            cancelLabel="Cancel"
+            onConfirm={handleConfirmNewRelease}
+            onCancel={() => setConfirmingNewRelease(false)}
+          />
+        ) : (
+          <button
+            onClick={() => setConfirmingNewRelease(true)}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 10,
+              padding: "8px 0",
+              border: "none",
+              background: "transparent",
+              color: "var(--text-dim)",
+              fontSize: 12,
+              cursor: "pointer",
+              textAlign: "left",
+              transition: "all 0.15s",
+              width: "100%",
+            }}
+          >
+            <span style={{ fontSize: 14 }}>{"+"}</span>
+            Start a New Release
+          </button>
+        )}
+      </div>
 
       <div
         style={{

@@ -39,7 +39,14 @@ import {
 
 // ── Status types ────────────────────────────────────────────────────
 
-export type ArtifactStatus = "empty" | "loading" | "loaded" | "error";
+// "timed_out" added for F-dba2ccb6: createPolicy and the four
+// governance create actions (createGovPolicy/createProposal/
+// createDecision/createExecution) use their ArtifactStatus field to
+// report timeout the same way mint's ActionStatus already could — see
+// engineCallTimedOut() below. Existing `status === "loading"` checks in
+// the panels are unaffected (a timed-out action is simply no longer
+// "loading", which is correct: it re-enables the button).
+export type ArtifactStatus = "empty" | "loading" | "loaded" | "error" | "timed_out";
 export type ActionStatus =
   | "idle"
   | "running"
@@ -82,6 +89,68 @@ export function getActionLog(): readonly ActionEvent[] {
 
 export function clearActionLog() {
   actionLog.length = 0;
+}
+
+// ── Shared timeout wrapper (F-dba2ccb6) ──────────────────────────────
+
+/**
+ * The mint path's own 90s timeout-race, factored out so every other
+ * network-touching engine call can use the exact same mechanism instead
+ * of each button spinning "running" forever on a hang. This is the
+ * generic half of the pattern runMint has used since F-74549b0b:
+ *
+ *   1. The caller kicks off `promise` and attaches its OWN .then/.catch
+ *      to it FIRST, to handle the real result whenever it lands.
+ *   2. The caller then `await`s this function, passing that SAME
+ *      promise plus a per-call `timeoutMs`.
+ *   3. This resolves to `true` if `timeoutMs` elapses before `promise`
+ *      settles (the caller should show a "timed out" state), or
+ *      `false` if `promise` had already settled by then (the caller's
+ *      own .then/.catch already ran — there is nothing left to do).
+ *
+ * Deliberately does NOT cancel or abandon `promise`: Tauri's invoke()
+ * has no abort mechanism, and the underlying bridge-worker call keeps
+ * running regardless — pretending otherwise would just hide that fact.
+ * Because both the "did it settle" check and the timeout race below are
+ * attached to the SAME promise the caller already attached its real
+ * handler to, and promise reactions on one promise always fire in
+ * attachment order, the caller's real handler is guaranteed to run
+ * before this function's timeout branch could ever "steal" a result
+ * that actually arrived in time — so a result that lands late (after
+ * the timeout already fired) is never silently dropped, only reported
+ * after the fact via whatever the caller's own .then/.catch already did
+ * with it.
+ */
+async function engineCallTimedOut(promise: Promise<unknown>, timeoutMs: number): Promise<boolean> {
+  const settledMarker = promise.then(
+    () => "settled" as const,
+    () => "settled" as const
+  );
+  const timeoutMarker = new Promise<"timeout">((resolve) => {
+    setTimeout(() => resolve("timeout"), timeoutMs);
+  });
+  const winner = await Promise.race([settledMarker, timeoutMarker]);
+  return winner === "timeout";
+}
+
+/** Shared timeout budget for every wrapped engine call, mint included —
+ *  see F-dba2ccb6: "keep mint's existing 90s semantics unchanged" is
+ *  satisfied by giving everything else that exact same constant rather
+ *  than inventing a different number per call site. */
+const ENGINE_CALL_TIMEOUT_MS = 90_000;
+
+/**
+ * Mint's own honest wording, reused rather than re-invented per call
+ * site: a timeout is NOT necessarily a failure — the underlying call
+ * may still complete — so the message says so and points at retrying.
+ * Mint additionally has its own "Check receipt file" reconciliation
+ * affordance (it is the one call that is irreversible and cannot
+ * safely be retried blind); every other wrapped call here is a read or
+ * a local-artifact write with no ledger side effect, so simply retrying
+ * once the operation is confirmed finished is always safe.
+ */
+function engineTimeoutMessage(action: string): string {
+  return `${action} timed out. It may still be completing in the background — this is not necessarily a failure. Check back, or try again.`;
 }
 
 // ── Release identity ────────────────────────────────────────────────
@@ -544,17 +613,16 @@ export function ReleaseProvider({ children }: { children: ReactNode }) {
         }
       );
 
-      const timeoutPromise = new Promise<"__TIMEOUT__">((resolve) =>
-        setTimeout(() => resolve("__TIMEOUT__"), 90_000)
-      );
-      const settledMarker = mintPromise.then(
-        () => "__SETTLED__" as const,
-        () => "__SETTLED__" as const
-      );
+      // F-dba2ccb6: this race is now the shared engineCallTimedOut()
+      // helper (defined near the top of this file) — every other
+      // network-touching engine call below uses the exact same
+      // mechanism. Mint's specific business logic (the mintInFlightRef
+      // guard, the receipt_unsaved distinction, this message) is
+      // unchanged; only the generic "did it settle before the timeout"
+      // race was factored out.
+      const timedOut = await engineCallTimedOut(mintPromise, ENGINE_CALL_TIMEOUT_MS);
 
-      const winner = await Promise.race([settledMarker, timeoutPromise]);
-
-      if (winner === "__TIMEOUT__") {
+      if (timedOut) {
         // Only show the timeout UI if the real promise hasn't already
         // settled in the meantime (the .then above always runs first,
         // since reactions on the same promise fire in attachment order).
@@ -713,16 +781,33 @@ export function ReleaseProvider({ children }: { children: ReactNode }) {
   const runVerify = useCallback(async () => {
     if (!manifestState.path || !mintState.receiptPath) return;
 
-    try {
-      setVerify({ status: "running", result: null, error: null });
-      const result = await engineVerify(manifestState.path, mintState.receiptPath);
-      setVerify({ status: "done", result, error: null });
-    } catch (err) {
-      setVerify({
-        status: "error",
-        result: null,
-        error: err instanceof Error ? err.message : String(err),
-      });
+    setVerify({ status: "running", result: null, error: null });
+
+    // F-dba2ccb6: verify_release makes live XRPL checks inside the
+    // bridge worker (token existence, authorized minter status) and
+    // previously had no timeout at all. The real handler is attached
+    // BEFORE the race below so a late result is never lost — same
+    // pattern as mint, factored into engineCallTimedOut().
+    const callPromise = engineVerify(manifestState.path, mintState.receiptPath);
+
+    callPromise.then(
+      (result) => { setVerify({ status: "done", result, error: null }); },
+      (err) => {
+        setVerify({
+          status: "error",
+          result: null,
+          error: err instanceof Error ? err.message : String(err),
+        });
+      }
+    );
+
+    const timedOut = await engineCallTimedOut(callPromise, ENGINE_CALL_TIMEOUT_MS);
+    if (timedOut) {
+      setVerify((s) =>
+        s.status === "running"
+          ? { ...s, status: "timed_out", error: engineTimeoutMessage("Verify") }
+          : s
+      );
     }
   }, [manifestState.path, mintState.receiptPath]);
 
@@ -784,7 +869,8 @@ export function ReleaseProvider({ children }: { children: ReactNode }) {
 
       const label = `${manifestState.data?.benefit?.kind ?? "benefit"} for ${manifestState.data?.title ?? "release"} holders`;
 
-      const policy = await engineCreatePolicy({
+      // F-dba2ccb6: create_access_policy had no timeout at all.
+      const callPromise = engineCreatePolicy({
         manifestPath: manifestState.path,
         receiptPath: mintState.receiptPath,
         label,
@@ -792,13 +878,33 @@ export function ReleaseProvider({ children }: { children: ReactNode }) {
         outputPath,
       });
 
-      setAccess((s) => ({
-        ...s,
-        policyStatus: "loaded",
-        policyPath: outputPath,
-        policy,
-        error: null,
-      }));
+      callPromise.then(
+        (policy) => {
+          setAccess((s) => ({
+            ...s,
+            policyStatus: "loaded",
+            policyPath: outputPath,
+            policy,
+            error: null,
+          }));
+        },
+        (err) => {
+          setAccess((s) => ({
+            ...s,
+            policyStatus: "error",
+            error: err instanceof Error ? err.message : String(err),
+          }));
+        }
+      );
+
+      const timedOut = await engineCallTimedOut(callPromise, ENGINE_CALL_TIMEOUT_MS);
+      if (timedOut) {
+        setAccess((s) =>
+          s.policyStatus === "loading"
+            ? { ...s, policyStatus: "timed_out", error: engineTimeoutMessage("Create Policy") }
+            : s
+        );
+      }
     } catch (err) {
       setAccess((s) => ({
         ...s,
@@ -815,23 +921,38 @@ export function ReleaseProvider({ children }: { children: ReactNode }) {
   const runGrantAccess = useCallback(async () => {
     if (!manifestState.path || !mintState.receiptPath || !accessState.policyPath || !accessState.walletAddress) return;
 
-    try {
-      setAccess((s) => ({ ...s, grantStatus: "running", grant: null, error: null }));
+    setAccess((s) => ({ ...s, grantStatus: "running", grant: null, error: null }));
 
-      const grant = await engineGrant({
-        manifestPath: manifestState.path,
-        receiptPath: mintState.receiptPath,
-        policyPath: accessState.policyPath,
-        walletAddress: accessState.walletAddress,
-      });
+    // F-dba2ccb6: grant_access calls checkHolderAccess against XRPL
+    // inside the bridge worker and had no timeout — both AccessPanel's
+    // and Studio's TestAccessPage's "Check Access"/"Test as Collector"
+    // buttons share this one function, so this one wrapper covers both
+    // call sites.
+    const callPromise = engineGrant({
+      manifestPath: manifestState.path,
+      receiptPath: mintState.receiptPath,
+      policyPath: accessState.policyPath,
+      walletAddress: accessState.walletAddress,
+    });
 
-      setAccess((s) => ({ ...s, grantStatus: "done", grant, error: null }));
-    } catch (err) {
-      setAccess((s) => ({
-        ...s,
-        grantStatus: "error",
-        error: err instanceof Error ? err.message : String(err),
-      }));
+    callPromise.then(
+      (grant) => { setAccess((s) => ({ ...s, grantStatus: "done", grant, error: null })); },
+      (err) => {
+        setAccess((s) => ({
+          ...s,
+          grantStatus: "error",
+          error: err instanceof Error ? err.message : String(err),
+        }));
+      }
+    );
+
+    const timedOut = await engineCallTimedOut(callPromise, ENGINE_CALL_TIMEOUT_MS);
+    if (timedOut) {
+      setAccess((s) =>
+        s.grantStatus === "running"
+          ? { ...s, grantStatus: "timed_out", error: engineTimeoutMessage("Check Access") }
+          : s
+      );
     }
   }, [manifestState.path, mintState.receiptPath, accessState.policyPath, accessState.walletAddress]);
 
@@ -861,28 +982,50 @@ export function ReleaseProvider({ children }: { children: ReactNode }) {
 
       setRecovery((s) => ({ ...s, status: "running", error: null }));
 
-      const result = await engineRecover({
+      // F-dba2ccb6: recover_release chain-verifies against XRPL inside
+      // the bridge worker (RecoveryPage's own copy sets the expectation
+      // directly: "Usually takes a few seconds") and had no timeout.
+      const callPromise = engineRecover({
         manifestPath: manifestState.path,
         receiptPath: mintState.receiptPath,
         policyPath: accessState.policyPath ?? undefined,
         outputPath,
       });
 
-      setRecovery((s) => ({
-        ...s,
-        status: "done",
-        result,
-        bundlePath: outputPath,
-        error: null,
-      }));
+      callPromise.then(
+        (result) => {
+          setRecovery((s) => ({
+            ...s,
+            status: "done",
+            result,
+            bundlePath: outputPath,
+            error: null,
+          }));
+          logAction({
+            action: "recover",
+            status: "done",
+            startedAt: new Date().toISOString(),
+            artifactPath: outputPath,
+            mode: "studio",
+          });
+        },
+        (err) => {
+          setRecovery((s) => ({
+            ...s,
+            status: "error",
+            error: err instanceof Error ? err.message : String(err),
+          }));
+        }
+      );
 
-      logAction({
-        action: "recover",
-        status: "done",
-        startedAt: new Date().toISOString(),
-        artifactPath: outputPath,
-        mode: "studio",
-      });
+      const timedOut = await engineCallTimedOut(callPromise, ENGINE_CALL_TIMEOUT_MS);
+      if (timedOut) {
+        setRecovery((s) =>
+          s.status === "running"
+            ? { ...s, status: "timed_out", error: engineTimeoutMessage("Recovery") }
+            : s
+        );
+      }
     } catch (err) {
       setRecovery((s) => ({
         ...s,
@@ -893,34 +1036,57 @@ export function ReleaseProvider({ children }: { children: ReactNode }) {
   }, [manifestState.path, mintState.receiptPath, accessState.policyPath]);
 
   const runReplay = useCallback(async (holderAddress: string, nonHolderAddress: string) => {
-    if (!manifestState.path || !mintState.receiptPath || !accessState.policyPath) return;
+    const manifestPath = manifestState.path;
+    const receiptPath = mintState.receiptPath;
+    const policyPath = accessState.policyPath;
+    if (!manifestPath || !receiptPath || !policyPath) return;
 
     try {
       setRecovery((s) => ({ ...s, replayStatus: "running", replayHolder: null, replayNonHolder: null, error: null }));
 
-      // Run holder test
-      const holderGrant = await engineGrant({
-        manifestPath: manifestState.path,
-        receiptPath: mintState.receiptPath,
-        policyPath: accessState.policyPath,
-        walletAddress: holderAddress,
-      });
+      // F-dba2ccb6: runReplay makes two sequential grant_access checks
+      // (holder then non-holder) with no timeout on either. Both share
+      // ONE 90s budget here rather than 90s each — if the first (holder)
+      // check alone hangs past it, the second is never reached and the
+      // whole replay reports timed_out, rather than the button being
+      // able to sit "running" for up to 180s before any feedback.
+      const callPromise = (async () => {
+        const holderGrant = await engineGrant({
+          manifestPath, receiptPath, policyPath, walletAddress: holderAddress,
+        });
+        const nonHolderGrant = await engineGrant({
+          manifestPath, receiptPath, policyPath, walletAddress: nonHolderAddress,
+        });
+        return { holderGrant, nonHolderGrant };
+      })();
 
-      // Run non-holder test
-      const nonHolderGrant = await engineGrant({
-        manifestPath: manifestState.path,
-        receiptPath: mintState.receiptPath,
-        policyPath: accessState.policyPath,
-        walletAddress: nonHolderAddress,
-      });
+      callPromise.then(
+        ({ holderGrant, nonHolderGrant }) => {
+          setRecovery((s) => ({
+            ...s,
+            replayStatus: "done",
+            replayHolder: holderGrant,
+            replayNonHolder: nonHolderGrant,
+            error: null,
+          }));
+        },
+        (err) => {
+          setRecovery((s) => ({
+            ...s,
+            replayStatus: "error",
+            error: err instanceof Error ? err.message : String(err),
+          }));
+        }
+      );
 
-      setRecovery((s) => ({
-        ...s,
-        replayStatus: "done",
-        replayHolder: holderGrant,
-        replayNonHolder: nonHolderGrant,
-        error: null,
-      }));
+      const timedOut = await engineCallTimedOut(callPromise, ENGINE_CALL_TIMEOUT_MS);
+      if (timedOut) {
+        setRecovery((s) =>
+          s.replayStatus === "running"
+            ? { ...s, replayStatus: "timed_out", error: engineTimeoutMessage("Replay") }
+            : s
+        );
+      }
     } catch (err) {
       setRecovery((s) => ({
         ...s,
@@ -989,7 +1155,8 @@ export function ReleaseProvider({ children }: { children: ReactNode }) {
 
       setGovernance((s) => ({ ...s, policyStatus: "loading", error: null }));
 
-      const policy = await engineCreateGovPolicy({
+      // F-dba2ccb6: create_governance_policy had no timeout.
+      const callPromise = engineCreateGovPolicy({
         manifestPath: manifestState.path,
         treasuryAddress: opts.treasuryAddress,
         network,
@@ -1000,18 +1167,38 @@ export function ReleaseProvider({ children }: { children: ReactNode }) {
         outputPath,
       });
 
-      setGovernance((s) => ({
-        ...s,
-        policyStatus: "loaded",
-        policyPath: outputPath,
-        policy,
-        // Reset downstream
-        proposalStatus: "empty", proposalPath: null, proposal: null,
-        decisionStatus: "empty", decisionPath: null, decision: null,
-        executionStatus: "empty", executionPath: null, execution: null,
-        verifyStatus: "idle", verifyResult: null,
-        error: null,
-      }));
+      callPromise.then(
+        (policy) => {
+          setGovernance((s) => ({
+            ...s,
+            policyStatus: "loaded",
+            policyPath: outputPath,
+            policy,
+            // Reset downstream
+            proposalStatus: "empty", proposalPath: null, proposal: null,
+            decisionStatus: "empty", decisionPath: null, decision: null,
+            executionStatus: "empty", executionPath: null, execution: null,
+            verifyStatus: "idle", verifyResult: null,
+            error: null,
+          }));
+        },
+        (err) => {
+          setGovernance((s) => ({
+            ...s,
+            policyStatus: "error",
+            error: err instanceof Error ? err.message : String(err),
+          }));
+        }
+      );
+
+      const timedOut = await engineCallTimedOut(callPromise, ENGINE_CALL_TIMEOUT_MS);
+      if (timedOut) {
+        setGovernance((s) =>
+          s.policyStatus === "loading"
+            ? { ...s, policyStatus: "timed_out", error: engineTimeoutMessage("Create Governance Policy") }
+            : s
+        );
+      }
     } catch (err) {
       setGovernance((s) => ({
         ...s,
@@ -1076,7 +1263,8 @@ export function ReleaseProvider({ children }: { children: ReactNode }) {
 
       setGovernance((s) => ({ ...s, proposalStatus: "loading", error: null }));
 
-      const proposal = await engineProposePayout({
+      // F-dba2ccb6: propose_payout had no timeout.
+      const callPromise = engineProposePayout({
         policyPath: governanceState.policyPath,
         proposalId: opts.proposalId,
         outputs: opts.outputs,
@@ -1085,17 +1273,37 @@ export function ReleaseProvider({ children }: { children: ReactNode }) {
         outputPath,
       });
 
-      setGovernance((s) => ({
-        ...s,
-        proposalStatus: "loaded",
-        proposalPath: outputPath,
-        proposal,
-        // Reset downstream
-        decisionStatus: "empty", decisionPath: null, decision: null,
-        executionStatus: "empty", executionPath: null, execution: null,
-        verifyStatus: "idle", verifyResult: null,
-        error: null,
-      }));
+      callPromise.then(
+        (proposal) => {
+          setGovernance((s) => ({
+            ...s,
+            proposalStatus: "loaded",
+            proposalPath: outputPath,
+            proposal,
+            // Reset downstream
+            decisionStatus: "empty", decisionPath: null, decision: null,
+            executionStatus: "empty", executionPath: null, execution: null,
+            verifyStatus: "idle", verifyResult: null,
+            error: null,
+          }));
+        },
+        (err) => {
+          setGovernance((s) => ({
+            ...s,
+            proposalStatus: "error",
+            error: err instanceof Error ? err.message : String(err),
+          }));
+        }
+      );
+
+      const timedOut = await engineCallTimedOut(callPromise, ENGINE_CALL_TIMEOUT_MS);
+      if (timedOut) {
+        setGovernance((s) =>
+          s.proposalStatus === "loading"
+            ? { ...s, proposalStatus: "timed_out", error: engineTimeoutMessage("Create Proposal") }
+            : s
+        );
+      }
     } catch (err) {
       setGovernance((s) => ({
         ...s,
@@ -1157,7 +1365,8 @@ export function ReleaseProvider({ children }: { children: ReactNode }) {
 
       setGovernance((s) => ({ ...s, decisionStatus: "loading", error: null }));
 
-      const decision = await engineDecidePayout({
+      // F-dba2ccb6: decide_payout had no timeout.
+      const callPromise = engineDecidePayout({
         policyPath: governanceState.policyPath,
         proposalPath: governanceState.proposalPath,
         approvals: opts.approvals,
@@ -1165,16 +1374,36 @@ export function ReleaseProvider({ children }: { children: ReactNode }) {
         outputPath,
       });
 
-      setGovernance((s) => ({
-        ...s,
-        decisionStatus: "loaded",
-        decisionPath: outputPath,
-        decision,
-        // Reset downstream
-        executionStatus: "empty", executionPath: null, execution: null,
-        verifyStatus: "idle", verifyResult: null,
-        error: null,
-      }));
+      callPromise.then(
+        (decision) => {
+          setGovernance((s) => ({
+            ...s,
+            decisionStatus: "loaded",
+            decisionPath: outputPath,
+            decision,
+            // Reset downstream
+            executionStatus: "empty", executionPath: null, execution: null,
+            verifyStatus: "idle", verifyResult: null,
+            error: null,
+          }));
+        },
+        (err) => {
+          setGovernance((s) => ({
+            ...s,
+            decisionStatus: "error",
+            error: err instanceof Error ? err.message : String(err),
+          }));
+        }
+      );
+
+      const timedOut = await engineCallTimedOut(callPromise, ENGINE_CALL_TIMEOUT_MS);
+      if (timedOut) {
+        setGovernance((s) =>
+          s.decisionStatus === "loading"
+            ? { ...s, decisionStatus: "timed_out", error: engineTimeoutMessage("Record Decision") }
+            : s
+        );
+      }
     } catch (err) {
       setGovernance((s) => ({
         ...s,
@@ -1235,7 +1464,8 @@ export function ReleaseProvider({ children }: { children: ReactNode }) {
 
       setGovernance((s) => ({ ...s, executionStatus: "loading", error: null }));
 
-      const execution = await engineExecutePayout({
+      // F-dba2ccb6: execute_payout had no timeout.
+      const callPromise = engineExecutePayout({
         policyPath: governanceState.policyPath,
         proposalPath: governanceState.proposalPath,
         decisionPath: governanceState.decisionPath,
@@ -1245,14 +1475,34 @@ export function ReleaseProvider({ children }: { children: ReactNode }) {
         outputPath,
       });
 
-      setGovernance((s) => ({
-        ...s,
-        executionStatus: "loaded",
-        executionPath: outputPath,
-        execution,
-        verifyStatus: "idle", verifyResult: null,
-        error: null,
-      }));
+      callPromise.then(
+        (execution) => {
+          setGovernance((s) => ({
+            ...s,
+            executionStatus: "loaded",
+            executionPath: outputPath,
+            execution,
+            verifyStatus: "idle", verifyResult: null,
+            error: null,
+          }));
+        },
+        (err) => {
+          setGovernance((s) => ({
+            ...s,
+            executionStatus: "error",
+            error: err instanceof Error ? err.message : String(err),
+          }));
+        }
+      );
+
+      const timedOut = await engineCallTimedOut(callPromise, ENGINE_CALL_TIMEOUT_MS);
+      if (timedOut) {
+        setGovernance((s) =>
+          s.executionStatus === "loading"
+            ? { ...s, executionStatus: "timed_out", error: engineTimeoutMessage("Record Execution") }
+            : s
+        );
+      }
     } catch (err) {
       setGovernance((s) => ({
         ...s,
@@ -1266,23 +1516,34 @@ export function ReleaseProvider({ children }: { children: ReactNode }) {
     if (!governanceState.policyPath || !governanceState.proposalPath ||
         !governanceState.decisionPath || !governanceState.executionPath) return;
 
-    try {
-      setGovernance((s) => ({ ...s, verifyStatus: "running", verifyResult: null, error: null }));
+    setGovernance((s) => ({ ...s, verifyStatus: "running", verifyResult: null, error: null }));
 
-      const result = await engineVerifyPayout({
-        policyPath: governanceState.policyPath,
-        proposalPath: governanceState.proposalPath,
-        decisionPath: governanceState.decisionPath,
-        executionPath: governanceState.executionPath,
-      });
+    // F-dba2ccb6: verify_payout had no timeout.
+    const callPromise = engineVerifyPayout({
+      policyPath: governanceState.policyPath,
+      proposalPath: governanceState.proposalPath,
+      decisionPath: governanceState.decisionPath,
+      executionPath: governanceState.executionPath,
+    });
 
-      setGovernance((s) => ({ ...s, verifyStatus: "done", verifyResult: result, error: null }));
-    } catch (err) {
-      setGovernance((s) => ({
-        ...s,
-        verifyStatus: "error",
-        error: err instanceof Error ? err.message : String(err),
-      }));
+    callPromise.then(
+      (result) => { setGovernance((s) => ({ ...s, verifyStatus: "done", verifyResult: result, error: null })); },
+      (err) => {
+        setGovernance((s) => ({
+          ...s,
+          verifyStatus: "error",
+          error: err instanceof Error ? err.message : String(err),
+        }));
+      }
+    );
+
+    const timedOut = await engineCallTimedOut(callPromise, ENGINE_CALL_TIMEOUT_MS);
+    if (timedOut) {
+      setGovernance((s) =>
+        s.verifyStatus === "running"
+          ? { ...s, verifyStatus: "timed_out", error: engineTimeoutMessage("Verify Payout") }
+          : s
+      );
     }
   }, [governanceState.policyPath, governanceState.proposalPath,
       governanceState.decisionPath, governanceState.executionPath]);
