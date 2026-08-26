@@ -87,6 +87,61 @@ function failedTx(resultCode: string) {
   };
 }
 
+/**
+ * A mint that triggers an NFTokenPage split: the original (full) page loses
+ * some pre-existing tokens to a brand-new page (CreatedNode), and the newly
+ * minted token lands in that new page too. NFTokenPages sort by NFTokenID,
+ * NOT by mint order, so the freshly-minted token can land anywhere in the
+ * new page's array — here it is placed in the MIDDLE, with a pre-existing
+ * (moved) token after it, to prove position-based extraction is wrong.
+ */
+function pageSplitSuccessTx(newTokenId: string, hash: string) {
+  return {
+    result: {
+      hash,
+      meta: {
+        TransactionResult: "tesSUCCESS",
+        AffectedNodes: [
+          {
+            // The original full page: 4 tokens existed before this tx;
+            // 2 of them (T3, T4) moved out to the new page during the split.
+            ModifiedNode: {
+              PreviousFields: {
+                NFTokens: [
+                  { NFToken: { NFTokenID: "T1" } },
+                  { NFToken: { NFTokenID: "T2" } },
+                  { NFToken: { NFTokenID: "T3" } },
+                  { NFToken: { NFTokenID: "T4" } },
+                ],
+              },
+              FinalFields: {
+                NFTokens: [
+                  { NFToken: { NFTokenID: "T1" } },
+                  { NFToken: { NFTokenID: "T2" } },
+                ],
+              },
+            },
+          },
+          {
+            // The new page: the 2 moved-out pre-existing tokens PLUS the
+            // freshly minted token, sorted by NFTokenID — new token is NOT
+            // last.
+            CreatedNode: {
+              NewFields: {
+                NFTokens: [
+                  { NFToken: { NFTokenID: "T3" } },
+                  { NFToken: { NFTokenID: newTokenId } },
+                  { NFToken: { NFTokenID: "T4" } },
+                ],
+              },
+            },
+          },
+        ],
+      },
+    },
+  };
+}
+
 beforeEach(() => {
   mockConnect.mockReset().mockResolvedValue(undefined);
   mockDisconnect.mockReset().mockResolvedValue(undefined);
@@ -161,5 +216,27 @@ describe("mintRelease", () => {
     const partial = caught as PartialMintError;
     expect(partial.tokenIds).toEqual([]);
     expect(partial.txHashes).toEqual([]);
+  });
+
+  // F-04ff370e (HIGH): extractNFTokenId's CreatedNode branch assumed the
+  // freshly-minted token is always tokens[tokens.length - 1]. NFTokenPages
+  // sort by NFTokenID (not mint order), and a CreatedNode can arise from a
+  // page split that redistributes several PRE-EXISTING tokens into the new
+  // page alongside the new one — so the new token does not have to sort
+  // last. Old code would return a stale, pre-existing token's ID here
+  // instead of the real newly-minted one, silently corrupting the
+  // tokenIds/txHashes pairing for that mint.
+  it("extracts the freshly-minted NFTokenID from a page-split CreatedNode even when it does not sort last", async () => {
+    const pair = generateWalletPair();
+    const manifest = makeManifest(pair, { editionSize: 1 });
+
+    mockSubmitAndWait.mockResolvedValueOnce(
+      pageSplitSuccessTx("NEW_NFT", "HASH_SPLIT")
+    );
+
+    const result = await mintRelease(manifest, pair, "testnet");
+
+    expect(result.tokenIds).toEqual(["NEW_NFT"]);
+    expect(result.txHashes).toEqual(["HASH_SPLIT"]);
   });
 });

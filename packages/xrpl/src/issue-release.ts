@@ -20,6 +20,27 @@ export interface IssueReleaseOptions {
   allowMainnetWrite?: boolean;
   storage: ContentStore;
   storageProvider: string;
+  /**
+   * The real on-chain tx hash of the AccountSet transaction that
+   * authorized the operator as minter (returned by authorizeOperatorAsMinter
+   * in wallet.ts). issueRelease itself only RE-VERIFIES the authorization
+   * via verifyAuthorizedMinter, a read-only account_info call with no tx
+   * hash of its own — so the hash can only be supplied here by a caller
+   * that ran the authorization step and captured it. When omitted, the
+   * receipt's xrpl.authorizedMinterTxHash is left undefined rather than a
+   * fabricated value.
+   */
+  authorizedMinterTxHash?: string;
+  /**
+   * The URI minted into an NFT is effectively permanent, so by default
+   * (false) an unresolved media or cover CID in storage.has() is a hard
+   * pre-flight error — issuance stops before verifying the minter or
+   * minting anything. Mirrors the allowMainnetWrite escape hatch already
+   * used in this file: set to true to explicitly opt back into the legacy
+   * warn-and-proceed behavior (e.g. intentional async/eventual pinning),
+   * which is otherwise unchanged.
+   */
+  allowUnresolvedStorage?: boolean;
 }
 
 /**
@@ -38,6 +59,8 @@ export async function issueRelease(
     allowMainnetWrite = false,
     storage,
     storageProvider,
+    allowUnresolvedStorage = false,
+    authorizedMinterTxHash,
   } = opts;
 
   assertMainnetAllowed(network, allowMainnetWrite);
@@ -77,10 +100,14 @@ export async function issueRelease(
   const mediaResolved = await storage.has(manifest.mediaCid);
   const coverResolved = await storage.has(manifest.coverCid);
   if (!mediaResolved) {
-    warnings.push(`Media CID ${manifest.mediaCid} not found in storage`);
+    const msg = `Media CID ${manifest.mediaCid} not found in storage`;
+    if (allowUnresolvedStorage) warnings.push(msg);
+    else errors.push(msg);
   }
   if (!coverResolved) {
-    warnings.push(`Cover CID ${manifest.coverCid} not found in storage`);
+    const msg = `Cover CID ${manifest.coverCid} not found in storage`;
+    if (allowUnresolvedStorage) warnings.push(msg);
+    else errors.push(msg);
   }
 
   if (errors.length > 0) {
@@ -153,9 +180,7 @@ export async function issueRelease(
     },
     xrpl: {
       authorizedMinterVerified: true,
-      authorizedMinterTxHash: minterCheck.actualMinter
-        ? undefined
-        : undefined,
+      authorizedMinterTxHash,
       mintTxHashes: mintResult.txHashes,
       nftTokenIds: mintResult.tokenIds,
       tokenTaxon: 0,

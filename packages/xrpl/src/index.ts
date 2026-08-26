@@ -8,7 +8,11 @@ export {
   exportWalletPair,
   importWalletPair,
 } from "./wallet.js";
-export type { WalletPair, FundedWalletPair } from "./wallet.js";
+export type {
+  WalletPair,
+  FundedWalletPair,
+  AuthorizeMinterResult,
+} from "./wallet.js";
 
 export { mintRelease, PartialMintError } from "./mint.js";
 export type { MintResult } from "./mint.js";

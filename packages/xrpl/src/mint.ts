@@ -178,8 +178,10 @@ function extractNFTokenId(meta: unknown): string | undefined {
 
   if (!metaObj.AffectedNodes) return undefined;
 
+  // Check ModifiedNode first — existing NFTokenPage was updated in place.
+  // This covers the common case: the page had room and the new token was
+  // inserted directly, so a straight set-difference finds it.
   for (const node of metaObj.AffectedNodes) {
-    // Check ModifiedNode — existing NFTokenPage was updated
     if (node.ModifiedNode?.FinalFields?.NFTokens) {
       const finalTokens = new Set(
         node.ModifiedNode.FinalFields.NFTokens.map(
@@ -195,10 +197,40 @@ function extractNFTokenId(meta: unknown): string | undefined {
         if (!prevTokens.has(id)) return id;
       }
     }
+  }
 
-    // Check CreatedNode — new NFTokenPage was created
+  // Check CreatedNode — a brand-new NFTokenPage was created. This happens
+  // either for an account's very first NFT (new page holds exactly the one
+  // new token) OR for a page split, where a full page redistributes several
+  // PRE-EXISTING tokens into the new page alongside the freshly minted one.
+  // NFTokenPages sort by NFTokenID (not mint order), so the new token does
+  // NOT have to land last in that array — position-based extraction is
+  // wrong. Mirror the ModifiedNode set-difference above instead: a
+  // CreatedNode has no PreviousFields of its own (the page didn't exist
+  // before), so build the set of every token already known to exist before
+  // this transaction from the union of every ModifiedNode's
+  // PreviousFields in this same AffectedNodes array (that union is exactly
+  // the split-source page's pre-split contents when a split occurred, and
+  // empty when this is a fresh first-ever page) and return whichever
+  // CreatedNode token is NOT in that set.
+  const previouslyExisting = new Set<string>();
+  for (const node of metaObj.AffectedNodes) {
+    for (const t of node.ModifiedNode?.PreviousFields?.NFTokens ?? []) {
+      previouslyExisting.add(t.NFToken.NFTokenID);
+    }
+  }
+
+  for (const node of metaObj.AffectedNodes) {
     if (node.CreatedNode?.NewFields?.NFTokens) {
       const tokens = node.CreatedNode.NewFields.NFTokens;
+      for (const t of tokens) {
+        if (!previouslyExisting.has(t.NFToken.NFTokenID)) {
+          return t.NFToken.NFTokenID;
+        }
+      }
+      // Every token in the new page was already accounted for elsewhere —
+      // shouldn't happen for a genuine mint. Fall back to the old
+      // last-element heuristic rather than silently returning undefined.
       if (tokens.length > 0) {
         return tokens[tokens.length - 1].NFToken.NFTokenID;
       }
