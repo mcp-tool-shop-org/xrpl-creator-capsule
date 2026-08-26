@@ -429,59 +429,83 @@ async function verifyReleaseCmd(
         : `Minter check failed: ${minterCheck.error}`,
     });
 
+    // Verify EVERY minted edition exists on chain with correct URI — not
+    // just the first. NFTs minted by authorized minter are held by the
+    // minting account (operator), not the issuer. Check operator first,
+    // then issuer, for each token id in the receipt. Ported from
+    // packages/cli/src/commands/verify-release.ts's identical loop (see
+    // that file's comment "Verify every minted edition still exists
+    // on-chain — not just the first") — wave 8 pinned the single-token gap
+    // this closes; wave 9 ports the fix (Director-directed).
     if (receipt.xrpl.nftTokenIds.length > 0) {
-      const firstTokenId = receipt.xrpl.nftTokenIds[0];
-      let nft = await readNftFromLedger(
-        receipt.operatorAddress,
-        firstTokenId,
-        receipt.network
-      );
-      if (!nft) {
-        nft = await readNftFromLedger(
-          receipt.issuerAddress,
-          firstTokenId,
+      const total = receipt.xrpl.nftTokenIds.length;
+      const expectedUri = convertStringToHex(manifest.metadataEndpoint);
+
+      let existsCount = 0;
+      const missingTokenIds: string[] = [];
+      let uriMismatches = 0;
+      let issuerMismatches = 0;
+      let feeMismatches = 0;
+
+      for (const tokenId of receipt.xrpl.nftTokenIds) {
+        let nft = await readNftFromLedger(
+          receipt.operatorAddress,
+          tokenId,
           receipt.network
         );
+        if (!nft) {
+          nft = await readNftFromLedger(
+            receipt.issuerAddress,
+            tokenId,
+            receipt.network
+          );
+        }
+
+        if (!nft) {
+          missingTokenIds.push(tokenId);
+          continue;
+        }
+
+        existsCount++;
+        if (nft.uri !== expectedUri) uriMismatches++;
+        if (nft.issuer !== receipt.issuerAddress) issuerMismatches++;
+        if (nft.transferFee !== receipt.xrpl.transferFee) feeMismatches++;
       }
 
-      if (nft) {
-        const expectedUri = convertStringToHex(manifest.metadataEndpoint);
-        checks.push({
-          name: "chain-nft-exists",
-          passed: true,
-          detail: `NFT ${firstTokenId.slice(0, 16)}... found on ledger`,
-        });
-        checks.push({
-          name: "chain-nft-uri",
-          passed: nft.uri === expectedUri,
-          detail:
-            nft.uri === expectedUri
-              ? "On-chain URI matches manifest metadata endpoint"
-              : "On-chain URI does not match manifest metadata endpoint",
-        });
-        checks.push({
-          name: "chain-nft-issuer",
-          passed: nft.issuer === receipt.issuerAddress,
-          detail:
-            nft.issuer === receipt.issuerAddress
-              ? "On-chain issuer matches receipt"
-              : `On-chain issuer ${nft.issuer} differs from receipt ${receipt.issuerAddress}`,
-        });
-        checks.push({
-          name: "chain-nft-transfer-fee",
-          passed: nft.transferFee === receipt.xrpl.transferFee,
-          detail:
-            nft.transferFee === receipt.xrpl.transferFee
-              ? `On-chain transfer fee matches: ${nft.transferFee}`
-              : `On-chain transfer fee ${nft.transferFee} differs from receipt ${receipt.xrpl.transferFee}`,
-        });
-      } else {
-        checks.push({
-          name: "chain-nft-exists",
-          passed: false,
-          detail: `NFT ${firstTokenId.slice(0, 16)}... not found on ledger`,
-        });
-      }
+      const allFound = existsCount === total;
+      checks.push({
+        name: "chain-nft-exists",
+        passed: allFound,
+        detail: allFound
+          ? `${existsCount}/${total} editions confirmed on ledger`
+          : `${existsCount}/${total} editions confirmed on ledger — missing: ${missingTokenIds
+              .map((id) => `${id.slice(0, 16)}...`)
+              .join(", ")}`,
+      });
+      checks.push({
+        name: "chain-nft-uri",
+        passed: allFound && uriMismatches === 0,
+        detail:
+          allFound && uriMismatches === 0
+            ? "On-chain URI matches manifest metadata endpoint for all editions"
+            : `${uriMismatches} of ${existsCount}/${total} confirmed editions have a URI mismatch (or an edition is missing)`,
+      });
+      checks.push({
+        name: "chain-nft-issuer",
+        passed: allFound && issuerMismatches === 0,
+        detail:
+          allFound && issuerMismatches === 0
+            ? "On-chain issuer matches receipt for all editions"
+            : `${issuerMismatches} of ${existsCount}/${total} confirmed editions have an issuer mismatch (or an edition is missing)`,
+      });
+      checks.push({
+        name: "chain-nft-transfer-fee",
+        passed: allFound && feeMismatches === 0,
+        detail:
+          allFound && feeMismatches === 0
+            ? `On-chain transfer fee matches for all editions: ${receipt.xrpl.transferFee}`
+            : `${feeMismatches} of ${existsCount}/${total} confirmed editions have a transfer fee mismatch (or an edition is missing)`,
+      });
     }
   } catch (err) {
     checks.push({
@@ -751,26 +775,48 @@ async function recoverReleaseCmd(
         : `Minter check failed: ${minterCheck.error}`,
     });
 
+    // Verify every minted edition still exists on-chain — not just the
+    // first. A fabricated or stale token id in editions 2..N must not slip
+    // through just because edition 1 checks out. Ported from
+    // packages/cli/src/commands/recover-release.ts's identical loop (see
+    // that file's comment "Verify every minted edition still exists
+    // on-chain — not just the first") — wave 8 pinned the single-token gap
+    // this closes; wave 9 ports the fix (Director-directed).
     if (receipt.xrpl.nftTokenIds.length > 0) {
-      const firstTokenId = receipt.xrpl.nftTokenIds[0];
-      let nft = await readNftFromLedger(
-        receipt.operatorAddress,
-        firstTokenId,
-        receipt.network
-      );
-      if (!nft) {
-        nft = await readNftFromLedger(
-          receipt.issuerAddress,
-          firstTokenId,
+      const total = receipt.xrpl.nftTokenIds.length;
+      let confirmed = 0;
+      const notFound: string[] = [];
+
+      for (const tokenId of receipt.xrpl.nftTokenIds) {
+        let nft = await readNftFromLedger(
+          receipt.operatorAddress,
+          tokenId,
           receipt.network
         );
+        if (!nft) {
+          nft = await readNftFromLedger(
+            receipt.issuerAddress,
+            tokenId,
+            receipt.network
+          );
+        }
+
+        if (nft) {
+          confirmed++;
+        } else {
+          notFound.push(tokenId);
+        }
       }
+
+      const allFound = confirmed === total;
       chainChecks.push({
         name: "chain-nft-exists",
-        passed: !!nft,
-        detail: nft
-          ? `NFT ${firstTokenId.slice(0, 16)}... found on ledger`
-          : `NFT ${firstTokenId.slice(0, 16)}... not found on ledger`,
+        passed: allFound,
+        detail: allFound
+          ? `${confirmed}/${total} editions confirmed on ledger`
+          : `${confirmed}/${total} editions confirmed on ledger — missing: ${notFound
+              .map((id) => `${id.slice(0, 16)}...`)
+              .join(", ")}`,
       });
     }
   } catch (err) {
