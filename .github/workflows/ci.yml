@@ -10,6 +10,7 @@ on:
       - "package-lock.json"
       - "tsconfig*.json"
       - "app/**"
+      - "verify.sh"
       - ".github/workflows/**"
   pull_request:
     paths:
@@ -20,6 +21,7 @@ on:
       - "package-lock.json"
       - "tsconfig*.json"
       - "app/**"
+      - "verify.sh"
       - ".github/workflows/**"
   release:
     types: [published]
@@ -45,19 +47,18 @@ jobs:
           node-version: ${{ matrix.node-version }}
           cache: npm
       - run: npm ci
-      # Build mode over both project graphs. A bare `tsc --noEmit` against the
-      # solution-style root config resolves ZERO files and always exits 0, so
-      # this step reported success for the life of the repo while type-checking
-      # nothing. app/ is a separate graph and must be named explicitly.
-      - name: Type check
-        run: npx tsc -b tsconfig.json app/tsconfig.json artifacts/tsconfig.json
-      - name: Test (engine)
-        run: npx vitest run
-      # The root vitest config excludes app/**, so without this the desktop
-      # app's tests never ran here even though app/** is a trigger path above.
-      - name: Test (desktop app)
-        working-directory: app
-        run: npx vitest run
+      # verify.sh is the single source of truth for what "passing" means --
+      # both project-graph type checks (root + app/ + artifacts/, build mode,
+      # for the reasons documented in verify.sh itself) and both test suites
+      # (engine + desktop app). Previously these three commands were
+      # hand-duplicated here, and the two copies drifted apart twice already
+      # (F-93dc0160: a vacuous `tsc --noEmit` shipped here while verify.sh had
+      # the real build-mode invocation; F-63e4ed6a: the app test suite was
+      # missing from this job entirely). Calling verify.sh directly makes that
+      # class of drift structurally impossible instead of relying on
+      # contributors to keep two copies in sync by hand.
+      - name: Verify
+        run: bash verify.sh
 
   # The Rust half of the desktop app had no automated check at all: the test job
   # never compiled it, and build-desktop runs only on release, so a change under

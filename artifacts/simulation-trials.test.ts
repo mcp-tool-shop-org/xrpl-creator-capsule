@@ -16,7 +16,7 @@
  * calls. No UI layer — pure truth-boundary testing.
  */
 
-import { describe, it, expect, beforeEach, afterEach } from "vitest";
+import { describe, it, expect, beforeEach, afterEach, afterAll } from "vitest";
 import { readFile, writeFile, mkdir, unlink, rm } from "node:fs/promises";
 import { join } from "node:path";
 import { randomUUID } from "node:crypto";
@@ -283,6 +283,18 @@ beforeEach(async () => {
 
 afterEach(async () => {
   try { await rm(trialDir, { recursive: true, force: true }); } catch { /* ok */ }
+});
+
+// afterEach above only removes the per-run subdirectory it created
+// (trialDir); it never removed the TRIAL_DIR parent that beforeEach's
+// `mkdir(trialDir, { recursive: true })` implicitly creates on the very
+// first run. That left an empty artifacts/simulation-trials/ directory on
+// disk after every full test run (defect F-a2701c18). Git doesn't track
+// empty directories, so this was harmless today, but nothing was cleaning
+// it up either. Belt-and-suspenders with the artifacts/.gitignore entry
+// below in case something ever does write a loose file here.
+afterAll(async () => {
+  await rm(TRIAL_DIR, { recursive: true, force: true });
 });
 
 // =====================================================================

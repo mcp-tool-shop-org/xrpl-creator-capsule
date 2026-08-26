@@ -1,3 +1,8 @@
 # Live artifacts contain wallet secrets — never commit
 direct-rail/wallets.json
 _drill_*
+
+# Defensive backstop for simulation-trials.test.ts's TRIAL_DIR: afterAll
+# removes it after every run, but if that ever fails to run (e.g. a crashed
+# process), stray per-trial subdirectories should never show up as untracked.
+simulation-trials/
