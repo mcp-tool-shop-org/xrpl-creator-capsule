@@ -7,12 +7,14 @@
  * ledger requests — mocked here so this suite is fast, deterministic, and
  * offline (same convention as bridge-worker-verify-release.test.ts).
  *
- * IMPORTANT — same real-defect class as verify_release (see
+ * IMPORTANT — same defect class as verify_release (see
  * bridge-worker-verify-release.test.ts's file header for the full writeup
  * and the CLI reference fix): recoverReleaseCmd's chain-verification block
- * also only ever reads receipt.xrpl.nftTokenIds[0]. Pinned below, not
- * fixed, and reported in this agent's output alongside the verify_release
- * instance.
+ * also used to read only receipt.xrpl.nftTokenIds[0]. Wave 8 pinned this as
+ * current behavior; wave 9 (Director-directed) ported the fix already
+ * applied to packages/cli/src/commands/recover-release.ts (per-edition
+ * ledger loop) into recoverReleaseCmd. The "recover_release" pin test below
+ * is now a spec test asserting the fixed behavior.
  */
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { mkdtemp, writeFile, readFile, rm } from "node:fs/promises";
@@ -292,13 +294,15 @@ describe("bridge-worker dispatch: recovery handlers", () => {
     });
 
     /**
-     * REAL DEFECT PIN — see file header. Mirrors the identical gap already
-     * pinned for verify_release: recoverReleaseCmd's chain-verification
-     * block only ever reads receipt.xrpl.nftTokenIds[0], so editions 2..N
-     * of a multi-edition release are never checked against the ledger here
-     * either. Documented, not fixed — see this agent's wave-8 output.
+     * SPEC (wave 9, Director-directed port) — see file header. Mirrors the
+     * identical fix already ported for verify_release: recoverReleaseCmd's
+     * chain-verification block now loops every entry in
+     * receipt.xrpl.nftTokenIds (matching
+     * packages/cli/src/commands/recover-release.ts's "Verify every minted
+     * edition still exists on-chain — not just the first" loop), so a
+     * fabricated edition anywhere in the set sinks allPassed.
      */
-    it("CURRENT BEHAVIOR: only edition 1 is chain-verified — a fabricated edition 2 of 3 still reports allPassed:true", async () => {
+    it("fails chain-nft-exists and overall allPassed:false when edition 2 of 3 was fabricated (never actually minted)", async () => {
       const manifest = makeManifest({ editionSize: 3 });
       const TOKEN_A = "AAAA0000000000000000000000000000000000000000000000000000000001";
       const TOKEN_B = "AAAA0000000000000000000000000000000000000000000000000000000002";
@@ -311,8 +315,8 @@ describe("bridge-worker dispatch: recovery handlers", () => {
       await writeFile(receiptPath, JSON.stringify(receipt), "utf-8");
 
       // TOKEN_B ("edition 2") was never actually minted — absent from the
-      // ledger under either account. A correct per-edition loop would
-      // surface this; the current single-token check does not.
+      // ledger under either account. The per-edition loop must surface
+      // this instead of only checking edition 1.
       mockReadNft.mockImplementation(async (_account: string, tokenId: string) => {
         if (tokenId === TOKEN_B) return null;
         return { nftTokenId: tokenId, issuer: ISSUER, uri: "deadbeef", flags: 8, transferFee: 5000, taxon: 0 };
@@ -321,15 +325,60 @@ describe("bridge-worker dispatch: recovery handlers", () => {
       const result = (await dispatch({
         command: "recover_release",
         params: { manifestPath, receiptPath },
-      })) as { chainChecks: Array<{ name: string; passed: boolean }>; allPassed: boolean };
+      })) as { chainChecks: Array<{ name: string; passed: boolean; detail: string }>; allPassed: boolean };
 
-      // Pinned bug: reports fully passed despite a fabricated edition.
+      // Fixed behavior: the fabricated edition 2 sinks allPassed, even
+      // though edition 1 (checked first) is genuine.
+      expect(result.allPassed).toBe(false);
+      const existsCheck = result.chainChecks.find((c) => c.name === "chain-nft-exists");
+      expect(existsCheck?.passed).toBe(false);
+      expect(existsCheck?.detail).toContain("2/3");
+
+      // Proves it structurally: every edition is actually queried against
+      // the ledger now, not just edition 1.
+      const checkedTokenIds = mockReadNft.mock.calls.map((call) => call[1]);
+      expect(checkedTokenIds).toContain(TOKEN_A);
+      expect(checkedTokenIds).toContain(TOKEN_B);
+      expect(checkedTokenIds).toContain(TOKEN_C);
+    });
+
+    it("reports allPassed:true with all 3 editions confirmed when every edition is genuine", async () => {
+      const manifest = makeManifest({ editionSize: 3 });
+      const TOKEN_A = "AAAA0000000000000000000000000000000000000000000000000000000001";
+      const TOKEN_B = "AAAA0000000000000000000000000000000000000000000000000000000002";
+      const TOKEN_C = "AAAA0000000000000000000000000000000000000000000000000000000003";
+      const receipt = makeReceipt(manifest, [TOKEN_A, TOKEN_B, TOKEN_C], ["TX1", "TX2", "TX3"]);
+      const dir = await tmpDir();
+      const manifestPath = join(dir, "manifest.json");
+      const receiptPath = join(dir, "receipt.json");
+      await writeFile(manifestPath, JSON.stringify(manifest), "utf-8");
+      await writeFile(receiptPath, JSON.stringify(receipt), "utf-8");
+
+      // All three editions genuinely exist on-chain under the operator
+      // account.
+      mockReadNft.mockImplementation(async (_account: string, tokenId: string) => ({
+        nftTokenId: tokenId,
+        issuer: ISSUER,
+        uri: "deadbeef",
+        flags: 8,
+        transferFee: 5000,
+        taxon: 0,
+      }));
+
+      const result = (await dispatch({
+        command: "recover_release",
+        params: { manifestPath, receiptPath },
+      })) as { chainChecks: Array<{ name: string; passed: boolean; detail: string }>; allPassed: boolean };
+
       expect(result.allPassed).toBe(true);
-      expect(result.chainChecks.find((c) => c.name === "chain-nft-exists")?.passed).toBe(true);
+      const existsCheck = result.chainChecks.find((c) => c.name === "chain-nft-exists");
+      expect(existsCheck?.passed).toBe(true);
+      expect(existsCheck?.detail).toContain("3/3");
 
       const checkedTokenIds = mockReadNft.mock.calls.map((call) => call[1]);
-      expect(checkedTokenIds).toEqual([TOKEN_A]);
-      expect(checkedTokenIds).not.toContain(TOKEN_B);
+      expect(checkedTokenIds).toContain(TOKEN_A);
+      expect(checkedTokenIds).toContain(TOKEN_B);
+      expect(checkedTokenIds).toContain(TOKEN_C);
     });
   });
 

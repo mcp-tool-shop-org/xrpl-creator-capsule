@@ -9,16 +9,20 @@
  * packages/cli/src/commands/verify-release.test.ts) so this suite is fast,
  * deterministic, and offline.
  *
- * IMPORTANT — real defect discovered while writing this file (see the
- * "multi-edition chain check" describe block below): verifyReleaseCmd only
- * ever chain-verifies receipt.xrpl.nftTokenIds[0]. The parallel CLI
- * implementation (packages/cli/src/commands/verify-release.ts) loops over
- * every token id specifically to close this gap — see that file's comment
- * "Verify every minted edition still exists on-chain — not just the
- * first." That fix was never ported to this bridge command. Per the wave-8
- * dispatch ("Do NOT change handler behavior... document honestly"), this
- * is PINNED as current behavior, not fixed, and reported prominently in
- * this agent's output.
+ * IMPORTANT — wave 8 discovered a real defect here (see the "multi-edition
+ * chain check" describe block below): verifyReleaseCmd used to
+ * chain-verify only receipt.xrpl.nftTokenIds[0]. Per the wave-8 dispatch
+ * ("Do NOT change handler behavior... document honestly"), that gap was
+ * PINNED as current behavior rather than fixed, and reported prominently
+ * in that agent's output.
+ *
+ * Wave 9 (Director-directed) ported the fix already applied to the
+ * parallel CLI implementation (packages/cli/src/commands/verify-release.ts,
+ * see that file's comment "Verify every minted edition still exists
+ * on-chain — not just the first.") into verifyReleaseCmd. The
+ * "multi-edition chain check" block below is now a spec test asserting the
+ * fixed behavior — a fabricated edition anywhere in the set now fails
+ * verification.
  */
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { mkdtemp, writeFile, rm } from "node:fs/promises";
@@ -385,29 +389,18 @@ describe("bridge-worker dispatch: verify_release", () => {
   });
 
   /**
-   * REAL DEFECT PIN (discovered writing this coverage, not previously
-   * known) — see file header. verifyReleaseCmd's chain-verification block
-   * only ever reads receipt.xrpl.nftTokenIds[0]:
-   *
-   *   const firstTokenId = receipt.xrpl.nftTokenIds[0];
-   *   let nft = await readNftFromLedger(receipt.operatorAddress, firstTokenId, ...);
-   *
-   * For a multi-edition release, editions 2..N are NEVER checked against
-   * the ledger. This test proves the current, shipping behavior: a receipt
-   * whose edition 2 of 3 was fabricated (never actually minted) still
-   * reports passed:true through this bridge command, because only edition
-   * 1's token id is ever looked up.
-   *
-   * This is NOT an assertion that this behavior is correct — it is the
-   * opposite: it documents a real gap so it cannot regress silently further
-   * and so a future finding can port the fix already applied to
-   * packages/cli/src/commands/verify-release.ts (which loops over every
-   * `nftTokenIds` entry — see that file's F-42ee54ec comment). Per this
-   * wave's instructions this agent does NOT fix bridge-worker-commands.ts;
-   * this gap is reported prominently in the wave-8 output instead.
+   * SPEC (wave 9, Director-directed port) — see file header. Wave 8 pinned
+   * a real defect here: verifyReleaseCmd's chain-verification block used to
+   * read only receipt.xrpl.nftTokenIds[0], so editions 2..N of a
+   * multi-edition release were never checked against the ledger. That gap
+   * is now closed by porting the per-edition loop already proven in
+   * packages/cli/src/commands/verify-release.ts (see that file's comment
+   * "Verify every minted edition still exists on-chain — not just the
+   * first."). This test now asserts the fixed behavior: a fabricated
+   * edition anywhere in the set — not just edition 1 — fails verification.
    */
-  describe("multi-edition chain check (real defect pin, not a spec)", () => {
-    it("CURRENT BEHAVIOR: only edition 1 is chain-verified — a fabricated edition 2 of 3 still reports passed:true", async () => {
+  describe("multi-edition chain check", () => {
+    it("fails chain-nft-exists and overall passed:false when edition 2 of 3 was fabricated (never actually minted)", async () => {
       const manifest = makeManifest({ editionSize: 3 });
       const TOKEN_A = "AAAA0000000000000000000000000000000000000000000000000000000001";
       const TOKEN_B = "AAAA0000000000000000000000000000000000000000000000000000000002";
@@ -429,7 +422,7 @@ describe("bridge-worker dispatch: verify_release", () => {
       const expectedFee = Math.round(manifest.transferFeePercent * 1000);
       // TOKEN_B ("edition 2") was never actually minted on-chain — it does
       // not exist under either the operator or issuer account. A correct
-      // implementation checking every edition would fail chain-nft-exists.
+      // implementation checking every edition must fail chain-nft-exists.
       mockReadNft.mockImplementation(async (_account: string, tokenId: string) => {
         if (tokenId === TOKEN_B) return null;
         return {
@@ -445,19 +438,69 @@ describe("bridge-worker dispatch: verify_release", () => {
       const result = (await dispatch({
         command: "verify_release",
         params: { manifestPath, receiptPath },
-      })) as { passed: boolean; checks: Array<{ name: string; passed: boolean }> };
+      })) as { passed: boolean; checks: Array<{ name: string; passed: boolean; detail: string }> };
 
-      // This is the bug, pinned: overall passed:true despite a fabricated
-      // edition, because only nftTokenIds[0] (TOKEN_A) was ever checked.
+      // Fixed behavior: the fabricated edition 2 sinks the overall result,
+      // even though edition 1 (checked first) is genuine.
+      expect(result.passed).toBe(false);
+      const existsCheck = result.checks.find((c) => c.name === "chain-nft-exists");
+      expect(existsCheck?.passed).toBe(false);
+      expect(existsCheck?.detail).toContain("2/3");
+
+      // Proves it structurally, not just by outcome: every edition is
+      // actually queried against the ledger now, not just edition 1.
+      const checkedTokenIds = mockReadNft.mock.calls.map((call) => call[1]);
+      expect(checkedTokenIds).toContain(TOKEN_A);
+      expect(checkedTokenIds).toContain(TOKEN_B);
+      expect(checkedTokenIds).toContain(TOKEN_C);
+    });
+
+    it("passes chain-nft-exists/uri/issuer/transfer-fee (and overall passed:true) when all 3 editions are genuine", async () => {
+      const manifest = makeManifest({ editionSize: 3 });
+      const TOKEN_A = "AAAA0000000000000000000000000000000000000000000000000000000001";
+      const TOKEN_B = "AAAA0000000000000000000000000000000000000000000000000000000002";
+      const TOKEN_C = "AAAA0000000000000000000000000000000000000000000000000000000003";
+      const receipt = makeReceipt(
+        manifest,
+        [TOKEN_A, TOKEN_B, TOKEN_C],
+        ["TX0001", "TX0002", "TX0003"]
+      );
+      const { manifestPath, receiptPath } = await writeArtifacts(manifest, receipt, tmpDirs);
+
+      mockVerifyMinter.mockResolvedValue({
+        verified: true,
+        issuerAddress: ISSUER,
+        expectedOperator: OPERATOR,
+        actualMinter: OPERATOR,
+      });
+      const expectedUri = convertStringToHex(manifest.metadataEndpoint);
+      const expectedFee = Math.round(manifest.transferFeePercent * 1000);
+      // All three editions genuinely exist on-chain under the operator
+      // account, with matching URI/issuer/transfer fee.
+      mockReadNft.mockImplementation(async (_account: string, tokenId: string) => ({
+        nftTokenId: tokenId,
+        issuer: ISSUER,
+        uri: expectedUri,
+        flags: 8,
+        transferFee: expectedFee,
+        taxon: 0,
+      }));
+
+      const result = (await dispatch({
+        command: "verify_release",
+        params: { manifestPath, receiptPath },
+      })) as { passed: boolean; checks: Array<{ name: string; passed: boolean; detail: string }> };
+
       expect(result.passed).toBe(true);
       expect(result.checks.find((c) => c.name === "chain-nft-exists")?.passed).toBe(true);
+      expect(result.checks.find((c) => c.name === "chain-nft-uri")?.passed).toBe(true);
+      expect(result.checks.find((c) => c.name === "chain-nft-issuer")?.passed).toBe(true);
+      expect(result.checks.find((c) => c.name === "chain-nft-transfer-fee")?.passed).toBe(true);
 
-      // Proves it structurally, not just by outcome: TOKEN_B and TOKEN_C
-      // were never even queried.
       const checkedTokenIds = mockReadNft.mock.calls.map((call) => call[1]);
-      expect(checkedTokenIds).not.toContain(TOKEN_B);
-      expect(checkedTokenIds).not.toContain(TOKEN_C);
-      expect(checkedTokenIds).toEqual([TOKEN_A]);
+      expect(checkedTokenIds).toContain(TOKEN_A);
+      expect(checkedTokenIds).toContain(TOKEN_B);
+      expect(checkedTokenIds).toContain(TOKEN_C);
     });
   });
 });
