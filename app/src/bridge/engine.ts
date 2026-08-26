@@ -324,6 +324,36 @@ export interface WalletAddresses {
   operatorAddress: string;
 }
 
+/**
+ * Returned by mintRelease() when the mint itself succeeded (a real,
+ * irreversible on-chain mint happened, and issueRelease() returned a
+ * fully-formed receipt) but the subsequent receipt write to disk failed —
+ * mirrors MintReceiptUnsaved in app/bridge-worker-commands.ts.
+ *
+ * This is deliberately a DIFFERENT shape from a bare IssuanceReceipt (the
+ * ordinary success return) so "mint failed" and "mint succeeded, receipt
+ * could not be saved" are never collapsed into the same signal — see
+ * F-cf8b67bb. Use isMintReceiptUnsaved() to tell them apart.
+ */
+export interface MintReceiptUnsaved {
+  receipt: IssuanceReceipt;
+  receiptPath: string;
+  receiptWriteError: string;
+}
+
+export type MintReleaseResponse = IssuanceReceipt | MintReceiptUnsaved;
+
+export function isMintReceiptUnsaved(
+  value: MintReleaseResponse
+): value is MintReceiptUnsaved {
+  return (
+    typeof value === "object" &&
+    value !== null &&
+    "receiptWriteError" in value &&
+    typeof (value as MintReceiptUnsaved).receiptWriteError === "string"
+  );
+}
+
 // ── File operations (direct Rust, no Node.js) ───────────────────────
 
 export async function loadFile(path: string): Promise<string> {
@@ -367,14 +397,21 @@ export async function readWalletAddresses(walletsPath: string): Promise<WalletAd
   return engineCall<WalletAddresses>("read_wallet_addresses", { walletsPath });
 }
 
-/** Mint a release on XRPL Testnet. Returns the issuance receipt. */
+/**
+ * Mint a release on XRPL Testnet.
+ *
+ * Returns either the bare issuance receipt (ordinary success), or a
+ * MintReceiptUnsaved (the mint succeeded but the receipt could not be
+ * written to disk) — use isMintReceiptUnsaved() to distinguish them. A
+ * rejected promise here still means the mint itself genuinely failed.
+ */
 export async function mintRelease(opts: {
   manifestPath: string;
   walletsPath: string;
   network: string;
   receiptPath: string;
-}): Promise<IssuanceReceipt> {
-  return engineCall<IssuanceReceipt>("mint_release", opts);
+}): Promise<MintReleaseResponse> {
+  return engineCall<MintReleaseResponse>("mint_release", opts);
 }
 
 /** Verify a manifest + receipt against each other and the chain. */

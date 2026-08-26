@@ -1,3 +1,4 @@
+import { save } from "@tauri-apps/plugin-dialog";
 import {
   PanelShell,
   ArtifactCard,
@@ -5,6 +6,7 @@ import {
   ActionButton,
   ErrorBanner,
   TimeoutBanner,
+  ReceiptUnsavedBanner,
   type Status,
 } from "./PanelShell";
 import { useRelease } from "../../state/release";
@@ -13,6 +15,7 @@ function deriveStatus(
   manifest: ReturnType<typeof useRelease>["manifest"],
   mint: ReturnType<typeof useRelease>["mint"]
 ): Status {
+  if (mint.actionStatus === "receipt_unsaved") return "receipt_unsaved";
   if (mint.actionStatus === "timed_out") return "timed_out";
   if (mint.error) return "error";
   if (mint.actionStatus === "running") return "minting";
@@ -22,8 +25,18 @@ function deriveStatus(
 }
 
 export function MintPanel() {
-  const { manifest, mint, loadWallets, loadReceipt, runMint, network } = useRelease();
+  const { manifest, mint, loadWallets, loadReceipt, runMint, saveReceiptTo, network } = useRelease();
   const status = deriveStatus(manifest, mint);
+
+  const handleSaveReceiptAs = async () => {
+    const path = await save({
+      title: "Save Issuance Receipt",
+      defaultPath: "receipt.json",
+      filters: [{ name: "JSON", extensions: ["json"] }],
+    });
+    if (!path) return;
+    await saveReceiptTo(path);
+  };
 
   if (!manifest.data) {
     return (
@@ -43,7 +56,10 @@ export function MintPanel() {
     const r = mint.receipt;
     return (
       <PanelShell title="Mint / Receipt" status={status}>
-        {mint.error && <ErrorBanner message={mint.error} />}
+        {mint.actionStatus === "receipt_unsaved" && mint.error && (
+          <ReceiptUnsavedBanner message={mint.error} onSaveAs={handleSaveReceiptAs} />
+        )}
+        {mint.actionStatus !== "receipt_unsaved" && mint.error && <ErrorBanner message={mint.error} />}
 
         <ArtifactCard>
           <ArtifactField label="Manifest ID" value={r.manifestId} mono />

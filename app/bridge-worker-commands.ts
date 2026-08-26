@@ -205,9 +205,27 @@ async function stampManifestCmd(
   return { manifest: stamped, manifestId, revisionHash };
 }
 
+/**
+ * Returned by mintReleaseCmd when issueRelease() succeeded (a real,
+ * irreversible on-chain mint happened) but the subsequent receipt write
+ * to disk failed. This shape is deliberately DISTINCT from a bare
+ * IssuanceReceipt (the ordinary success return) so callers can tell "mint
+ * failed" apart from "mint succeeded, receipt could not be saved" — see
+ * F-cf8b67bb. The two must never collapse into the same signal: a thrown
+ * error here would surface through bridge-worker.ts's catch as the exact
+ * same {ok:false, error} envelope a genuine mint failure produces, which
+ * is what invites a user to "retry" an already-successful mint and
+ * double-issue on the ledger.
+ */
+export interface MintReceiptUnsaved {
+  receipt: IssuanceReceipt;
+  receiptPath: string;
+  receiptWriteError: string;
+}
+
 async function mintReleaseCmd(
   params: Record<string, unknown>
-): Promise<unknown> {
+): Promise<IssuanceReceipt | MintReceiptUnsaved> {
   const manifestPath = params.manifestPath as string;
   const walletsPath = params.walletsPath as string;
   const network = (params.network ?? "testnet") as NetworkId;
@@ -221,6 +239,9 @@ async function mintReleaseCmd(
 
   const storage = new MockContentStore();
 
+  // IRREVERSIBLE: this mints real NFT(s) on the XRPL ledger. Everything
+  // from here on must never let the resulting receipt be discarded, even
+  // if persisting it to disk fails — see F-cf8b67bb.
   const receipt = await issueRelease({
     manifest,
     wallets,
@@ -230,10 +251,27 @@ async function mintReleaseCmd(
     storageProvider: "mock",
   });
 
-  // Persist receipt
-  await writeFile(receiptPath, JSON.stringify(receipt, null, 2) + "\n");
-
-  return receipt;
+  // Persist receipt. A failure here (disk full, a removable/cloud-synced
+  // folder disconnecting mid-session, a permissions change, a Windows
+  // path-length problem, etc.) must NOT be allowed to propagate as a
+  // thrown error — the mint already happened, so that would misreport a
+  // success as a failure and discard the only structured record of it
+  // (required by every downstream verify/grant-access/recover command).
+  // Instead, return the receipt to the caller alongside an explicit
+  // marker distinguishing this from both a plain failure and a plain
+  // success, so the UI can tell the user the truth and offer a manual
+  // save with the raw receipt still in hand.
+  try {
+    await writeFile(receiptPath, JSON.stringify(receipt, null, 2) + "\n");
+    return receipt;
+  } catch (writeErr) {
+    return {
+      receipt,
+      receiptPath,
+      receiptWriteError:
+        writeErr instanceof Error ? writeErr.message : String(writeErr),
+    };
+  }
 }
 
 async function verifyReleaseCmd(
