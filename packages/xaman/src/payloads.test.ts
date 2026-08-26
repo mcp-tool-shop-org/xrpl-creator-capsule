@@ -93,6 +93,61 @@ describe("buildMintPayload", () => {
   });
 });
 
+// F-b458d21c: buildMintPayload's TransferFee computation
+// (Math.round(transferFeePercent * 1000)) was named directly in the finding
+// as untested — the existing "creates an NFTokenMint payload" test above
+// only exercises the fixture's fixed 5% value. These pin the actual
+// rounding contract at its boundaries and a fractional input.
+describe("buildMintPayload — transferFee computation", () => {
+  it("rounds a fractional transferFeePercent to the nearest XRPL TransferFee unit", async () => {
+    const manifest = await loadManifest();
+    const fractional = { ...manifest, transferFeePercent: 12.3456 };
+
+    const payload = buildMintPayload(fractional, "testnet");
+
+    expect(payload.txjson.TransferFee).toBe(12346); // Math.round(12345.6)
+  });
+
+  it("computes TransferFee 0 at the 0% boundary", async () => {
+    const manifest = await loadManifest();
+    const zero = { ...manifest, transferFeePercent: 0 };
+
+    const payload = buildMintPayload(zero, "testnet");
+
+    expect(payload.txjson.TransferFee).toBe(0);
+  });
+
+  it("computes TransferFee 50000 at the 50% boundary", async () => {
+    const manifest = await loadManifest();
+    const fifty = { ...manifest, transferFeePercent: 50 };
+
+    const payload = buildMintPayload(fifty, "testnet");
+
+    expect(payload.txjson.TransferFee).toBe(50000);
+  });
+
+  // Documents CURRENT behavior, not a fix. packages/xrpl/src/mint.ts's
+  // percentToTransferFee defensively throws outside 0-50%; this sibling
+  // function in @capsule/xaman has no equivalent guard, so a manifest
+  // object that reaches buildMintPayload without having passed through
+  // @capsule/core's assertManifest (whose schema DOES enforce 0-50, see
+  // packages/core/src/schema.ts) would silently produce a TransferFee
+  // outside XRPL's own valid 0-50000 field range, deferring the failure to
+  // either Xaman or ledger submission instead of failing fast with a clear
+  // message here. Flagged for the coordinator rather than fixed — this
+  // agent's scope is tests only, and the two-module inconsistency may be
+  // intentional (payloads.ts's contract may assume assertManifest already
+  // ran upstream).
+  it("does not (currently) reject an out-of-range transferFeePercent the way mint.ts's percentToTransferFee does", async () => {
+    const manifest = await loadManifest();
+    const outOfRange = { ...manifest, transferFeePercent: 75 };
+
+    const payload = buildMintPayload(outOfRange, "testnet");
+
+    expect(payload.txjson.TransferFee).toBe(75000);
+  });
+});
+
 describe("buildBuyPayload", () => {
   it("creates an NFTokenAcceptOffer payload", () => {
     const payload = buildBuyPayload("OFFER123ABC", "testnet");

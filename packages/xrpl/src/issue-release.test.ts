@@ -254,3 +254,66 @@ describe("issueRelease — authorizedMinterTxHash pass-through (F-e20f853d, pair
     expect(receipt.xrpl.authorizedMinterTxHash).toBeUndefined();
   });
 });
+
+// F-b458d21c: issueRelease's own orchestration logic (as distinct from
+// mintRelease's internals, covered separately in mint.test.ts) had two
+// completely untested branches. Both sit directly on the money path: the
+// first is the actual security gate that stops issuance when the ledger
+// does not confirm the operator is the authorized minter; the second is
+// what a caller sees when a mint fails for a reason that ISN'T the
+// already-covered PartialMintError shape.
+describe("issueRelease — authorized minter verification gate", () => {
+  it("throws and never calls mintRelease when the ledger does not confirm the authorized minter", async () => {
+    const pair = generateWalletPair();
+    const manifest = makeManifest(pair);
+    const storage = new FakeContentStore(
+      new Set([manifest.mediaCid, manifest.coverCid])
+    );
+    mockVerifyAuthorizedMinter.mockResolvedValue({
+      verified: false,
+      issuerAddress: manifest.issuerAddress,
+      expectedOperator: manifest.operatorAddress,
+      actualMinter: undefined,
+      error: "No NFTokenMinter set on issuer account",
+    });
+    mockMintRelease.mockResolvedValue(mintResult());
+
+    await expect(
+      issueRelease({
+        manifest,
+        wallets: pair,
+        network: "testnet",
+        storage,
+        storageProvider: "mock",
+      })
+    ).rejects.toThrow(
+      /Authorized minter verification failed: No NFTokenMinter set on issuer account/
+    );
+
+    expect(mockMintRelease).not.toHaveBeenCalled();
+  });
+});
+
+describe("issueRelease — generic mint failure wrapping", () => {
+  it("wraps a non-PartialMintError mint failure with a 'Mint failed' message instead of letting it propagate raw", async () => {
+    const pair = generateWalletPair();
+    const manifest = makeManifest(pair);
+    const storage = new FakeContentStore(
+      new Set([manifest.mediaCid, manifest.coverCid])
+    );
+    mockVerifyAuthorizedMinter.mockResolvedValue(
+      verifiedMinter(pair.operator.address)
+    );
+    mockMintRelease.mockRejectedValue(new Error("network unreachable"));
+
+    await expect(
+      issueRelease({
+        manifest,
+        wallets: pair,
+        network: "testnet",
+        storage,
+        storageProvider: "mock",
+      })
+    ).rejects.toThrow(/Mint failed: network unreachable/);
+  });
+});
