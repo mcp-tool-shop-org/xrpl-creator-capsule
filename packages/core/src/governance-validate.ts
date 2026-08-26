@@ -285,6 +285,12 @@ export function checkDecisionAgainstProposal(
     );
   }
 
+  if (decision.decision.rejectedCount !== rederived.rejectedCount) {
+    errors.push(
+      `Claimed rejectedCount (${decision.decision.rejectedCount}) does not match re-derived approvals (${rederived.rejectedCount})`
+    );
+  }
+
   if (decision.decision.thresholdMet !== rederived.thresholdMet) {
     errors.push("ThresholdMet flag is incorrect");
   }

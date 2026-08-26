@@ -251,8 +251,33 @@ describe("verifyBundleConsistency", () => {
     const manifest = makeManifest();
     const receipt = makeReceipt(manifest);
     const bundle = deriveRecoveryBundle(manifest, receipt);
-    // Tamper receipt hash
-    const tampered = { ...receipt, receiptHash: "0000000000000000000000000000000000000000000000000000000000000000" };
+    // Tamper receipt content. (Scrambling only the receiptHash field's VALUE
+    // while leaving actual content untouched is intentionally NOT flagged by
+    // this check -- computeReceiptHash excludes its own hash field from the
+    // computation, by the same convention as computeBundleHash, so that
+    // scenario is covered separately below by the stale-hash-field test.)
+    const tampered = { ...receipt, network: "mainnet" as const };
+
+    const result = verifyBundleConsistency(bundle, manifest, tampered);
+    expect(result.valid).toBe(false);
+    expect(result.checks.filter((c) => !c.passed).map((c) => c.name)).toContain("receipt-hash");
+  });
+
+  it("fails when receipt content is mutated but its receiptHash field is left stale (F-c84e69d1)", () => {
+    // A receipt mutated AFTER stamping, without refreshing receiptHash, must
+    // still be caught: the check must recompute computeReceiptHash(receipt)
+    // from the receipt's actual current content and compare it against the
+    // bundle's recorded receiptHash -- not trust the receipt's own
+    // self-reported (now-stale) receiptHash field. Mirrors the
+    // bundle-integrity check three lines above, which already recomputes
+    // computeBundleHash(bundle) fresh rather than trusting bundle.bundleHash.
+    const manifest = makeManifest();
+    const receipt = makeReceipt(manifest);
+    const bundle = deriveRecoveryBundle(manifest, receipt);
+    // Mutate receipt content directly; receiptHash field is left untouched
+    // (still holds the ORIGINAL, now-stale hash computed before this edit).
+    const tampered = { ...receipt, xrpl: { ...receipt.xrpl, transferFee: 9999 } };
+    expect(tampered.receiptHash).toBe(receipt.receiptHash); // stale field, unchanged
 
     const result = verifyBundleConsistency(bundle, manifest, tampered);
     expect(result.valid).toBe(false);

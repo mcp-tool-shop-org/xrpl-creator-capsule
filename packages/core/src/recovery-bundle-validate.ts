@@ -167,8 +167,13 @@ export function verifyBundleConsistency(
       : "Revision hash mismatch — manifest has been modified",
   });
 
-  // Receipt hash
-  const expectedReceiptHash = receipt.receiptHash ?? computeReceiptHash(receipt);
+  // Receipt hash — always recompute from the receipt's live content, never
+  // trust its self-reported receiptHash field, which may be stale if the
+  // receipt was mutated after stamping without re-stamping (tamper-evidence
+  // bypass). Mirrors the bundle-integrity check above, which already
+  // recomputes computeBundleHash(bundle) fresh rather than trusting
+  // bundle.bundleHash.
+  const expectedReceiptHash = computeReceiptHash(receipt);
   checks.push({
     name: "receipt-hash",
     passed: bundle.receiptHash === expectedReceiptHash,
