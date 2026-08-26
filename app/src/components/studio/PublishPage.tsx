@@ -1,8 +1,8 @@
-import { useState, useCallback, useRef } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 import { useStudio } from "../../state/studio";
 import { useRelease, logAction, type ActionEvent } from "../../state/release";
 import { ArtifactCard, ActionButton, ErrorBanner, CancelBanner, TimeoutBanner } from "../panels/PanelShell";
-import { saveFile } from "../../bridge/engine";
+import { saveFile, readWalletAddresses } from "../../bridge/engine";
 import { saveSession } from "../../state/session";
 import { save } from "@tauri-apps/plugin-dialog";
 import type { ReleaseManifest } from "../../bridge/engine";
@@ -143,13 +143,10 @@ export function PublishPage() {
         return;
       }
 
-      // Read wallet file to extract addresses
-      const walletContent = await import("../../bridge/engine").then((m) =>
-        m.loadFile(walletsPath)
-      );
-      const walletData = JSON.parse(walletContent);
-      const issuerAddress = walletData.issuer?.classicAddress ?? walletData.issuer?.address ?? "";
-      const operatorAddress = walletData.operator?.classicAddress ?? walletData.operator?.address ?? "";
+      // Extract addresses via the bridge worker — never load the raw
+      // wallet file (which carries signing material) into the renderer.
+      // See F-12c32f19.
+      const { issuerAddress, operatorAddress } = await readWalletAddresses(walletsPath);
 
       if (!issuerAddress || !operatorAddress) {
         throw new Error("Wallet file must contain issuer and operator with classicAddress fields");
@@ -250,9 +247,37 @@ export function PublishPage() {
     }
   }, [draft, studio, release]);
 
+  // If the mint we lost track of during a timeout eventually settles on
+  // its own (release.runMintFromStudio keeps running underneath even
+  // after our own race times out — see F-74549b0b), reflect that
+  // automatically instead of leaving the user stuck on a stale "timed
+  // out" screen believing they still need to act.
+  useEffect(() => {
+    if (phase !== "timed_out") return;
+    if (release.mint.actionStatus === "done" && release.mint.receipt) {
+      setPhase("done");
+      setTimeoutReason(null);
+    } else if (release.mint.actionStatus === "error" && release.mint.error) {
+      setError(release.mint.error);
+      setPhase("error");
+    }
+  }, [phase, release.mint.actionStatus, release.mint.receipt, release.mint.error]);
+
   /** After a timeout, attempt to reconcile by verifying the receipt file. */
   const handleReconcile = useCallback(async () => {
     if (!lastMintPathsRef.current) return;
+
+    // release.mint.actionStatus is the authoritative signal for whether
+    // the original attempt has actually finished. A missing receipt file
+    // does NOT mean the mint is dead — it may simply not have written
+    // its receipt yet while still running server-side. Claiming "safe to
+    // retry" from file absence alone is exactly the gap that let a retry
+    // race a still-live mint. See F-74549b0b.
+    if (release.mint.actionStatus === "running") {
+      setTimeoutReason("The mint is still running. Retry is disabled until it finishes — check back in a moment.");
+      return;
+    }
+
     try {
       const { receiptPath } = lastMintPathsRef.current;
       const content = await import("../../bridge/engine").then((m) => m.loadFile(receiptPath));
@@ -269,13 +294,19 @@ export function PublishPage() {
           artifactPath: receiptPath,
           mode: "studio",
         });
+      } else if (release.mint.actionStatus === "error") {
+        setTimeoutReason("The mint failed and did not complete. You can retry safely.");
       } else {
         setTimeoutReason("Receipt file exists but contains no token IDs. The mint may not have completed. You can retry safely.");
       }
     } catch {
-      setTimeoutReason("No receipt file found. The mint likely did not complete. You can retry safely.");
+      if (release.mint.actionStatus === "error") {
+        setTimeoutReason("No receipt file found, and the mint has confirmed-failed. You can retry safely.");
+      } else {
+        setTimeoutReason("No receipt file found. The mint may still be running server-side — retry is disabled until it's confirmed finished.");
+      }
     }
-  }, []);
+  }, [release.mint.actionStatus]);
 
   if (!canProceedToPublish) {
     return (
@@ -307,7 +338,14 @@ export function PublishPage() {
         <TimeoutBanner
           message={timeoutReason}
           onReconcile={handleReconcile}
-          onRetry={() => { setTimeoutReason(null); setPhase("ready"); }}
+          onRetry={
+            // Disabled while the original attempt is still confirmed
+            // running — retrying here would dispatch a second real mint
+            // against the same release. See F-74549b0b.
+            release.mint.actionStatus === "running"
+              ? undefined
+              : () => { setTimeoutReason(null); setPhase("ready"); }
+          }
         />
       )}
 

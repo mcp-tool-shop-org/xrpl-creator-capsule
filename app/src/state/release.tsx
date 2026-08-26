@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useCallback, type ReactNode } from "react";
+import { createContext, useContext, useState, useCallback, useRef, type ReactNode } from "react";
 import { open, save } from "@tauri-apps/plugin-dialog";
 import {
   loadFile,
@@ -298,6 +298,18 @@ export function ReleaseProvider({ children }: { children: ReactNode }) {
   const [governanceState, setGovernance] = useState<GovernanceState>(INIT_GOVERNANCE);
   const network = "testnet";
 
+  // True from the moment a mint dispatch starts until the underlying
+  // engineMint(...) call actually settles (success or real failure) — a
+  // client-side timeout does NOT clear it. This is the guard against
+  // F-74549b0b: runMint/runMintFromStudio previously abandoned the
+  // in-flight mint promise on timeout with nothing tracking whether it
+  // was still running, so a user-initiated retry could fire a second real
+  // mint_release call while the first was still in flight on the XRPL
+  // ledger. A plain ref (not React state) is used deliberately: it must
+  // be read/written synchronously and must never go stale across renders
+  // the way a value captured by a useCallback dependency array can.
+  const mintInFlightRef = useRef(false);
+
   // ── Manifest actions ────────────────────────────────────────────
 
   const loadManifest = useCallback(async () => {
@@ -431,6 +443,18 @@ export function ReleaseProvider({ children }: { children: ReactNode }) {
   const runMint = useCallback(async () => {
     if (!manifestState.path || !mintState.walletsPath) return;
 
+    if (mintInFlightRef.current) {
+      // A prior mint (possibly timed out from the caller's point of view)
+      // has not actually settled yet. Never let a second dispatch race it
+      // — that is exactly how the same release gets minted twice on the
+      // XRPL ledger. See F-74549b0b.
+      setMint((s) => ({
+        ...s,
+        error: "A mint is already in progress for this release. Wait for it to finish, or use Check Status.",
+      }));
+      return;
+    }
+
     try {
       const receiptPath = await save({
         title: "Save Issuance Receipt",
@@ -443,46 +467,77 @@ export function ReleaseProvider({ children }: { children: ReactNode }) {
       }
 
       const startedAt = new Date().toISOString();
+      const walletsPathAtStart = mintState.walletsPath;
+      mintInFlightRef.current = true;
       setMint((s) => ({ ...s, actionStatus: "running", error: null }));
 
       const mintPromise = engineMint({
         manifestPath: manifestState.path,
-        walletsPath: mintState.walletsPath,
+        walletsPath: walletsPathAtStart,
         network,
         receiptPath,
       });
-      const timeoutPromise = new Promise<never>((_, reject) =>
-        setTimeout(() => reject(new Error("__TIMEOUT__")), 90_000)
+
+      // Attached BEFORE the timeout race below, and to the promise
+      // itself (not to the race) — so this fires exactly once whenever
+      // the REAL mint_release call actually finishes, regardless of
+      // whether the client-side timeout below fires first. This is what
+      // makes "the prior attempt is confirmed dead" a fact instead of a
+      // guess: the mint's own eventual result is never dropped on the
+      // floor, so its receipt is never lost and the in-flight lock is
+      // only ever cleared once the operation genuinely ends.
+      mintPromise.then(
+        (receipt) => {
+          mintInFlightRef.current = false;
+          logAction({ action: "mint", status: "done", startedAt, endedAt: new Date().toISOString(), artifactPath: receiptPath });
+          setMint({
+            status: "loaded",
+            actionStatus: "done",
+            walletsPath: walletsPathAtStart,
+            receiptPath,
+            receipt,
+            error: null,
+          });
+        },
+        (err) => {
+          mintInFlightRef.current = false;
+          const msg = err instanceof Error ? err.message : String(err);
+          logAction({ action: "mint", status: "error", startedAt, endedAt: new Date().toISOString() });
+          setMint((s) => ({ ...s, actionStatus: "error", error: msg }));
+        }
       );
 
-      const receipt = await Promise.race([mintPromise, timeoutPromise]);
+      const timeoutPromise = new Promise<"__TIMEOUT__">((resolve) =>
+        setTimeout(() => resolve("__TIMEOUT__"), 90_000)
+      );
+      const settledMarker = mintPromise.then(
+        () => "__SETTLED__" as const,
+        () => "__SETTLED__" as const
+      );
 
-      logAction({ action: "mint", status: "done", startedAt, endedAt: new Date().toISOString(), artifactPath: receiptPath });
+      const winner = await Promise.race([settledMarker, timeoutPromise]);
 
-      setMint({
-        status: "loaded",
-        actionStatus: "done",
-        walletsPath: mintState.walletsPath,
-        receiptPath,
-        receipt,
-        error: null,
-      });
-    } catch (err) {
-      const msg = err instanceof Error ? err.message : String(err);
-      if (msg === "__TIMEOUT__") {
-        setMint((s) => ({
-          ...s,
-          actionStatus: "timed_out",
-          error: "Mint timed out. The transaction may still be processing. Check the receipt file or retry.",
-        }));
-        logAction({ action: "mint", status: "timed_out", startedAt: new Date().toISOString(), timeoutReason: "90s exceeded" });
-      } else {
-        setMint((s) => ({
-          ...s,
-          actionStatus: "error",
-          error: msg,
-        }));
+      if (winner === "__TIMEOUT__") {
+        // Only show the timeout UI if the real promise hasn't already
+        // settled in the meantime (the .then above always runs first,
+        // since reactions on the same promise fire in attachment order).
+        setMint((s) =>
+          s.actionStatus === "running"
+            ? {
+                ...s,
+                actionStatus: "timed_out",
+                error:
+                  "Mint timed out. The transaction may still be processing. Check the receipt file or retry.",
+              }
+            : s
+        );
+        logAction({ action: "mint", status: "timed_out", startedAt, timeoutReason: "90s exceeded" });
       }
+    } catch (err) {
+      // Only reachable for failures before the mint itself was dispatched
+      // (e.g. the save dialog throwing) — mintInFlightRef was never set.
+      const msg = err instanceof Error ? err.message : String(err);
+      setMint((s) => ({ ...s, actionStatus: "error", error: msg }));
     }
   }, [manifestState.path, mintState.walletsPath, network]);
 
@@ -495,6 +550,17 @@ export function ReleaseProvider({ children }: { children: ReactNode }) {
     walletsPath: string,
     receiptPath: string,
   ) => {
+    if (mintInFlightRef.current) {
+      // Same guard as runMint (they share mintInFlightRef): never let a
+      // second real mint_release dispatch race an unresolved one. See
+      // F-74549b0b — PublishPage's own 90s timeout wrapper must not be
+      // able to fire a second mint while the first is still outstanding.
+      const msg = "A mint is already in progress for this release. Wait for it to finish, or use Check Status.";
+      setMint((s) => ({ ...s, error: msg }));
+      throw new Error(msg); // Re-throw so PublishPage can catch it
+    }
+
+    mintInFlightRef.current = true;
     try {
       // Load manifest into state so Advanced mode can see it
       const manifestRaw = await loadFile(manifestPath);
@@ -517,6 +583,12 @@ export function ReleaseProvider({ children }: { children: ReactNode }) {
         error: null,
       }));
 
+      // Deliberately not raced against a timeout here — this function has
+      // no client-side deadline of its own. PublishPage layers its own
+      // 90s timeout on top of the promise this returns, but this await
+      // keeps running underneath regardless of what the caller does with
+      // it, so the mint's real outcome (and its receipt) is never lost
+      // and mintInFlightRef is only cleared once it genuinely settles.
       const receipt = await engineMint({
         manifestPath,
         walletsPath,
@@ -539,6 +611,8 @@ export function ReleaseProvider({ children }: { children: ReactNode }) {
         error: err instanceof Error ? err.message : String(err),
       }));
       throw err; // Re-throw so PublishPage can catch it
+    } finally {
+      mintInFlightRef.current = false;
     }
   }, [network]);
 
