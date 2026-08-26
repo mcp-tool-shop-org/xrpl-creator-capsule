@@ -30,6 +30,14 @@ export function RecoveryPanel() {
   const [holderAddr, setHolderAddr] = useState("");
   const [nonHolderAddr, setNonHolderAddr] = useState("");
 
+  // F-51fa8088: tokenIds and txHashes are two independently-derived
+  // arrays in the bundle — nothing in the schema enforces they stay the
+  // same length, and a malformed/corrupted bundle can legitimately have
+  // them differ. Computed once here so both the check row and the
+  // token/tx-hash listing below agree on the same answer.
+  const tokenTxHashLengthsMatch =
+    !recovery.result || recovery.result.bundle.tokenIds.length === recovery.result.bundle.txHashes.length;
+
   // Prerequisite: manifest + receipt
   if (!manifest.data || !mint.receipt) {
     return (
@@ -131,6 +139,21 @@ export function RecoveryPanel() {
             {recovery.result.verification.checks.map((c) => (
               <CheckRow key={c.name} name={c.name} passed={c.passed} detail={c.detail} />
             ))}
+            {/* F-51fa8088: tokenIds/txHashes length parity is checked
+                client-side (the engine's own verification.checks never
+                covers it) and surfaced as its own row, consistent with
+                the panel's other checks — a length mismatch is itself a
+                data-integrity problem worth flagging, independent of
+                whether any individual pair happens to render fine. */}
+            <CheckRow
+              name="Token/TX hash array length parity"
+              passed={tokenTxHashLengthsMatch}
+              detail={
+                tokenTxHashLengthsMatch
+                  ? `${recovery.result.bundle.tokenIds.length} tokens, ${recovery.result.bundle.txHashes.length} tx hashes`
+                  : `Mismatch: ${recovery.result.bundle.tokenIds.length} token ID(s) vs ${recovery.result.bundle.txHashes.length} tx hash(es) — this bundle may be malformed or corrupted.`
+              }
+            />
           </ArtifactCard>
 
           {/* Chain checks */}
@@ -150,12 +173,32 @@ export function RecoveryPanel() {
             <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 8, color: "var(--text)" }}>
               Mint Facts ({recovery.result.bundle.tokenIds.length} token{recovery.result.bundle.tokenIds.length !== 1 ? "s" : ""})
             </div>
-            {recovery.result.bundle.tokenIds.map((id, i) => (
-              <div key={id} style={{ marginBottom: 8 }}>
-                <ArtifactField label={`Token #${i + 1}`} value={id} mono />
-                <ArtifactField label="TX Hash" value={recovery.result!.bundle.txHashes[i] ?? ""} mono />
-              </div>
-            ))}
+            {/*
+              F-51fa8088: iterating tokenIds.map(...) alone silently
+              DROPPED any txHashes entries beyond tokenIds.length —
+              total invisibility for an orphaned hash, not just a blank
+              value. Iterating the longer of the two arrays instead means
+              every recorded value from EITHER array is always shown, and
+              each side renders an explicit, mismatch-specific marker
+              (not ArtifactField's generic "—", which already covers an
+              ordinarily-absent single value and would be indistinguishable
+              from this actually-a-data-integrity-problem case) when it
+              runs out before the other.
+            */}
+            {Array.from(
+              { length: Math.max(recovery.result.bundle.tokenIds.length, recovery.result.bundle.txHashes.length) },
+              (_, i) => {
+                const tokenId = recovery.result!.bundle.tokenIds[i];
+                const txHash = recovery.result!.bundle.txHashes[i];
+                const missingMarker = "(missing — array length mismatch)";
+                return (
+                  <div key={i} style={{ marginBottom: 8 }}>
+                    <ArtifactField label={`Token #${i + 1}`} value={tokenId ?? missingMarker} mono />
+                    <ArtifactField label="TX Hash" value={txHash ?? missingMarker} mono />
+                  </div>
+                );
+              }
+            )}
           </ArtifactCard>
 
           {/* Instructions */}

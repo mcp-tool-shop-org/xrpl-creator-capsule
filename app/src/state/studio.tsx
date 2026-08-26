@@ -141,6 +141,26 @@ function hasUnsavedDraftContent(draft: StudioDraft): boolean {
   return (!!draft.title.trim() || !!draft.artist.trim()) && !draft.draftPath;
 }
 
+/**
+ * F-27abf0dc: saveSession() itself stays best-effort (never throws — a
+ * failed autosave must not block editing) but no longer discards its
+ * outcome. This is the "not still working" half of the finding's fix:
+ * "Save Draft" (studio.tsx's saveDraft(), a few lines below) writes to a
+ * user-CHOSEN location via a completely separate command (save_file,
+ * straight to whatever path the OS save dialog returns) rather than the
+ * fixed capsule-session.json autosave target — so it is a genuinely
+ * independent path, not merely a differently-worded call to the same
+ * mechanism. That is why it is reasonable to point a creator at it here,
+ * though nothing GUARANTEES it will succeed if, say, the whole disk is
+ * out of space — the copy below is worded as a suggestion, not a promise.
+ */
+const AUTOSAVE_FAILURE_NOTICE =
+  "Autosave isn't working right now, so recent changes may not be saved automatically. Use \"Save Draft\" to save a copy yourself until this resolves.";
+
+function isAutosaveNotice(message: string | null): boolean {
+  return message === AUTOSAVE_FAILURE_NOTICE;
+}
+
 // ── Provider ───────────────────────────────────────────────────────
 
 export function StudioProvider({ children }: { children: ReactNode }) {
@@ -172,11 +192,33 @@ export function StudioProvider({ children }: { children: ReactNode }) {
   }, []);
 
   // ── Autosave on draft changes (debounced 2s) ───────────────
+  //
+  // F-27abf0dc: saveSession() now reports { ok } instead of its outcome
+  // vanishing into a bare `.catch(() => {})`. Editing itself is still
+  // never blocked by a save failure (the draft lives in React state
+  // regardless of whether this particular write lands) — but a failure
+  // is surfaced as a non-blocking notice via the same sessionError
+  // vocabulary the startup-restore-failure path already uses, and
+  // cleared again the moment a later autosave succeeds. Only ever
+  // touches sessionError when it currently holds ITS OWN notice (or
+  // nothing) — never clobbers an unrelated, still-unaddressed
+  // restore-failure message from the session-restore effect above.
   useEffect(() => {
     if (!sessionRestored) return;
     if (autosaveTimer.current) clearTimeout(autosaveTimer.current);
     autosaveTimer.current = setTimeout(() => {
-      saveSession({ draft, activeStep }).catch(() => { /* best effort */ });
+      saveSession({ draft, activeStep }).then((result) => {
+        setSessionError((prev) => {
+          if (result.ok) return isAutosaveNotice(prev) ? null : prev;
+          // Never clobber a DIFFERENT, still-unaddressed error (e.g. the
+          // startup restore-failure message set by the effect above)
+          // with the generic autosave notice — the more specific
+          // problem stays visible and is usually the actual root cause
+          // of the autosave failure too, so nothing is lost by not
+          // layering a second, vaguer notice on top of it.
+          return prev === null || isAutosaveNotice(prev) ? AUTOSAVE_FAILURE_NOTICE : prev;
+        });
+      });
     }, 2000);
     return () => {
       if (autosaveTimer.current) clearTimeout(autosaveTimer.current);

@@ -19,3 +19,15 @@ vi.mock("@tauri-apps/plugin-dialog", () => ({
   open: vi.fn(),
   save: vi.fn(),
 }));
+
+// ── Mock @tauri-apps/api/event ─────────────────────────────────────
+// F-10b68454: CloseWarningGate listens for a Rust-emitted event via
+// listen() — outside a real Tauri webview there is no
+// window.__TAURI_INTERNALS__ for the real implementation to talk to.
+// Defaults to a no-op subscription (resolves an unlisten function that
+// does nothing) so components using listen() don't hang/throw in tests
+// that don't care about this specifically; tests that DO care override
+// this per-test via vi.mocked(listen).mockImplementation(...).
+vi.mock("@tauri-apps/api/event", () => ({
+  listen: vi.fn().mockResolvedValue(() => {}),
+}));

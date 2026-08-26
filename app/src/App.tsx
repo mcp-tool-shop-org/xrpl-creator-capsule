@@ -4,6 +4,7 @@ import { TitleBar, type AppMode } from "./components/TitleBar";
 import { Sidebar } from "./components/Sidebar";
 import { StudioSidebar } from "./components/studio/StudioSidebar";
 import { StudioShell } from "./components/studio/StudioShell";
+import { CloseWarningGate } from "./components/CloseWarningGate";
 import { StudioProvider } from "./state/studio";
 import { useRelease, logAction } from "./state/release";
 import { saveSession } from "./state/session";
@@ -34,6 +35,10 @@ function AppInner() {
 
   return (
     <>
+      {/* F-10b68454: mounted once at the app root (not per-page) since a
+          window close can happen from any screen — see CloseWarningGate
+          for the full rationale. */}
+      <CloseWarningGate />
       <TitleBar
         mode={mode}
         onToggleMode={toggleMode}

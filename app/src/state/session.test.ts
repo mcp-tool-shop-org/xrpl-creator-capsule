@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { invoke } from "@tauri-apps/api/core";
 import { saveSession, loadSession, clearSession, validateSession, type SessionState } from "./session";
 import { VALID_SESSION, DRAFT } from "../__test__/fixtures";
+import { getActionLog, clearActionLog } from "./release";
 
 const mockInvoke = vi.mocked(invoke);
 
@@ -39,6 +40,7 @@ function mockSaveCapture(): { calls: Array<{ path: string; content: string }> } 
 describe("session persistence", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    clearActionLog();
   });
 
   // ── loadSession ─────────────────────────────────────────────────
@@ -65,13 +67,57 @@ describe("session persistence", () => {
       expect(session.artifactPaths.manifestPath).toBe("/artifacts/manifest.json");
     });
 
-    it("returns INIT_SESSION when file contains invalid JSON", async () => {
+    // F-27abf0dc: previously loadSession() swallowed EVERY failure
+    // (missing file, unreadable file, or invalid JSON) into the same
+    // silent INIT_SESSION fallback — indistinguishable from a totally
+    // normal first launch, and studio.tsx's sessionError catch could
+    // never fire for the one case that actually IS a problem: a session
+    // file that exists but is corrupt (e.g. from an interrupted
+    // non-atomic autosave write). loadSession() now distinguishes
+    // "never saved yet" (still quiet — see the test below) from "exists
+    // but unreadable/unparseable" (logged, and rethrown so the caller's
+    // existing catch can surface it).
+    it("logs and rethrows when a saved session file exists but contains invalid JSON, instead of silently resetting", async () => {
       mockLoadFile({
         "/mock/app-data/capsule-session.json": "NOT JSON {{{",
       });
+
+      await expect(loadSession()).rejects.toThrow();
+
+      const entries = getActionLog();
+      expect(entries.some((e) => e.action === "session_load" && e.status === "error")).toBe(true);
+    });
+
+    it("logs and rethrows when the session file exists but a permission error prevents reading it", async () => {
+      mockInvoke.mockImplementation(async (cmd: string) => {
+        if (cmd === "load_file") {
+          throw new Error(
+            "Failed to read /mock/app-data/capsule-session.json: Access is denied. (os error 5)"
+          );
+        }
+        throw new Error(`Unknown command: ${cmd}`);
+      });
+
+      await expect(loadSession()).rejects.toThrow(/access is denied/i);
+      expect(getActionLog().some((e) => e.action === "session_load" && e.status === "error")).toBe(true);
+    });
+
+    // The "never saved yet" case (first launch, or after a reset) must
+    // stay silent — it is not a problem, and must not log or throw.
+    it("stays silent (no log, no throw) when the session file has genuinely never been saved", async () => {
+      mockInvoke.mockImplementation(async (cmd: string) => {
+        if (cmd === "load_file") {
+          throw new Error(
+            "Failed to read /mock/app-data/capsule-session.json: The system cannot find the file specified. (os error 2)"
+          );
+        }
+        throw new Error(`Unknown command: ${cmd}`);
+      });
+
       const session = await loadSession();
       expect(session.version).toBe(1);
       expect(session.savedAt).toBe("");
+      expect(getActionLog().some((e) => e.action === "session_load")).toBe(false);
     });
 
     it("returns INIT_SESSION when version is not 1", async () => {
@@ -145,7 +191,11 @@ describe("session persistence", () => {
   // ── saveSession ─────────────────────────────────────────────────
 
   describe("saveSession", () => {
-    it("merges partial state with existing session", async () => {
+    // F-27abf0dc: saveSession now writes atomically (temp file + rename,
+    // via the save_file_atomic command) instead of a plain save_file
+    // write, so a crash mid-write can never leave a torn JSON file for
+    // the next loadSession() to trip over.
+    it("merges partial state with existing session and writes atomically", async () => {
       // First call is loadSession (inside saveSession), second is the write
       let loadCount = 0;
       const saved: string[] = [];
@@ -154,14 +204,16 @@ describe("session persistence", () => {
           loadCount++;
           return JSON.stringify(VALID_SESSION);
         }
-        if (cmd === "save_file") {
+        if (cmd === "save_file_atomic") {
           saved.push((args as { content: string }).content);
           return undefined;
         }
+        throw new Error(`Unexpected command in this test: ${cmd}`);
       });
 
-      await saveSession({ mode: "advanced" });
+      const result = await saveSession({ mode: "advanced" });
 
+      expect(result.ok).toBe(true);
       expect(loadCount).toBe(1);
       expect(saved).toHaveLength(1);
       const written = JSON.parse(saved[0]) as SessionState;
@@ -171,10 +223,18 @@ describe("session persistence", () => {
       expect(written.savedAt).not.toBe(""); // timestamp updated
     });
 
-    it("silently fails when save throws", async () => {
+    // F-27abf0dc: autosave must remain best-effort (never throws, never
+    // blocks editing) but must no longer be INVISIBLE — a failure is now
+    // both logged and reported back via the resolved { ok } flag so a
+    // caller (studio.tsx's autosave loop) can surface a non-blocking
+    // notice instead of the failure vanishing with zero trail.
+    it("never throws when the save fails, but logs it and reports { ok: false }", async () => {
       mockInvoke.mockRejectedValue(new Error("Disk full"));
-      // Should not throw
-      await expect(saveSession({ mode: "advanced" })).resolves.toBeUndefined();
+
+      const result = await saveSession({ mode: "advanced" });
+
+      expect(result.ok).toBe(false);
+      expect(getActionLog().some((e) => e.action === "session_autosave" && e.status === "error")).toBe(true);
     });
   });
 

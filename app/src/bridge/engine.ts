@@ -364,6 +364,30 @@ export async function saveFile(path: string, content: string): Promise<void> {
   return invoke<void>("save_file", { path, content });
 }
 
+/**
+ * Same contract as saveFile() (path validation, containment, parent-dir
+ * creation) but atomic: the Rust side writes to a sibling temp file and
+ * renames it over the target in one step, so a crash mid-write can never
+ * leave a torn/partial file at `path` — see F-27abf0dc. Used for
+ * capsule-session.json, which is rewritten on every ~2s autosave tick
+ * and previously had no protection against an interrupted write.
+ */
+export async function saveFileAtomic(path: string, content: string): Promise<void> {
+  return invoke<void>("save_file_atomic", { path, content });
+}
+
+/**
+ * F-10b68454: kills every tracked bridge-worker process and exits the
+ * app immediately. The confirmed half of the close-warning flow — call
+ * this only after the user has explicitly chosen "Close Anyway" on the
+ * warning shown when a bridge-worker call (e.g. an in-flight mint) may
+ * still be running. See CloseWarningGate.tsx and lib.rs's
+ * on_window_event handler for the full flow.
+ */
+export async function confirmCloseAndExit(): Promise<void> {
+  return invoke<void>("confirm_close_and_exit");
+}
+
 // ── Engine commands (via bridge-worker.ts) ───────────────────────────
 
 async function engineCall<T>(command: string, params: Record<string, unknown>): Promise<T> {

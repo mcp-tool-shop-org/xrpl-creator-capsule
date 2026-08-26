@@ -249,6 +249,7 @@ interface ReleaseContextValue {
   runMint: () => Promise<void>;
   runMintFromStudio: (manifestPath: string, walletsPath: string, receiptPath: string) => Promise<{ receiptSaved: boolean }>;
   saveReceiptTo: (path: string) => Promise<void>;
+  reconcileReceipt: () => Promise<void>;
 
   // Verify actions
   runVerify: () => Promise<void>;
@@ -775,6 +776,71 @@ export function ReleaseProvider({ children }: { children: ReactNode }) {
       }));
     }
   }, [mintState.receipt]);
+
+  /**
+   * F-15fcdca0: PublishPage's handleReconcile() re-reads the exact
+   * receiptPath for a timed-out mint with state-aware feedback; Advanced
+   * mode's MintPanel had no equivalent — its "Check Status" was wired
+   * straight to loadReceipt() (a generic native file-open dialog with no
+   * default path) even though mint.receiptPath is already sitting in
+   * state, right next to it. This promotes that same logic here so both
+   * modes share it. Mirrors handleReconcile's reasoning exactly:
+   * mint.actionStatus is the authoritative signal for whether the
+   * original attempt has actually finished — a missing/unreadable
+   * receipt file does NOT by itself mean the mint is dead (it may simply
+   * not have written its receipt yet while still running server-side),
+   * so retry is only ever declared "safe" once actionStatus confirms it.
+   */
+  const reconcileReceipt = useCallback(async () => {
+    if (!mintState.receiptPath) return;
+
+    if (mintState.actionStatus === "running") {
+      setMint((s) => ({
+        ...s,
+        error: "The mint is still running. Retry is disabled until it finishes — check back in a moment.",
+      }));
+      return;
+    }
+
+    try {
+      const content = await loadFile(mintState.receiptPath);
+      const receipt = JSON.parse(content) as IssuanceReceipt;
+      if (receipt?.xrpl?.nftTokenIds?.length > 0) {
+        // The mint actually succeeded — the earlier uncertainty (a
+        // timeout, or simply not having reconciled yet) is resolved.
+        setMint((s) => ({
+          ...s,
+          status: "loaded",
+          actionStatus: "done",
+          receipt,
+          error: null,
+        }));
+        logAction({
+          action: "mint_reconcile",
+          status: "done",
+          startedAt: new Date().toISOString(),
+          reconciliationResult: "receipt_found_valid",
+          artifactPath: mintState.receiptPath,
+        });
+      } else if (mintState.actionStatus === "error") {
+        setMint((s) => ({ ...s, error: "The mint failed and did not complete. You can retry safely." }));
+      } else {
+        setMint((s) => ({
+          ...s,
+          error: "Receipt file exists but contains no token IDs. The mint may not have completed. You can retry safely.",
+        }));
+      }
+    } catch {
+      if (mintState.actionStatus === "error") {
+        setMint((s) => ({ ...s, error: "No receipt file found, and the mint has confirmed-failed. You can retry safely." }));
+      } else {
+        setMint((s) => ({
+          ...s,
+          error: "No receipt file found. The mint may still be running server-side — retry is disabled until it's confirmed finished.",
+        }));
+      }
+    }
+  }, [mintState.receiptPath, mintState.actionStatus]);
 
   // ── Verify actions ──────────────────────────────────────────────
 
@@ -1588,6 +1654,7 @@ export function ReleaseProvider({ children }: { children: ReactNode }) {
         runMint,
         runMintFromStudio,
         saveReceiptTo,
+        reconcileReceipt,
         runVerify,
         loadPolicy,
         createPolicy,

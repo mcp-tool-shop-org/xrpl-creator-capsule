@@ -25,8 +25,15 @@ function deriveStatus(
 }
 
 export function MintPanel() {
-  const { manifest, mint, loadWallets, loadReceipt, runMint, saveReceiptTo, network } = useRelease();
+  const { manifest, mint, loadWallets, loadReceipt, runMint, saveReceiptTo, reconcileReceipt, network } = useRelease();
   const status = deriveStatus(manifest, mint);
+
+  // F-15fcdca0: mirrors PublishPage's handleReconcile — when a
+  // receiptPath is already known (the normal case for a timed-out
+  // mint), re-read that exact file directly instead of popping a blind
+  // native file dialog. Only fall back to the picker when there is
+  // truly nothing to re-read from.
+  const handleCheckStatus = mint.receiptPath ? reconcileReceipt : loadReceipt;
 
   const handleSaveReceiptAs = async () => {
     const path = await save({
@@ -109,7 +116,7 @@ export function MintPanel() {
         <TimeoutBanner
           message={mint.error}
           onRetry={runMint}
-          onReconcile={loadReceipt}
+          onReconcile={handleCheckStatus}
         />
       )}
       {mint.actionStatus !== "timed_out" && mint.error && <ErrorBanner message={mint.error} />}

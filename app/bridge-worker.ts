@@ -24,7 +24,29 @@
  * production and main() would never run.
  */
 
+import { writeSync } from "node:fs";
 import { dispatch, type BridgeCommand, type BridgeResult, type BridgeErr } from "./bridge-worker-commands.js";
+
+/**
+ * F-c1d1c21a: Node documents writes to a pipe (stdout, exactly how
+ * commands.rs's engine_call spawns this process — Stdio::piped()) as
+ * ASYNCHRONOUS on Windows. process.stdout.write() queues the write and
+ * returns immediately; calling process.exit() right after it — as every
+ * exit path here used to — can terminate the process before that queued
+ * write is flushed to the OS pipe, truncating the JSON the Rust side is
+ * about to serde_json::from_str it. A truncated response surfaces as
+ * exactly the raw "Bridge returned invalid JSON: ... stdout: '<partial>'
+ * " blob this finding is about — an unfiltered, developer-facing string
+ * landing in front of a non-technical creator (see PanelShell's
+ * ErrorBanner / errors/humanize.ts for the other half of this fix).
+ *
+ * fs.writeSync(1, ...) writes directly and synchronously to fd 1
+ * (stdout) — it does not return until the OS has accepted the write, so
+ * there is nothing left pending for process.exit() to race.
+ */
+function writeStdoutSync(text: string): void {
+  writeSync(1, text);
+}
 
 async function main() {
   const chunks: Buffer[] = [];
@@ -38,20 +60,20 @@ async function main() {
     cmd = JSON.parse(input);
   } catch {
     const result: BridgeErr = { ok: false, error: "Invalid JSON on stdin" };
-    process.stdout.write(JSON.stringify(result));
+    writeStdoutSync(JSON.stringify(result));
     process.exit(1);
   }
 
   try {
     const data = await dispatch(cmd);
     const result: BridgeResult = { ok: true, data };
-    process.stdout.write(JSON.stringify(result));
+    writeStdoutSync(JSON.stringify(result));
   } catch (err) {
     const result: BridgeErr = {
       ok: false,
       error: err instanceof Error ? err.message : String(err),
     };
-    process.stdout.write(JSON.stringify(result));
+    writeStdoutSync(JSON.stringify(result));
     process.exit(1);
   }
 }
