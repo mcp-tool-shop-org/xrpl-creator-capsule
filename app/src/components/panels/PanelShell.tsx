@@ -14,7 +14,8 @@ export type Status =
   | "mismatch"
   | "error"
   | "canceled"
-  | "timed_out";
+  | "timed_out"
+  | "receipt_unsaved";
 
 interface Props {
   title: string;
@@ -37,6 +38,7 @@ const statusColors: Record<Status, string> = {
   error: "var(--error)",
   canceled: "var(--warning)",
   timed_out: "var(--warning)",
+  receipt_unsaved: "var(--warning)",
 };
 
 const statusLabels: Record<Status, string> = {
@@ -54,6 +56,7 @@ const statusLabels: Record<Status, string> = {
   error: "Error",
   canceled: "Canceled",
   timed_out: "Timed Out",
+  receipt_unsaved: "Minted — Save Receipt",
 };
 
 export function PanelShell({ title, status, children }: Props) {
@@ -284,6 +287,57 @@ export function TimeoutBanner({ message, onRetry, onReconcile }: {
           )}
         </div>
       )}
+    </div>
+  );
+}
+
+/**
+ * Shown when a mint succeeded on-chain but the receipt could not be
+ * written to disk (actionStatus "receipt_unsaved" — see F-cf8b67bb).
+ *
+ * Deliberately reuses TimeoutBanner's warning-colored, message-plus-action
+ * shape rather than inventing a new visual pattern — but with a DIFFERENT
+ * action than TimeoutBanner's "Check Status" / "Retry": there is nothing
+ * to check the status of (the mint is confirmed successful) and retrying
+ * would dispatch a second real mint against the same release. The only
+ * safe action here is saving the receipt that is already in hand.
+ */
+export function ReceiptUnsavedBanner({
+  message,
+  onSaveAs,
+}: {
+  message: string;
+  onSaveAs: () => void;
+}) {
+  return (
+    <div
+      style={{
+        background: "var(--warning)" + "18",
+        border: "1px solid var(--warning)",
+        borderRadius: 6,
+        padding: "10px 14px",
+        marginBottom: 16,
+        fontSize: 13,
+        color: "var(--warning)",
+      }}
+    >
+      <div style={{ marginBottom: 8 }}>{message}</div>
+      <div style={{ display: "flex", gap: 8 }}>
+        <button
+          onClick={onSaveAs}
+          style={{
+            background: "none",
+            border: "1px solid var(--warning)",
+            borderRadius: 4,
+            color: "var(--warning)",
+            fontSize: 12,
+            padding: "3px 10px",
+            cursor: "pointer",
+          }}
+        >
+          Save Receipt As…
+        </button>
+      </div>
     </div>
   );
 }

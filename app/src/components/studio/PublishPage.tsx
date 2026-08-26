@@ -1,7 +1,7 @@
 import { useState, useCallback, useRef, useEffect } from "react";
 import { useStudio } from "../../state/studio";
 import { useRelease, logAction, type ActionEvent } from "../../state/release";
-import { ArtifactCard, ActionButton, ErrorBanner, CancelBanner, TimeoutBanner } from "../panels/PanelShell";
+import { ArtifactCard, ActionButton, ErrorBanner, CancelBanner, TimeoutBanner, ReceiptUnsavedBanner } from "../panels/PanelShell";
 import { saveFile, readWalletAddresses } from "../../bridge/engine";
 import { saveSession } from "../../state/session";
 import { save } from "@tauri-apps/plugin-dialog";
@@ -67,7 +67,7 @@ function draftToManifest(
   };
 }
 
-type PublishPhase = "ready" | "wallets" | "building" | "minting" | "done" | "error" | "canceled" | "timed_out";
+type PublishPhase = "ready" | "wallets" | "building" | "minting" | "done" | "error" | "canceled" | "timed_out" | "receipt_unsaved";
 
 /** Timeout for XRPL mint operations (90 seconds). */
 const MINT_TIMEOUT_MS = 90_000;
@@ -186,7 +186,26 @@ export function PublishPage() {
         setTimeout(() => reject(new Error("__TIMEOUT__")), MINT_TIMEOUT_MS)
       );
 
-      await Promise.race([mintPromise, timeoutPromise]);
+      const mintOutcome = await Promise.race([mintPromise, timeoutPromise]);
+
+      if (!mintOutcome.receiptSaved) {
+        // The mint succeeded on-chain — only the on-disk save failed.
+        // This is NOT a failure (see F-cf8b67bb) and must not fall
+        // through to the "done" success screen either, since that would
+        // silently imply the receipt file is safely on disk when it
+        // isn't. release.mint.receipt already holds the raw receipt.
+        setPhase("receipt_unsaved");
+        logAction({
+          action: "publish",
+          status: "receipt_unsaved",
+          startedAt: publishStartRef.current,
+          endedAt: new Date().toISOString(),
+          artifactPath: receiptPath,
+          releaseIdentity: `${draft.title} — ${draft.artist}`,
+          mode: "studio",
+        });
+        return;
+      }
 
       setPhase("done");
 
@@ -257,6 +276,15 @@ export function PublishPage() {
     if (release.mint.actionStatus === "done" && release.mint.receipt) {
       setPhase("done");
       setTimeoutReason(null);
+    } else if (release.mint.actionStatus === "receipt_unsaved" && release.mint.receipt) {
+      // The mint succeeded (confirmed after the client-side timeout fired)
+      // but its receipt could not be saved to disk. Same rule as the
+      // "done" branch above — never leave the user stuck on the "timed
+      // out" screen once the real outcome is known — but this outcome is
+      // neither a plain success nor a plain error, so it gets its own
+      // phase. See F-cf8b67bb.
+      setPhase("receipt_unsaved");
+      setTimeoutReason(null);
     } else if (release.mint.actionStatus === "error" && release.mint.error) {
       setError(release.mint.error);
       setPhase("error");
@@ -308,6 +336,35 @@ export function PublishPage() {
     }
   }, [release.mint.actionStatus]);
 
+  /** Manual recovery for the receipt_unsaved state: save the receipt
+   * (already held in memory — the mint itself is not touched again) to a
+   * location the user picks. See F-cf8b67bb. The follow-up effect below
+   * (not a stale read here) is what actually advances `phase` once
+   * release.mint confirms the save landed. */
+  const handleSaveReceiptAs = useCallback(async () => {
+    const path = await save({
+      title: "Save Issuance Receipt",
+      defaultPath: `${draft.title.toLowerCase().replace(/\s+/g, "-")}-receipt.json`,
+      filters: [{ name: "JSON", extensions: ["json"] }],
+    });
+    if (!path) return;
+    await release.saveReceiptTo(path);
+  }, [draft.title, release]);
+
+  // A manual save from the receipt_unsaved screen flips
+  // release.mint.actionStatus to "done" on success — follow it off this
+  // screen the same way the timeout-reconciliation effect above does.
+  // (handleSaveReceiptAs itself cannot read release.mint synchronously
+  // after its await: the closure it runs in is fixed at click-time, so a
+  // read there would see the state from before the save, not after — see
+  // the identical reasoning in handlePublish's own comments.)
+  useEffect(() => {
+    if (phase !== "receipt_unsaved") return;
+    if (release.mint.actionStatus === "done" && release.mint.receipt) {
+      setPhase("done");
+    }
+  }, [phase, release.mint.actionStatus, release.mint.receipt]);
+
   if (!canProceedToPublish) {
     return (
       <div>
@@ -327,7 +384,11 @@ export function PublishPage() {
   return (
     <div>
       <h2 style={{ fontSize: 18, fontWeight: 600, marginBottom: 20 }}>
-        {phase === "done" ? "Published!" : "Publish your release"}
+        {phase === "done"
+          ? "Published!"
+          : phase === "receipt_unsaved"
+            ? "Minted — action needed"
+            : "Publish your release"}
       </h2>
 
       {error && <ErrorBanner message={error} />}
@@ -441,6 +502,84 @@ export function PublishPage() {
             your release was successfully published.
           </p>
         </ArtifactCard>
+      )}
+
+      {/* Receipt unsaved — the mint succeeded on-chain (irreversible,
+          cannot be re-run) but the receipt file could not be written
+          automatically. This is deliberately NOT the timed_out block above
+          (nothing is uncertain — the mint is confirmed) and NOT the error
+          block below (nothing failed to mint). See F-cf8b67bb. */}
+      {phase === "receipt_unsaved" && release.mint.receipt && (
+        <>
+          <ArtifactCard>
+            <div style={{ fontSize: 16, fontWeight: 700, color: "var(--warning)", marginBottom: 12 }}>
+              Your release WAS minted — save the receipt now
+            </div>
+            <p style={{ color: "var(--text-muted)", fontSize: 13, marginBottom: 16, lineHeight: 1.5 }}>
+              <strong style={{ color: "var(--text)" }}>{draft.title}</strong> by{" "}
+              <strong style={{ color: "var(--text)" }}>{draft.artist}</strong> was minted on XRPL
+              Testnet
+              {release.mint.receipt.xrpl.nftTokenIds.length > 0 && (
+                <> — {release.mint.receipt.xrpl.nftTokenIds.length} NFT{release.mint.receipt.xrpl.nftTokenIds.length !== 1 ? "s" : ""} created</>
+              )}
+              . This is done and cannot be undone or repeated — but the receipt file (the record of
+              what was minted) could not be saved automatically. Save it now so you don't lose the
+              token and transaction IDs below.
+            </p>
+
+            {release.mint.error && (
+              <ReceiptUnsavedBanner message={release.mint.error} onSaveAs={handleSaveReceiptAs} />
+            )}
+
+            {release.mint.receipt.xrpl.nftTokenIds.length > 0 && (
+              <div style={{ marginBottom: 12 }}>
+                <div style={{ fontSize: 11, color: "var(--text-dim)", marginBottom: 4 }}>First Token ID</div>
+                <div style={{ fontSize: 12, fontFamily: "monospace", color: "var(--text)", wordBreak: "break-all" }}>
+                  {release.mint.receipt.xrpl.nftTokenIds[0]}
+                </div>
+              </div>
+            )}
+
+            {release.mint.receipt.xrpl.mintTxHashes.length > 0 && (
+              <div style={{ marginBottom: 12 }}>
+                <div style={{ fontSize: 11, color: "var(--text-dim)", marginBottom: 4 }}>Transaction Hash</div>
+                <div style={{ fontSize: 12, fontFamily: "monospace", color: "var(--text)", wordBreak: "break-all" }}>
+                  {release.mint.receipt.xrpl.mintTxHashes[0]}
+                </div>
+              </div>
+            )}
+
+            <div style={{ fontSize: 11, color: "var(--text-dim)", marginTop: 4 }}>
+              Full receipt data (copy this manually if "Save Receipt As" also fails):
+            </div>
+            <pre
+              style={{
+                fontSize: 10,
+                color: "var(--text-muted)",
+                background: "var(--bg-panel)",
+                border: "1px solid var(--border)",
+                borderRadius: 6,
+                padding: 10,
+                maxHeight: 160,
+                overflow: "auto",
+                whiteSpace: "pre-wrap",
+                wordBreak: "break-all",
+                marginTop: 6,
+              }}
+            >
+              {JSON.stringify(release.mint.receipt, null, 2)}
+            </pre>
+          </ArtifactCard>
+
+          <div style={{ display: "flex", gap: 10, marginTop: 8 }}>
+            <ActionButton label="Save Receipt As…" onClick={handleSaveReceiptAs} />
+            <ActionButton
+              label="Continue Anyway →"
+              onClick={() => setActiveStep("test")}
+              variant="secondary"
+            />
+          </div>
+        </>
       )}
 
       {/* Success */}

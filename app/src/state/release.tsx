@@ -7,6 +7,7 @@ import {
   resolveManifest as engineResolve,
   stampManifest as engineStamp,
   mintRelease as engineMint,
+  isMintReceiptUnsaved,
   verifyRelease as engineVerify,
   createAccessPolicy as engineCreatePolicy,
   grantAccess as engineGrant,
@@ -39,7 +40,19 @@ import {
 // ── Status types ────────────────────────────────────────────────────
 
 export type ArtifactStatus = "empty" | "loading" | "loaded" | "error";
-export type ActionStatus = "idle" | "running" | "done" | "error" | "canceled" | "timed_out";
+export type ActionStatus =
+  | "idle"
+  | "running"
+  | "done"
+  | "error"
+  | "canceled"
+  | "timed_out"
+  // The mint itself succeeded (a real, irreversible on-chain mint
+  // happened) but the receipt could not be persisted to disk. This is
+  // deliberately distinct from "error" — see F-cf8b67bb: reporting this
+  // the same way a real mint failure is reported invites a user to
+  // "retry" an already-successful mint and double-issue on the ledger.
+  | "receipt_unsaved";
 
 // ── Runtime instrumentation ─────────────────────────────────────────
 
@@ -165,7 +178,8 @@ interface ReleaseContextValue {
   loadWallets: () => Promise<void>;
   loadReceipt: () => Promise<void>;
   runMint: () => Promise<void>;
-  runMintFromStudio: (manifestPath: string, walletsPath: string, receiptPath: string) => Promise<void>;
+  runMintFromStudio: (manifestPath: string, walletsPath: string, receiptPath: string) => Promise<{ receiptSaved: boolean }>;
+  saveReceiptTo: (path: string) => Promise<void>;
 
   // Verify actions
   runVerify: () => Promise<void>;
@@ -487,15 +501,38 @@ export function ReleaseProvider({ children }: { children: ReactNode }) {
       // floor, so its receipt is never lost and the in-flight lock is
       // only ever cleared once the operation genuinely ends.
       mintPromise.then(
-        (receipt) => {
+        (result) => {
           mintInFlightRef.current = false;
+          if (isMintReceiptUnsaved(result)) {
+            // The mint succeeded on-chain — only the on-disk save failed.
+            // This is NOT a mint failure (see F-cf8b67bb): the receipt
+            // must stay visible and available so the user can save it
+            // manually, and must never be reported through the same
+            // "error" state a genuine mint failure uses.
+            logAction({
+              action: "mint",
+              status: "receipt_unsaved",
+              startedAt,
+              endedAt: new Date().toISOString(),
+              artifactPath: receiptPath,
+            });
+            setMint({
+              status: "loaded",
+              actionStatus: "receipt_unsaved",
+              walletsPath: walletsPathAtStart,
+              receiptPath: result.receiptPath,
+              receipt: result.receipt,
+              error: `Your release WAS minted successfully — the receipt could not be saved to ${result.receiptPath} (${result.receiptWriteError}). Save it now using the button below so you don't lose the token and transaction IDs.`,
+            });
+            return;
+          }
           logAction({ action: "mint", status: "done", startedAt, endedAt: new Date().toISOString(), artifactPath: receiptPath });
           setMint({
             status: "loaded",
             actionStatus: "done",
             walletsPath: walletsPathAtStart,
             receiptPath,
-            receipt,
+            receipt: result,
             error: null,
           });
         },
@@ -589,21 +626,38 @@ export function ReleaseProvider({ children }: { children: ReactNode }) {
       // keeps running underneath regardless of what the caller does with
       // it, so the mint's real outcome (and its receipt) is never lost
       // and mintInFlightRef is only cleared once it genuinely settles.
-      const receipt = await engineMint({
+      const result = await engineMint({
         manifestPath,
         walletsPath,
         network,
         receiptPath,
       });
 
+      if (isMintReceiptUnsaved(result)) {
+        // The mint succeeded on-chain — only the on-disk save failed.
+        // This must NOT be thrown (that would re-report a success as a
+        // failure to PublishPage's catch — see F-cf8b67bb). The raw
+        // receipt stays in state so the caller can offer a manual save.
+        setMint({
+          status: "loaded",
+          actionStatus: "receipt_unsaved",
+          walletsPath,
+          receiptPath: result.receiptPath,
+          receipt: result.receipt,
+          error: `Your release WAS minted successfully — the receipt could not be saved to ${result.receiptPath} (${result.receiptWriteError}). Save it now using the button below so you don't lose the token and transaction IDs.`,
+        });
+        return { receiptSaved: false };
+      }
+
       setMint({
         status: "loaded",
         actionStatus: "done",
         walletsPath,
         receiptPath,
-        receipt,
+        receipt: result,
         error: null,
       });
+      return { receiptSaved: true };
     } catch (err) {
       setMint((s) => ({
         ...s,
@@ -615,6 +669,44 @@ export function ReleaseProvider({ children }: { children: ReactNode }) {
       mintInFlightRef.current = false;
     }
   }, [network]);
+
+  /**
+   * Manually save the in-memory receipt to a new path — the recovery
+   * action for the "mint succeeded, receipt could not be saved"
+   * (receipt_unsaved) state. See F-cf8b67bb: the receipt itself was
+   * never discarded, so this can always be retried against a different
+   * (working) location without touching the ledger again.
+   */
+  const saveReceiptTo = useCallback(async (path: string) => {
+    if (!mintState.receipt) return;
+    try {
+      await saveFile(path, JSON.stringify(mintState.receipt, null, 2) + "\n");
+      setMint((s) => ({
+        ...s,
+        status: "loaded",
+        actionStatus: "done",
+        receiptPath: path,
+        error: null,
+      }));
+      logAction({
+        action: "mint_receipt_save",
+        status: "done",
+        startedAt: new Date().toISOString(),
+        artifactPath: path,
+      });
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      setMint((s) => ({
+        ...s,
+        // Stay in receipt_unsaved — the mint still succeeded and the
+        // receipt is still sitting safely in memory, only this specific
+        // save attempt failed. Never fall back to "error" here: that
+        // would misreport an already-successful mint yet again.
+        actionStatus: "receipt_unsaved",
+        error: `Still could not save the receipt to ${path} (${msg}). The mint itself succeeded — keep this window open, or copy the receipt data shown above.`,
+      }));
+    }
+  }, [mintState.receipt]);
 
   // ── Verify actions ──────────────────────────────────────────────
 
@@ -1234,6 +1326,7 @@ export function ReleaseProvider({ children }: { children: ReactNode }) {
         loadReceipt,
         runMint,
         runMintFromStudio,
+        saveReceiptTo,
         runVerify,
         loadPolicy,
         createPolicy,
