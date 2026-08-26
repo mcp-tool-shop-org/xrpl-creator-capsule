@@ -353,6 +353,23 @@ describe("checkDecisionAgainstProposal", () => {
     expect(result.errors.some((e) => e.includes("approvedCount"))).toBe(true);
   });
 
+  it("rejects a fabricated rejectedCount even when approvedCount/thresholdMet are correct (F-315a9e82 / F-edf11f1f)", () => {
+    // approvedCount and thresholdMet are independently re-derived and
+    // checked against evaluateApprovals's fresh recomputation, but
+    // rejectedCount was never checked against the same rederivation --
+    // this let a decision receipt report ANY rejectedCount with no
+    // verification. Both approvals here are real (2 approved, 0 rejected),
+    // so approvedCount=2/thresholdMet=true stay correct; only rejectedCount
+    // is fabricated.
+    const policy = makePolicy();
+    const proposal = makeProposal(policy);
+    const decision = makeDecision(policy, proposal);
+    decision.decision.rejectedCount = 99;
+    const result = checkDecisionAgainstProposal(decision, proposal, policy);
+    expect(result.valid).toBe(false);
+    expect(result.errors.some((e) => e.includes("rejectedCount"))).toBe(true);
+  });
+
   it("rejects approved outcome when threshold not met", () => {
     const policy = makePolicy();
     const proposal = makeProposal(policy);
