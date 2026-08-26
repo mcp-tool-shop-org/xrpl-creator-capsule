@@ -190,28 +190,40 @@ export async function recoverRelease(
     );
     if (!minterCheck.verified) chainOk = false;
 
-    // Verify first NFT exists
+    // Verify every minted edition still exists on-chain — not just the
+    // first. A fabricated or stale token id in editions 2..N must not slip
+    // through just because edition 1 checks out.
     if (receipt.xrpl.nftTokenIds.length > 0) {
-      const firstTokenId = receipt.xrpl.nftTokenIds[0];
-      let nft = await readNftFromLedger(
-        receipt.operatorAddress,
-        firstTokenId,
-        receipt.network
-      );
-      if (!nft) {
-        nft = await readNftFromLedger(
-          receipt.issuerAddress,
-          firstTokenId,
+      const total = receipt.xrpl.nftTokenIds.length;
+      let confirmed = 0;
+      const notFound: string[] = [];
+
+      for (const tokenId of receipt.xrpl.nftTokenIds) {
+        let nft = await readNftFromLedger(
+          receipt.operatorAddress,
+          tokenId,
           receipt.network
         );
+        if (!nft) {
+          nft = await readNftFromLedger(
+            receipt.issuerAddress,
+            tokenId,
+            receipt.network
+          );
+        }
+
+        if (nft) {
+          confirmed++;
+        } else {
+          notFound.push(tokenId);
+        }
       }
 
-      if (nft) {
-        chainLines.push(`NFT ${firstTokenId.slice(0, 16)}... found on ledger`);
-        chainLines.push(`  Issuer: ${nft.issuer}`);
-        chainLines.push(`  Transfer fee: ${nft.transferFee}`);
-      } else {
-        chainLines.push(`NFT ${firstTokenId.slice(0, 16)}... NOT found on ledger`);
+      chainLines.push(`${confirmed}/${total} editions confirmed on ledger`);
+      if (confirmed !== total) {
+        for (const tokenId of notFound) {
+          chainLines.push(`  NOT found on ledger: ${tokenId.slice(0, 16)}...`);
+        }
         chainOk = false;
       }
     }
