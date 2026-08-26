@@ -38,6 +38,19 @@ export async function mintReleaseCommand(
   // Storage — Phase B uses mock, real storage comes later
   const storage = new MockContentStore();
 
+  // This store is constructed empty and nothing ever puts content into it, so
+  // every pointer in the manifest is unresolved by construction. issueRelease
+  // now refuses to mint against unresolved content by default, because the URI
+  // it writes into each token is permanent. Opting out keeps this command
+  // usable while the mock backend stands in for real storage, but it is said
+  // out loud rather than passing silently: minting this way records a pointer
+  // to content that is not actually stored anywhere.
+  console.warn(
+    "WARNING: minting with mock storage. Media and cover pointers are NOT " +
+      "resolvable, and the URI written into each token is permanent. Do not " +
+      "use this path for a release you intend to keep."
+  );
+
   // Execute full issuance flow
   const receipt = await issueRelease({
     manifest,
@@ -46,6 +59,7 @@ export async function mintReleaseCommand(
     allowMainnetWrite: opts.allowMainnetWrite ?? false,
     storage,
     storageProvider: "mock",
+    allowUnresolvedStorage: true,
   });
 
   // Write receipt — this MUST succeed or we surface the error

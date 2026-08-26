@@ -323,7 +323,11 @@ describe("release state", () => {
 
       // Start the first mint — do not await it yet, it hangs on engine_call.
       let firstSettled = false;
-      let firstPromise!: Promise<void>;
+      // Deliberately not annotated with the resolved payload's shape: this test
+      // only observes when the promise settles, so pinning the shape here would
+      // make any future change to what a mint returns fail the double-mint
+      // guard's regression test for an unrelated reason.
+      let firstPromise!: Promise<unknown>;
       act(() => {
         firstPromise = result.current.runMintFromStudio("/m.json", "/w.json", "/r1.json");
         firstPromise.finally(() => { firstSettled = true; });
