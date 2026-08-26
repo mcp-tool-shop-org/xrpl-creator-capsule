@@ -14,12 +14,20 @@
  */
 
 import { XummSdk } from "xumm-sdk";
+import type { XummTypes } from "xumm-sdk";
 import type {
   XamanPayloadRequest,
   XamanPayloadSession,
   XamanResolvedResult,
   XamanStatusEvent,
 } from "./types.js";
+
+/**
+ * The exact literal union xumm-sdk's XummJsonTransaction.TransactionType
+ * expects. Derived via indexed access (rather than hand-copied) so this
+ * stays correct if the SDK's transaction-type union changes.
+ */
+type XummTxType = XummTypes.XummJsonTransaction["TransactionType"];
 
 export interface XamanClientConfig {
   apiKey: string;
@@ -149,14 +157,18 @@ export class XamanClient {
    */
   async cancelPayload(
     payloadId: string
-  ): Promise<{ cancelled: boolean; reason: string }> {
+  ): Promise<{ cancelled: boolean; reason: XummTypes.XummCancelReason }> {
     const result = await this.sdk.payload.cancel(payloadId);
     if (!result) {
       throw new Error(`Failed to cancel payload ${payloadId}`);
     }
+    // xumm-sdk nests these under `result.result`, not top-level on the
+    // response — see XummDeletePayloadResponse in xumm-sdk's types. The
+    // previous code read result.cancelled/result.reason directly, which
+    // are always undefined on the real SDK response shape.
     return {
-      cancelled: result.cancelled,
-      reason: result.reason,
+      cancelled: result.result.cancelled,
+      reason: result.result.reason,
     };
   }
 
@@ -166,9 +178,9 @@ export class XamanClient {
    * Infer the TransactionType if not already set in txjson.
    * Falls back based on payload kind.
    */
-  private inferTxType(request: XamanPayloadRequest): string {
+  private inferTxType(request: XamanPayloadRequest): XummTxType {
     if (request.txjson.TransactionType) {
-      return request.txjson.TransactionType as string;
+      return request.txjson.TransactionType as XummTxType;
     }
 
     switch (request.kind) {

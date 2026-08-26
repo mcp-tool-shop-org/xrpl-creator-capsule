@@ -41,7 +41,7 @@ export async function verifyAuthorizedMinter(
         account: issuerAddress,
         ledger_index: "current",
       });
-      accountData = response.result.account_data as Record<string, unknown>;
+      accountData = response.result.account_data as unknown as Record<string, unknown>;
     }
 
     const actualMinter = accountData.NFTokenMinter as string | undefined;
