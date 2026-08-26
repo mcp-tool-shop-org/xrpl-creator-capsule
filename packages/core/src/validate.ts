@@ -1,5 +1,5 @@
-import Ajv from "ajv";
-import addFormats from "ajv-formats";
+import { Ajv } from "ajv";
+import { addFormats } from "./ajv-formats-interop.js";
 import { releaseManifestSchema } from "./schema.js";
 import type { ReleaseManifest } from "./manifest.js";
 

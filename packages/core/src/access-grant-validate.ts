@@ -1,5 +1,5 @@
-import Ajv from "ajv";
-import addFormats from "ajv-formats";
+import { Ajv } from "ajv";
+import { addFormats } from "./ajv-formats-interop.js";
 import { createHash } from "node:crypto";
 import { accessGrantReceiptSchema } from "./access-grant-schema.js";
 import type { AccessGrantReceipt } from "./access-grant.js";

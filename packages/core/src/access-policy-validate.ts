@@ -1,5 +1,5 @@
-import Ajv from "ajv";
-import addFormats from "ajv-formats";
+import { Ajv } from "ajv";
+import { addFormats } from "./ajv-formats-interop.js";
 import { accessPolicySchema } from "./access-policy-schema.js";
 import type { AccessPolicy } from "./access-policy.js";
 import type { ValidationResult } from "./validate.js";
