@@ -29,8 +29,22 @@ export async function runBin(argv: string[]) {
 
   // Matches Node's real process.exit signature (string | number | null |
   // undefined); narrowing this to number alone type-errors under tsc -b.
+  //
+  // The sentinel throw is ARMED only for the awaited run window below.
+  // bin.ts's top-level `main().catch(fn)` can reach its re-entrant
+  // `process.exit(1)` one-or-more event-loop turns AFTER this harness's
+  // flush on slower/differently-scheduled hosts — observed on CI's ubuntu
+  // runner (all 439 tests passed, then one late sentinel throw surfaced
+  // as an unhandled rejection AFTER the finally block had restored
+  // Vitest's rejection handlers, failing the whole run). Disarming turns
+  // any post-window exit call into a no-op, so the late-rejection source
+  // simply never exists; in-window behavior is unchanged.
+  let sentinelArmed = true;
   const exitSpy = vi.spyOn(process, "exit").mockImplementation((code?: string | number | null) => {
-    throw new Error(`__PROCESS_EXIT_${code}__`);
+    if (sentinelArmed) {
+      throw new Error(`__PROCESS_EXIT_${code}__`);
+    }
+    return undefined as never;
   });
   const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
   const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
@@ -41,11 +55,17 @@ export async function runBin(argv: string[]) {
 
   try {
     await import("../bin.js");
-    // Flush the microtask queue so bin.ts's top-level main().catch(...)
-    // chain (including its own re-entrant process.exit call) fully
-    // settles before we assert.
+    // Flush so bin.ts's top-level main().catch(...) chain (including its
+    // own re-entrant process.exit call) settles before we assert. Two
+    // macrotask turns, not one: the catch chain can take an extra hop
+    // when the failing command awaited something first.
+    await new Promise((resolve) => setTimeout(resolve, 0));
     await new Promise((resolve) => setTimeout(resolve, 0));
   } finally {
+    // Order matters: disarm the sentinel BEFORE restoring Vitest's
+    // unhandledRejection handlers, so an exit call that still lands after
+    // this window cannot throw into a context nothing owns.
+    sentinelArmed = false;
     process.removeAllListeners("unhandledRejection");
     for (const listener of savedListeners) {
       process.on("unhandledRejection", listener as NodeJS.UnhandledRejectionListener);
