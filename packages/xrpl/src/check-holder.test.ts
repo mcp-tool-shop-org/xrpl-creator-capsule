@@ -120,4 +120,25 @@ describe("checkHolder", () => {
     expect(result.error).toContain("Account not found");
     expect(mockDisconnect).toHaveBeenCalledTimes(1);
   });
+
+  // The actNotFound branch above was the only failure path this suite
+  // exercised. checkHolder's catch has a SECOND branch — any other ledger
+  // failure — that was never pinned here, unlike its sibling modules
+  // (read-nft.test.ts and verify-minter.test.ts both test this same
+  // "distinguish actNotFound from a real transport failure" pair for their
+  // own functions). Access gating is the money path: a wallet must never be
+  // reported holds:false with a misleading/absent reason when the real
+  // cause is a ledger outage rather than "no qualifying NFT."
+  it("still reports a structured 'Ledger query failed' error (distinct from actNotFound) for a non-actNotFound failure", async () => {
+    mockRequest.mockRejectedValueOnce(new Error("connection timed out"));
+
+    const result = await checkHolder(WALLET, [TOKEN_PAGE_1], "testnet");
+
+    expect(result.holds).toBe(false);
+    expect(result.matchedTokenIds).toEqual([]);
+    expect(result.error).toContain("Ledger query failed");
+    expect(result.error).toContain("connection timed out");
+    expect(result.error).not.toContain("Account not found");
+    expect(mockDisconnect).toHaveBeenCalledTimes(1);
+  });
 });

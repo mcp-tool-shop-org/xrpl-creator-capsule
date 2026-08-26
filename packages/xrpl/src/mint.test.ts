@@ -239,4 +239,143 @@ describe("mintRelease", () => {
     expect(result.tokenIds).toEqual(["NEW_NFT"]);
     expect(result.txHashes).toEqual(["HASH_SPLIT"]);
   });
+
+  // F-b458d21c: extractNFTokenId's FIRST branch (an existing NFTokenPage had
+  // room, so the new token was inserted in place via ModifiedNode) is the
+  // doc comment's stated "common case" — yet every test above only ever
+  // exercises the CreatedNode branch (brand-new page / page split). Prove
+  // the ModifiedNode set-difference path actually returns the newly-minted
+  // token, not a pre-existing one.
+  it("extracts the freshly-minted NFTokenID via the ModifiedNode branch when it lands on an existing page with room", async () => {
+    const pair = generateWalletPair();
+    const manifest = makeManifest(pair, { editionSize: 1 });
+
+    mockSubmitAndWait.mockResolvedValueOnce({
+      result: {
+        hash: "HASH_EXISTING_PAGE",
+        meta: {
+          TransactionResult: "tesSUCCESS",
+          AffectedNodes: [
+            {
+              ModifiedNode: {
+                PreviousFields: {
+                  NFTokens: [
+                    { NFToken: { NFTokenID: "EXISTING_1" } },
+                    { NFToken: { NFTokenID: "EXISTING_2" } },
+                  ],
+                },
+                FinalFields: {
+                  NFTokens: [
+                    { NFToken: { NFTokenID: "EXISTING_1" } },
+                    { NFToken: { NFTokenID: "NEW_ON_EXISTING_PAGE" } },
+                    { NFToken: { NFTokenID: "EXISTING_2" } },
+                  ],
+                },
+              },
+            },
+          ],
+        },
+      },
+    });
+
+    const result = await mintRelease(manifest, pair, "testnet");
+
+    expect(result.tokenIds).toEqual(["NEW_ON_EXISTING_PAGE"]);
+    expect(result.txHashes).toEqual(["HASH_EXISTING_PAGE"]);
+  });
+
+  it("wraps an unextractable NFTokenID (no matching AffectedNodes) in a PartialMintError instead of returning a bad result", async () => {
+    const pair = generateWalletPair();
+    const manifest = makeManifest(pair, { editionSize: 1 });
+
+    mockSubmitAndWait.mockResolvedValueOnce({
+      result: {
+        hash: "HASH_NO_EXTRACT",
+        meta: { TransactionResult: "tesSUCCESS", AffectedNodes: [] },
+      },
+    });
+
+    let caught: unknown;
+    try {
+      await mintRelease(manifest, pair, "testnet");
+    } catch (err) {
+      caught = err;
+    }
+
+    expect(caught).toBeInstanceOf(PartialMintError);
+    expect((caught as PartialMintError).message).toContain(
+      "could not extract NFTokenID"
+    );
+    expect((caught as PartialMintError).tokenIds).toEqual([]);
+  });
+});
+
+// F-b458d21c: percentToTransferFee and buildTokenUri are pure helpers named
+// directly in the finding as untested. Both are unexported (module-private),
+// so they are exercised here through mintRelease's public surface — the
+// same way this suite already exercises extractNFTokenId. Both checks run
+// BEFORE client.connect() in mint.ts, so a rejection proves the guard is a
+// true pre-flight check (no wasted network round-trip on a doomed mint).
+describe("mintRelease — percentToTransferFee boundaries", () => {
+  it("still rejects transferFeePercent above 50% before any network call", async () => {
+    const pair = generateWalletPair();
+    const manifest = makeManifest(pair, { transferFeePercent: 51 });
+
+    await expect(mintRelease(manifest, pair, "testnet")).rejects.toThrow(
+      /TransferFee must be 0.50%, got 51%/
+    );
+    expect(mockConnect).not.toHaveBeenCalled();
+    expect(mockSubmitAndWait).not.toHaveBeenCalled();
+  });
+
+  it("still rejects a negative transferFeePercent before any network call", async () => {
+    const pair = generateWalletPair();
+    const manifest = makeManifest(pair, { transferFeePercent: -1 });
+
+    await expect(mintRelease(manifest, pair, "testnet")).rejects.toThrow(
+      /TransferFee must be 0.50%/
+    );
+    expect(mockConnect).not.toHaveBeenCalled();
+  });
+
+  it("still converts the 0% and 50% boundaries to the correct XRPL TransferFee units (0 and 50000)", async () => {
+    const pair = generateWalletPair();
+
+    const zeroManifest = makeManifest(pair, {
+      editionSize: 1,
+      transferFeePercent: 0,
+    });
+    mockSubmitAndWait.mockResolvedValueOnce(successTx("NFT_ZERO", "HASH_ZERO"));
+    await mintRelease(zeroManifest, pair, "testnet");
+    expect(mockSubmitAndWait.mock.calls[0][0]).toMatchObject({
+      TransferFee: 0,
+    });
+
+    const fiftyManifest = makeManifest(pair, {
+      editionSize: 1,
+      transferFeePercent: 50,
+    });
+    mockSubmitAndWait.mockResolvedValueOnce(
+      successTx("NFT_FIFTY", "HASH_FIFTY")
+    );
+    await mintRelease(fiftyManifest, pair, "testnet");
+    expect(mockSubmitAndWait.mock.calls[1][0]).toMatchObject({
+      TransferFee: 50000,
+    });
+  });
+});
+
+describe("mintRelease — buildTokenUri's 256-byte limit", () => {
+  it("still rejects a metadataEndpoint over 256 bytes before any network call", async () => {
+    const pair = generateWalletPair();
+    const manifest = makeManifest(pair, {
+      metadataEndpoint: "https://example.com/" + "x".repeat(300),
+    });
+
+    await expect(mintRelease(manifest, pair, "testnet")).rejects.toThrow(
+      /256 bytes/
+    );
+    expect(mockConnect).not.toHaveBeenCalled();
+    expect(mockSubmitAndWait).not.toHaveBeenCalled();
+  });
 });
