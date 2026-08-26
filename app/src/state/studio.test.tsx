@@ -21,7 +21,10 @@ function renderStudio() {
 // Default: loadSession returns empty session, saveSession succeeds silently
 function mockSessionDefaults() {
   mockInvoke.mockImplementation(async (cmd: string) => {
-    if (cmd === "load_file") throw new Error("No session");
+    if (cmd === "load_file") throw new Error("File not found: No session yet");
+    // F-27abf0dc: saveSession writes via save_file_atomic now, not the
+    // plain save_file command.
+    if (cmd === "save_file_atomic") return undefined;
     if (cmd === "save_file") return undefined;
     return undefined;
   });
@@ -396,8 +399,10 @@ describe("studio state", () => {
     it("saves session after 2s debounce on draft change", async () => {
       const saveCalls: string[] = [];
       mockInvoke.mockImplementation(async (cmd: string, args?: any) => {
-        if (cmd === "load_file") throw new Error("No session");
-        if (cmd === "save_file") {
+        if (cmd === "load_file") throw new Error("File not found: No session yet");
+        // F-27abf0dc: saveSession now writes via save_file_atomic (temp
+        // file + rename), not the plain save_file command.
+        if (cmd === "save_file_atomic") {
           saveCalls.push((args as { content: string }).content);
           return undefined;
         }
@@ -426,8 +431,10 @@ describe("studio state", () => {
     it("debounces multiple rapid changes into one save", async () => {
       const saveCalls: string[] = [];
       mockInvoke.mockImplementation(async (cmd: string, args?: any) => {
-        if (cmd === "load_file") throw new Error("No session");
-        if (cmd === "save_file") {
+        if (cmd === "load_file") throw new Error("File not found: No session yet");
+        // F-27abf0dc: saveSession now writes via save_file_atomic (temp
+        // file + rename), not the plain save_file command.
+        if (cmd === "save_file_atomic") {
           saveCalls.push((args as { content: string }).content);
           return undefined;
         }
@@ -451,6 +458,55 @@ describe("studio state", () => {
       // Should have coalesced — final save has "ABC"
       const lastSave = JSON.parse(saveCalls[saveCalls.length - 1]);
       expect(lastSave.draft.title).toBe("ABC");
+    });
+
+    // F-27abf0dc: a persistent autosave failure used to be completely
+    // invisible (a bare `.catch(() => { best effort })` discarding the
+    // outcome entirely). It must still never block editing — but the
+    // creator should be told autosave isn't working, via the same
+    // sessionError vocabulary the startup-restore failure path already
+    // uses (see the "sets sessionError on restore failure" test above).
+    it("surfaces a non-blocking notice via sessionError when autosave keeps failing, without touching the draft", async () => {
+      mockInvoke.mockImplementation(async (cmd: string) => {
+        if (cmd === "load_file") throw new Error("File not found: No session yet");
+        if (cmd === "save_file_atomic") throw new Error("Disk full");
+        return undefined;
+      });
+
+      const { result } = renderStudio();
+      await act(async () => { await vi.runAllTimersAsync(); });
+
+      act(() => { result.current.updateDraft({ title: "New Title" }); });
+      await act(async () => { await vi.advanceTimersByTimeAsync(2000); });
+
+      expect(result.current.sessionError).toBeTruthy();
+      // Editing itself must be completely unaffected by the save failure.
+      expect(result.current.draft.title).toBe("New Title");
+    });
+
+    it("clears the autosave notice once a subsequent save succeeds again", async () => {
+      let shouldFail = true;
+      mockInvoke.mockImplementation(async (cmd: string) => {
+        if (cmd === "load_file") throw new Error("File not found: No session yet");
+        if (cmd === "save_file_atomic") {
+          if (shouldFail) throw new Error("Disk full");
+          return undefined;
+        }
+        return undefined;
+      });
+
+      const { result } = renderStudio();
+      await act(async () => { await vi.runAllTimersAsync(); });
+
+      act(() => { result.current.updateDraft({ title: "First" }); });
+      await act(async () => { await vi.advanceTimersByTimeAsync(2000); });
+      expect(result.current.sessionError).toBeTruthy();
+
+      shouldFail = false;
+      act(() => { result.current.updateDraft({ title: "Second" }); });
+      await act(async () => { await vi.advanceTimersByTimeAsync(2000); });
+
+      expect(result.current.sessionError).toBeFalsy();
     });
   });
 

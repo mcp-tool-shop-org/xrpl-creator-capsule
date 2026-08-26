@@ -17,6 +17,21 @@ import type {
   ExecutedPayoutOutput,
 } from "../../bridge/engine";
 
+// F-08116633: a real XRPL transaction hash is exactly 64 hexadecimal
+// characters (SHA-512half of the signed transaction blob, per the XRPL
+// protocol). ExecutionForm's "Record Execution" used to gate only on
+// each hash being non-empty, with no format check ever applied
+// downstream either (the governance/payout chain never reads the actual
+// ledger, unlike mint/verify-release/recover-release) — so a typo'd
+// hash could become a permanent part of the hash-chained, self-described
+// "canonical" audit artifact with no check at entry and no check ever
+// afterward.
+const XRPL_TX_HASH_PATTERN = /^[0-9a-fA-F]{64}$/;
+
+function isValidTxHash(value: string): boolean {
+  return XRPL_TX_HASH_PATTERN.test(value.trim());
+}
+
 function deriveStatus(
   manifest: ReturnType<typeof useRelease>["manifest"],
   gov: ReturnType<typeof useRelease>["governance"]
@@ -625,7 +640,7 @@ function ExecutionForm({
     setTxHashes(next);
   };
 
-  const canCreate = executedBy.trim() && txHashes.every((h) => h.trim());
+  const canCreate = !!executedBy.trim() && txHashes.every((h) => isValidTxHash(h));
 
   return (
     <ArtifactCard>
@@ -644,16 +659,40 @@ function ExecutionForm({
 
       <div style={{ marginBottom: 12 }}>
         <div style={{ fontSize: 11, color: "var(--text-dim)", marginBottom: 6 }}>Transaction Hashes</div>
-        {txHashes.map((h, i) => (
-          <div key={i} style={{ display: "flex", gap: 6, marginBottom: 6 }}>
-            <input value={h} placeholder="TX hash..."
-              onChange={(e) => updateTxHash(i, e.target.value)}
-              style={{ ...inputStyle, flex: 1, fontFamily: "monospace" }} />
-            {txHashes.length > 1 && (
-              <button onClick={() => setTxHashes(txHashes.filter((_, idx) => idx !== i))} style={removeStyle}>&times;</button>
-            )}
-          </div>
-        ))}
+        {/* F-08116633: any non-empty string used to pass here — nothing
+            downstream ever checks these against the actual XRPL ledger
+            either (the governance/payout chain never calls a chain-read
+            function, unlike mint/verify-release/recover-release), so a
+            typo at entry became a permanent part of the hash-chained,
+            self-described "canonical" audit artifact with no format
+            check ever, at any point. */}
+        {txHashes.map((h, i) => {
+          const trimmed = h.trim();
+          const showError = trimmed.length > 0 && !isValidTxHash(h);
+          return (
+            <div key={i} style={{ marginBottom: 6 }}>
+              <div style={{ display: "flex", gap: 6 }}>
+                <input value={h} placeholder="TX hash..."
+                  onChange={(e) => updateTxHash(i, e.target.value)}
+                  style={{
+                    ...inputStyle,
+                    flex: 1,
+                    fontFamily: "monospace",
+                    borderColor: showError ? "var(--error)" : undefined,
+                  }} />
+                {txHashes.length > 1 && (
+                  <button onClick={() => setTxHashes(txHashes.filter((_, idx) => idx !== i))} style={removeStyle}>&times;</button>
+                )}
+              </div>
+              {showError && (
+                <div style={{ fontSize: 11, color: "var(--error)", marginTop: 4 }}>
+                  A real XRPL transaction hash is exactly 64 hexadecimal characters (0-9, A-F) —
+                  this value doesn&rsquo;t match. Example: 07459A93BFA5817727416FE969F6A4F17E0A9064E37690174DF01E8DC505B698
+                </div>
+              )}
+            </div>
+          );
+        })}
         <button onClick={addTxHash} style={addStyle}>+ Add TX Hash</button>
       </div>
 
@@ -671,7 +710,17 @@ function ExecutionForm({
       <div style={{ display: "flex", gap: 10 }}>
         <ActionButton
           label={loading ? "Recording\u2026" : "Record Execution"}
-          onClick={() => onCreate({ txHashes, executedOutputs, executedBy })}
+          onClick={() => onCreate({
+            // F-08116633: uppercase hex is the canonical case this app's
+            // real XRPL tx hashes use (see mintTxHashes in receipt
+            // fixtures/artifacts) - input is accepted in either case but
+            // always stored normalized, matching how the rest of the
+            // repo represents real (as opposed to internally-computed,
+            // lowercase-by-convention) XRPL transaction hashes.
+            txHashes: txHashes.map((h) => h.trim().toUpperCase()),
+            executedOutputs,
+            executedBy,
+          })}
           disabled={loading || !canCreate}
         />
         <ActionButton label="Load Execution" onClick={onLoad} variant="secondary" />
@@ -691,6 +740,32 @@ function ExecutionCard({ execution, executionPath }: {
     <ArtifactCard>
       <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 8, color: "var(--text)" }}>
         Payout Execution
+      </div>
+      {/* F-08116633: the ENTIRE governance/payout chain (createGovernancePolicy
+          through verifyPayout) never calls any XRPL read function, unlike
+          mint/verify-release/recover-release which do — so the tx hashes
+          below are recorded exactly as typed, with no format check at
+          entry (see ExecutionForm) and no on-chain check ever afterward.
+          "Chain Verified" just below means internally consistent with the
+          approved proposal (a hash-chain check), NOT checked against the
+          real ledger — this notice exists specifically so that distinction
+          isn't lost on a reader who could otherwise take "verified" to
+          mean the stronger claim. */}
+      <div
+        style={{
+          fontSize: 11,
+          color: "var(--warning)",
+          background: "var(--warning)" + "18",
+          border: "1px solid var(--warning)",
+          borderRadius: 6,
+          padding: "8px 10px",
+          marginBottom: 10,
+          lineHeight: 1.5,
+        }}
+      >
+        This record is self-attested: the transaction hashes below are recorded as entered and
+        have not been checked against the XRPL ledger. &ldquo;Chain Verified&rdquo; means
+        internally consistent with the approved proposal, not confirmed on-chain.
       </div>
       <ArtifactField label="Executed By" value={execution.executedBy} />
       <ArtifactField label="Executed At" value={execution.executedAt} />

@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { humanizeError } from "../../errors/humanize";
 
 export type Status =
   | "empty"
@@ -175,7 +176,23 @@ export function ArtifactCard({ children }: { children: ReactNode }) {
   );
 }
 
+/**
+ * F-c1d1c21a: the single chokepoint every error path in the app renders
+ * through (13 call sites, all passing a raw `err.message`-shaped
+ * string). Rather than teaching each call site about humanization, the
+ * translation happens HERE — every existing caller (unchanged) now gets
+ * a plain-language message automatically, with the original raw text
+ * preserved verbatim behind a collapsed "Technical details" disclosure
+ * rather than deleted. Support bundles and power users still need the
+ * real text; the point is what's shown FIRST, not what's kept.
+ */
 export function ErrorBanner({ message }: { message: string }) {
+  const { message: humanMessage, detail } = humanizeError(message);
+  // Only worth a separate disclosure when it actually adds information
+  // beyond the headline — e.g. a hand-authored message that passed
+  // through humanizeError() unchanged has nothing further to reveal.
+  const hasExtraDetail = detail.trim().length > 0 && detail !== humanMessage;
+
   return (
     <div
       style={{
@@ -189,7 +206,33 @@ export function ErrorBanner({ message }: { message: string }) {
         wordBreak: "break-word",
       }}
     >
-      {message}
+      <div>{humanMessage}</div>
+      {hasExtraDetail && (
+        <details style={{ marginTop: 6 }}>
+          <summary
+            style={{
+              fontSize: 11,
+              color: "var(--text-dim)",
+              cursor: "pointer",
+              userSelect: "none",
+            }}
+          >
+            Technical details
+          </summary>
+          <pre
+            style={{
+              fontSize: 11,
+              color: "var(--text-dim)",
+              whiteSpace: "pre-wrap",
+              wordBreak: "break-all",
+              marginTop: 6,
+              fontFamily: "monospace",
+            }}
+          >
+            {detail}
+          </pre>
+        </details>
+      )}
     </div>
   );
 }

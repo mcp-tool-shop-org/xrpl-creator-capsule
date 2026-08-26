@@ -41,8 +41,9 @@ describe("Start a new release (F-bd945889)", () => {
     vi.clearAllMocks();
     vi.useFakeTimers();
     mockInvoke.mockImplementation(async (cmd: string) => {
-      if (cmd === "load_file") throw new Error("No session");
+      if (cmd === "load_file") throw new Error("File not found: no session yet");
       if (cmd === "save_file") return undefined;
+      if (cmd === "save_file_atomic") return undefined;
       return undefined;
     });
   });
@@ -116,5 +117,102 @@ describe("Start a new release (F-bd945889)", () => {
 
     expect(screen.getByDisplayValue("Precious Unsaved Work")).toBeInTheDocument();
     expect(screen.queryByText(/welcome to capsule/i)).not.toBeInTheDocument();
+  });
+});
+
+// F-27abf0dc: sessionError was set by studio.tsx's session-restore catch
+// but never actually rendered anywhere — the one code path meant to
+// tell a user "your saved session could not be read" existed only as an
+// internal flag nobody displayed. StudioShell now surfaces it as a
+// non-blocking banner above the normal page content.
+describe("sessionError surfacing (F-27abf0dc)", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    vi.useFakeTimers();
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  it("shows a non-blocking banner when the saved session exists but fails to parse", async () => {
+    mockInvoke.mockImplementation(async (cmd: string) => {
+      if (cmd === "load_file") return "CORRUPT SESSION {{{";
+      if (cmd === "save_file_atomic") return undefined;
+      return undefined;
+    });
+
+    renderStudioApp();
+    await act(async () => { await vi.runAllTimersAsync(); });
+
+    // Non-blocking: the ordinary welcome flow is still there underneath,
+    // not replaced by a full-screen error state.
+    expect(screen.getByText(/welcome to capsule/i)).toBeInTheDocument();
+    // ErrorBanner (F-c1d1c21a) humanizes this, so assert on its
+    // collapsed technical-details disclosure rather than raw JSON text.
+    expect(screen.getByText(/technical details/i)).toBeInTheDocument();
+  });
+
+  it("renders nothing extra when there is no session error", async () => {
+    mockInvoke.mockImplementation(async (cmd: string) => {
+      if (cmd === "load_file") throw new Error("File not found: no session yet");
+      if (cmd === "save_file_atomic") return undefined;
+      return undefined;
+    });
+
+    renderStudioApp();
+    await act(async () => { await vi.runAllTimersAsync(); });
+
+    expect(screen.queryByText(/technical details/i)).not.toBeInTheDocument();
+  });
+});
+
+// F-7a08ed4a: handleLoadSample used to try three hardcoded RELATIVE
+// paths ("app/sample/demo-draft.json", "sample/demo-draft.json",
+// "../sample/demo-draft.json") via loadFile(), which — after F-f5a82670
+// hardened load_file to require an ABSOLUTE, sandboxed path — now fail
+// ALL three attempts unconditionally (load_file rejects any relative
+// path outright), silently falling through to the native "Load Draft"
+// file picker with zero explanation. The sample is now bundled directly
+// as a JS import (no Tauri IPC round-trip, no path-guessing, works
+// identically in dev and packaged builds).
+describe("Load Sample (F-7a08ed4a)", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    vi.useFakeTimers();
+    mockInvoke.mockImplementation(async (cmd: string) => {
+      if (cmd === "load_file") throw new Error("File not found: no session yet");
+      if (cmd === "save_file_atomic") return undefined;
+      return undefined;
+    });
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  it("loads the real bundled sample content directly — no relative-path guessing, no Tauri load_file round-trip", async () => {
+    renderStudioApp();
+    await act(async () => { await vi.runAllTimersAsync(); });
+
+    fireEvent.click(screen.getByText(/try the demo/i));
+
+    expect(screen.getByDisplayValue("Midnight Signal")).toBeInTheDocument();
+    // "Luna Vex" legitimately appears twice — as the top-level artist
+    // AND as a collaborator name (the sample includes a collaborator
+    // split) — so this asserts presence, not uniqueness.
+    expect(screen.getAllByDisplayValue("Luna Vex").length).toBeGreaterThan(0);
+  });
+
+  it("never opens the native file picker on the happy path (the old silent fallback is gone)", async () => {
+    const { open } = await import("@tauri-apps/plugin-dialog");
+    const mockOpen = vi.mocked(open);
+
+    renderStudioApp();
+    await act(async () => { await vi.runAllTimersAsync(); });
+
+    fireEvent.click(screen.getByText(/try the demo/i));
+
+    expect(mockOpen).not.toHaveBeenCalled();
   });
 });
