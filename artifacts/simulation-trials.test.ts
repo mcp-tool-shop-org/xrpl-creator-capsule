@@ -109,6 +109,7 @@ function makeManifest(overrides: Partial<ReleaseManifest> = {}): ReleaseManifest
 function makeReceipt(manifest: ReleaseManifest, tokenSuffix: string = "0001"): IssuanceReceipt {
   const receipt: IssuanceReceipt = {
     schemaVersion: "1.0.0",
+    kind: "issuance-receipt",
     manifestId: computeManifestId(manifest),
     manifestRevisionHash: computeRevisionHash(manifest),
     issuerAddress: manifest.issuerAddress,
@@ -118,8 +119,20 @@ function makeReceipt(manifest: ReleaseManifest, tokenSuffix: string = "0001"): I
     xrpl: {
       nftTokenIds: [`00080000${ISSUER.slice(0, 20)}${tokenSuffix.padStart(24, "0")}`],
       mintTxHashes: [`AABB${tokenSuffix.padStart(60, "0")}`],
+      // Both required by IssuanceReceipt and both were absent here, which no gate
+      // could see: tsc skipped artifacts/ entirely and vitest strips types. The
+      // simulation was therefore exercising a receipt shape real code never emits.
+      // Values match what issue-release.ts actually writes (tfTransferable = 0x8).
+      authorizedMinterVerified: true,
+      flags: 0x00000008,
       transferFee: Math.round(manifest.transferFeePercent * 1000),
       tokenTaxon: 0,
+    },
+    release: {
+      title: manifest.title,
+      artist: manifest.artist,
+      editionSize: manifest.editionSize,
+      transferFee: Math.round(manifest.transferFeePercent * 1000),
     },
     pointers: {
       metadataUri: manifest.metadataEndpoint,
@@ -127,9 +140,24 @@ function makeReceipt(manifest: ReleaseManifest, tokenSuffix: string = "0001"): I
       coverCid: manifest.coverCid,
       mediaCid: manifest.mediaCid,
     },
-    storageProvider: "mock",
+    // Was `storageProvider: "mock"`, a field IssuanceReceipt has never had; the
+    // real shape is a storage block, and `release` and `verification` were
+    // missing outright. The `as any` casts on the return below hid all of it
+    // from the compiler, and nothing else was checking this file at all.
+    storage: {
+      provider: "mock",
+      mediaResolved: true,
+      coverResolved: true,
+    },
+    verification: {
+      manifestMatchesPointers: true,
+      issuerOperatorSeparated: manifest.issuerAddress !== manifest.operatorAddress,
+      networkAllowed: true,
+      errors: [],
+      warnings: [],
+    },
   };
-  return stampReceiptHash(receipt as any) as any;
+  return stampReceiptHash(receipt);
 }
 
 /** Create an access policy for a manifest + receipt */

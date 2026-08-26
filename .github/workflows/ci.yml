@@ -50,7 +50,7 @@ jobs:
       # this step reported success for the life of the repo while type-checking
       # nothing. app/ is a separate graph and must be named explicitly.
       - name: Type check
-        run: npx tsc -b tsconfig.json app/tsconfig.json
+        run: npx tsc -b tsconfig.json app/tsconfig.json artifacts/tsconfig.json
       - name: Test (engine)
         run: npx vitest run
       # The root vitest config excludes app/**, so without this the desktop
@@ -101,7 +101,7 @@ jobs:
 
   build-desktop:
     if: github.event_name == 'release'
-    needs: test
+    needs: [test, cargo-check]
     runs-on: windows-latest
     permissions:
       contents: write

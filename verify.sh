@@ -13,7 +13,7 @@ echo "=== TypeScript check ==="
 # To confirm this gate can still fail, introduce a type error and re-run: it
 # must exit non-zero. A type-check step that cannot go red is worse than none,
 # because it reports a safety property it never verified.
-npx tsc -b tsconfig.json app/tsconfig.json
+npx tsc -b tsconfig.json app/tsconfig.json artifacts/tsconfig.json
 
 echo "=== Tests (engine) ==="
 npx vitest run

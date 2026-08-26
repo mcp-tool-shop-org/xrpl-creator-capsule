@@ -1,0 +1,15 @@
+{
+  "//": "artifacts/*.ts are the golden-path, drill and simulation proofs. They sit outside the root tsconfig's `references` and outside app/'s `include`, so before this file existed they were type-checked by nothing: `tsc -b` skipped them and vitest strips types via esbuild rather than checking them. A type error here was invisible to every gate in the pipeline. Verified by mutation before and after adding this.",
+  "//module": "These files are executed by vitest, which loads them as ESM through esbuild. The root package.json has no 'type': 'module', so Node16 resolution classifies them as CommonJS and reports a wall of TS1479/TS1541/TS1470 against their ESM imports — diagnostics about a module system they are never actually run under. ESNext + Bundler matches how they really execute, so what remains are real type errors.",
+  "extends": "../tsconfig.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "composite": false,
+    "declaration": false,
+    "declarationMap": false,
+    "types": ["node"],
+    "module": "ESNext",
+    "moduleResolution": "Bundler"
+  },
+  "include": ["**/*.ts"]
+}

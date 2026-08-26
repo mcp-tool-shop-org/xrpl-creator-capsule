@@ -15,7 +15,7 @@
   "scripts": {
     "build": "npm run build --workspaces",
     "test": "npm run test --workspaces",
-    "lint": "tsc -b tsconfig.json app/tsconfig.json"
+    "lint": "tsc -b tsconfig.json app/tsconfig.json artifacts/tsconfig.json"
   },
   "devDependencies": {
     "typescript": "5.8.3",
