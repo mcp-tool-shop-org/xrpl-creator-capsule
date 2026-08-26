@@ -50,7 +50,13 @@ export async function initWallets(
     authorized = true;
   }
 
-  // Write credentials to file
+  // Write credentials to file. outputPath contains secrets (see doc comment
+  // above) — mode 0o600 restricts it to owner read/write at creation time so
+  // it never lands world-readable on a shared/multi-user POSIX host, even
+  // for an instant before a caller could chmod it themselves. This is
+  // honored on POSIX filesystems; Windows/NTFS does not expose POSIX mode
+  // bits via Node's fs APIs, so this option is a no-op there (see
+  // init-wallets.test.ts for the platform-honest verification of this).
   const exported = exportWalletPair(pair);
   await writeFile(
     opts.outputPath,
@@ -58,7 +64,8 @@ export async function initWallets(
       { network: opts.network, ...exported },
       null,
       2
-    ) + "\n"
+    ) + "\n",
+    { mode: 0o600 }
   );
 
   return {
