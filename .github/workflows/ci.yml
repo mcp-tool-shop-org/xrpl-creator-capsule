@@ -1,3 +1,13 @@
+# --- Measured CI cost (dogfood-swarm SKILL item 8) --------------------------
+# 16 billable min per push across 3 jobs (7.4 min actual wall time),
+# measured 2026-09-07 from run 34122837742. Most expensive jobs:
+#    14 min  cargo-check  (6.3 min wall, x2 runner)
+#     2 min  test (22)  (1.0 min wall)
+# GitHub bills per JOB, rounded UP to the minute, x2 Windows / x10 macOS, so
+# billable minutes exceed wall time — many short jobs cost more than one long
+# one. This number is measured, never estimated; re-measure after any change:
+#   gh api repos/mcp-tool-shop-org/xrpl-creator-capsule/actions/runs/<id>/jobs
+# ---------------------------------------------------------------------------
 name: CI
 
 on:
