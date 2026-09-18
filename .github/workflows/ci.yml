@@ -22,6 +22,9 @@ on:
       - "app/**"
       - "verify.sh"
       - ".github/workflows/**"
+      - "site/package.json"
+      - "site/package-lock.json"
+      - "site/astro.config.mjs"
   pull_request:
     paths:
       - "packages/**"
@@ -33,6 +36,9 @@ on:
       - "app/**"
       - "verify.sh"
       - ".github/workflows/**"
+      - "site/package.json"
+      - "site/package-lock.json"
+      - "site/astro.config.mjs"
   release:
     types: [published]
   workflow_dispatch:
