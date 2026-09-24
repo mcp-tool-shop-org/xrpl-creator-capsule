@@ -1,0 +1,50 @@
+summary: ""
+boundaries:
+  - name: .github
+    globs:
+      - .github/**
+    role: config
+  - name: app
+    globs:
+      - app/**
+    role: code
+  - name: artifacts
+    globs:
+      - artifacts/**
+    role: config
+  - name: cli
+    globs:
+      - packages/cli/**
+    role: code
+  - name: core
+    globs:
+      - packages/core/**
+    role: code
+  - name: docs
+    globs:
+      - docs/**
+    role: docs
+  - name: fixtures
+    globs:
+      - fixtures/**
+    role: data
+  - name: root
+    globs:
+      - "*"
+    role: config
+  - name: site
+    globs:
+      - site/**
+    role: site
+  - name: storage
+    globs:
+      - packages/storage/**
+    role: code
+  - name: xaman
+    globs:
+      - packages/xaman/**
+    role: code
+  - name: xrpl
+    globs:
+      - packages/xrpl/**
+    role: code
