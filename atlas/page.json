@@ -1,0 +1,480 @@
+{
+  "authored": [
+    ".github/",
+    "artifacts/",
+    "docs/",
+    "fixtures/",
+    "root",
+    "site/"
+  ],
+  "breaks": [
+    {
+      "doors": 2,
+      "importedBy": [
+        "app",
+        "cli",
+        "xaman",
+        "xrpl"
+      ],
+      "importedByTests": [
+        "artifacts"
+      ],
+      "kind": "part",
+      "name": "core",
+      "partLabel": "core"
+    },
+    {
+      "doors": 2,
+      "importedBy": [
+        "app",
+        "cli",
+        "xrpl"
+      ],
+      "importedByTests": [],
+      "kind": "part",
+      "name": "storage",
+      "partLabel": "storage"
+    },
+    {
+      "doors": 2,
+      "importedBy": [
+        "app",
+        "artifacts",
+        "cli"
+      ],
+      "importedByTests": [],
+      "kind": "part",
+      "name": "xrpl",
+      "partLabel": "xrpl"
+    },
+    {
+      "doors": 2,
+      "importedBy": [
+        "cli"
+      ],
+      "importedByTests": [],
+      "kind": "part",
+      "name": "xaman",
+      "partLabel": "xaman"
+    },
+    {
+      "doors": 2,
+      "importedBy": [],
+      "importedByTests": [
+        "artifacts"
+      ],
+      "kind": "part",
+      "name": "cli",
+      "partLabel": "cli"
+    }
+  ],
+  "changes": {
+    "first": true
+  },
+  "changesTogether": [
+    {
+      "a": "app/bridge-worker.ts",
+      "b": "app/src/bridge/engine.ts",
+      "either": 7,
+      "partLabels": [
+        "app",
+        "app"
+      ],
+      "parts": [
+        "app",
+        "app"
+      ],
+      "relation": "inside",
+      "shared": 5
+    },
+    {
+      "a": "app/src/components/panels/MintPanel.tsx",
+      "b": "app/src/components/panels/PanelShell.tsx",
+      "either": 6,
+      "partLabels": [
+        "app",
+        "app"
+      ],
+      "parts": [
+        "app",
+        "app"
+      ],
+      "relation": "inside",
+      "shared": 4
+    },
+    {
+      "a": "app/src/bridge/engine.ts",
+      "b": "app/src/state/release.tsx",
+      "either": 10,
+      "partLabels": [
+        "app",
+        "app"
+      ],
+      "parts": [
+        "app",
+        "app"
+      ],
+      "relation": "inside",
+      "shared": 6
+    },
+    {
+      "a": "app/src/bridge/engine.ts",
+      "b": "app/src/components/panels/MintPanel.tsx",
+      "either": 7,
+      "partLabels": [
+        "app",
+        "app"
+      ],
+      "parts": [
+        "app",
+        "app"
+      ],
+      "relation": "inside",
+      "shared": 4
+    },
+    {
+      "a": "packages/cli/src/bin.ts",
+      "b": "packages/core/src/index.ts",
+      "either": 9,
+      "partLabels": [
+        "cli",
+        "core"
+      ],
+      "parts": [
+        "cli",
+        "core"
+      ],
+      "relation": "a-imports-b",
+      "shared": 5
+    }
+  ],
+  "changesTogetherNote": [
+    "Confidence is low: fewer than 20 source files reach 10 revisions in the window.",
+    "Window: 180 days; a pair counts from 3 shared commits, since 1 source file reaches 10 revisions; the floor rises to 10 when 25 do."
+  ],
+  "changesTogetherWithTests": 0,
+  "commit": "1f7eeff8bb9d6761be60a628902c6d498472cec8",
+  "defaultBranch": "main",
+  "derived": "12 parts, mostly TypeScript (183 files). Work enters through 3 doors; the busiest is CI, which reaches 8 parts. People run capsule.",
+  "doors": [
+    {
+      "checks": [
+        "app/bridge-worker-commands.ts",
+        "app/bridge-worker.ts",
+        "app/src/",
+        "app/vite.config.ts",
+        "artifacts/",
+        "packages/cli/src/",
+        "packages/core/src/",
+        "packages/storage/src/",
+        "packages/xaman/src/",
+        "packages/xrpl/src/"
+      ],
+      "checksCount": 10,
+      "file": ".github/workflows/ci.yml",
+      "id": ".github/workflows/ci.yml",
+      "landings": [],
+      "name": "CI",
+      "pushes": false,
+      "reach": [
+        {
+          "boundary": "app",
+          "depth": 0,
+          "files": 67
+        },
+        {
+          "boundary": "artifacts",
+          "depth": 0,
+          "files": 5
+        },
+        {
+          "boundary": "cli",
+          "depth": 0,
+          "files": 41
+        },
+        {
+          "boundary": "core",
+          "depth": 0,
+          "files": 36
+        },
+        {
+          "boundary": "root",
+          "depth": 0,
+          "files": 1
+        },
+        {
+          "boundary": "storage",
+          "depth": 0,
+          "files": 8
+        },
+        {
+          "boundary": "xaman",
+          "depth": 0,
+          "files": 8
+        },
+        {
+          "boundary": "xrpl",
+          "depth": 0,
+          "files": 17
+        }
+      ],
+      "runs": [
+        "app/scripts/bundle-bridge.mjs",
+        "verify.sh",
+        "app/bridge-worker-access.test.ts",
+        "app/bridge-worker-governance.test.ts",
+        "app/bridge-worker-manifest.test.ts",
+        "app/bridge-worker-mint-persist.test.ts",
+        "app/bridge-worker-recovery.test.ts",
+        "app/bridge-worker-stdout-flush.test.ts",
+        "app/bridge-worker-verify-release.test.ts",
+        "app/bridge-worker.test.ts",
+        "app/src/ErrorBoundary.test.tsx",
+        "app/src/__test__/tauri-security-config.test.ts",
+        "app/src/bridge/engine.test.ts",
+        "app/src/components/CloseWarningGate.test.tsx",
+        "app/src/components/TitleBar.test.tsx",
+        "app/src/components/panels/GovernancePanel.test.tsx",
+        "app/src/components/panels/MintPanel.test.tsx",
+        "app/src/components/panels/PanelShell.test.tsx",
+        "app/src/components/panels/RecoveryPanel.test.tsx",
+        "app/src/components/studio/StudioShell.sample-error.test.tsx",
+        "app/src/components/studio/StudioShell.test.tsx",
+        "app/src/errors/humanize.test.ts",
+        "app/src/state/actionlog.test.ts",
+        "app/src/state/release-reconcile.test.tsx",
+        "app/src/state/release-timeout.test.tsx",
+        "app/src/state/release-trust.test.tsx",
+        "app/src/state/release.test.tsx",
+        "app/src/state/session.test.ts",
+        "app/src/state/studio.test.tsx",
+        "app/src/state/validate.test.ts",
+        "artifacts/failure-drills.test.ts",
+        "artifacts/governance-drills.test.ts",
+        "artifacts/governance-golden-path.test.ts",
+        "artifacts/simulation-trials.test.ts",
+        "packages/cli/src/bin-help.test.ts",
+        "packages/cli/src/bin-json-args.test.ts",
+        "packages/cli/src/bin-mainnet-write.test.ts",
+        "packages/cli/src/bin-network.test.ts",
+        "packages/cli/src/bin-required-args.test.ts",
+        "packages/cli/src/bin.test.ts",
+        "packages/cli/src/commands/configure-minter.test.ts",
+        "packages/cli/src/commands/create-governance-policy.test.ts",
+        "packages/cli/src/commands/create-release.test.ts",
+        "packages/cli/src/commands/decide-payout.test.ts",
+        "packages/cli/src/commands/execute-payout.test.ts",
+        "packages/cli/src/commands/grant-access.test.ts",
+        "packages/cli/src/commands/init-wallets.test.ts",
+        "packages/cli/src/commands/mint-release.test.ts",
+        "packages/cli/src/commands/propose-payout.test.ts",
+        "packages/cli/src/commands/recover-release.test.ts",
+        "packages/cli/src/commands/resolve.test.ts",
+        "packages/cli/src/commands/validate.test.ts",
+        "packages/cli/src/commands/verify-payout.test.ts",
+        "packages/cli/src/commands/verify-release.test.ts",
+        "packages/cli/src/commands/xaman-flow.test.ts",
+        "packages/cli/src/lib/json-input.test.ts",
+        "packages/core/src/access-grant-validate.test.ts",
+        "packages/core/src/access-policy-validate.test.ts",
+        "packages/core/src/governance-validate.test.ts",
+        "packages/core/src/hash.test.ts",
+        "packages/core/src/receipt-validate.test.ts",
+        "packages/core/src/recovery-bundle-validate.test.ts",
+        "packages/core/src/resolve.test.ts",
+        "packages/core/src/validate.test.ts",
+        "packages/storage/src/delivery.test.ts",
+        "packages/storage/src/fs-store.test.ts",
+        "packages/storage/src/mock-store.test.ts",
+        "packages/xaman/src/client.test.ts",
+        "packages/xaman/src/payloads.test.ts",
+        "packages/xaman/src/verify.test.ts",
+        "packages/xrpl/src/account-nfts.test.ts",
+        "packages/xrpl/src/check-holder.test.ts",
+        "packages/xrpl/src/issue-release.test.ts",
+        "packages/xrpl/src/mint.test.ts",
+        "packages/xrpl/src/network.test.ts",
+        "packages/xrpl/src/read-nft.test.ts",
+        "packages/xrpl/src/verify-minter.test.ts",
+        "packages/xrpl/src/wallet.test.ts"
+      ],
+      "runsCount": 78,
+      "sends": [
+        "creates a GitHub release on a release event"
+      ],
+      "stages": [],
+      "triggers": [
+        "on a pull request touching 13 paths",
+        "on a push touching 13 paths",
+        "when a release is published",
+        "or by hand"
+      ]
+    },
+    {
+      "checks": [],
+      "checksCount": 0,
+      "file": ".github/workflows/pages.yml",
+      "id": ".github/workflows/pages.yml",
+      "landings": [],
+      "name": "Deploy site to GitHub Pages",
+      "pushes": false,
+      "reach": [
+        {
+          "boundary": "site",
+          "depth": 0,
+          "files": 3
+        }
+      ],
+      "runs": [
+        "site/astro.config.mjs",
+        "site/src/"
+      ],
+      "runsCount": 2,
+      "sends": [
+        "deploys the site"
+      ],
+      "stages": [],
+      "triggers": [
+        "on a push to main touching 2 paths",
+        "or by hand"
+      ]
+    },
+    {
+      "checks": [],
+      "checksCount": 0,
+      "file": "packages/cli/package.json",
+      "id": "packages/cli/package.json#capsule",
+      "kind": "command",
+      "landings": [],
+      "name": "capsule",
+      "pushes": false,
+      "reach": [
+        {
+          "boundary": "cli",
+          "depth": 0,
+          "files": 17
+        },
+        {
+          "boundary": "core",
+          "depth": 1,
+          "files": 28
+        },
+        {
+          "boundary": "storage",
+          "depth": 1,
+          "files": 5
+        },
+        {
+          "boundary": "xaman",
+          "depth": 1,
+          "files": 5
+        },
+        {
+          "boundary": "xrpl",
+          "depth": 1,
+          "files": 9
+        }
+      ],
+      "runs": [
+        "packages/cli/src/bin.ts"
+      ],
+      "runsCount": 1,
+      "sends": [],
+      "stages": [],
+      "triggers": []
+    }
+  ],
+  "duplicates": [],
+  "duplicatesLead": null,
+  "duplicatesNote": [],
+  "edges": [
+    {
+      "from": "cli",
+      "fromTests": false,
+      "to": "core"
+    },
+    {
+      "from": "cli",
+      "fromTests": false,
+      "to": "storage"
+    },
+    {
+      "from": "cli",
+      "fromTests": false,
+      "to": "xaman"
+    },
+    {
+      "from": "cli",
+      "fromTests": false,
+      "to": "xrpl"
+    },
+    {
+      "from": "xaman",
+      "fromTests": false,
+      "to": "core"
+    },
+    {
+      "from": "xrpl",
+      "fromTests": false,
+      "to": "core"
+    },
+    {
+      "from": "xrpl",
+      "fromTests": false,
+      "to": "storage"
+    }
+  ],
+  "generated": [],
+  "generatedAt": "2026-09-24T08:33:39.867Z",
+  "limits": [
+    "3 import sites could not be resolved.",
+    "15 files use syntax the parser cannot read (app/bridge-worker-mint-persist.test.ts, app/src/components/studio/RecoveryPage.tsx, app/src/components/studio/ReviewPage.tsx and 12 more), so what they import is not known: 7 in xrpl (`typeof import(…)` as a type argument), 4 in cli (`typeof import(…)` as a type argument), 3 in app (a bare `&` in JSX text in 2 and `typeof import(…)` as a type argument in 1), 1 in xaman (`typeof import(…)` as a type argument).",
+    "2 writes and 14 reads use paths built at run time and are not named here.",
+    "1 write goes to places this repository does not track, so it is not listed as generated.",
+    "22 writes and 37 reads go to the directory the command is run in, the home directory or a path its caller passes, not to this repository.",
+    "1 command is built at run time and not followed, and it is in tests.",
+    "Statistics confidence is low: fewer than 20 source files reach 10 revisions in the window."
+  ],
+  "mainDoor": ".github/workflows/ci.yml",
+  "partLabels": {
+    ".github": ".github",
+    "app": "app",
+    "artifacts": "artifacts",
+    "cli": "cli",
+    "core": "core",
+    "docs": "docs",
+    "fixtures": "fixtures",
+    "root": "the repository root",
+    "site": "the site",
+    "storage": "storage",
+    "xaman": "xaman",
+    "xrpl": "xrpl"
+  },
+  "parts": 12,
+  "readers": [],
+  "repo": "mcp-tool-shop-org/xrpl-creator-capsule",
+  "sequences": [],
+  "startDoor": ".github/workflows/ci.yml",
+  "startHere": [
+    ".github/workflows/ci.yml",
+    "packages/core/src/index.ts"
+  ],
+  "summary": null,
+  "summaryFrom": null,
+  "testFiles": 76,
+  "testedBy": {
+    "app": 25,
+    "cli": 22,
+    "core": 30,
+    "storage": 11,
+    "xaman": 3,
+    "xrpl": 24
+  },
+  "unnamedWrites": 2,
+  "unread": [],
+  "unreadFiles": 15,
+  "unreadNote": [],
+  "untested": [],
+  "untestedNote": [],
+  "written": 0
+}

@@ -1,0 +1,2048 @@
+{
+  "authorship": {
+    "parts": [],
+    "places": []
+  },
+  "boundaries": [
+    {
+      "breakage": {
+        "coChangesOnly": [],
+        "collapsed": false,
+        "confidence": "low",
+        "importsAndCoChanges": [],
+        "importsOnly": []
+      },
+      "cohesion": null,
+      "cohesionDropped": false,
+      "confidence": "low",
+      "highWater": null,
+      "name": ".github",
+      "qualifyingSourceCommits": 0,
+      "rebaseline": null
+    },
+    {
+      "breakage": {
+        "coChangesOnly": [],
+        "collapsed": false,
+        "confidence": "low",
+        "importsAndCoChanges": [],
+        "importsOnly": []
+      },
+      "cohesion": 1,
+      "cohesionDropped": false,
+      "confidence": "low",
+      "highWater": null,
+      "name": "app",
+      "qualifyingSourceCommits": 20,
+      "rebaseline": null
+    },
+    {
+      "breakage": {
+        "coChangesOnly": [],
+        "collapsed": false,
+        "confidence": "low",
+        "importsAndCoChanges": [],
+        "importsOnly": []
+      },
+      "cohesion": null,
+      "cohesionDropped": false,
+      "confidence": "low",
+      "highWater": null,
+      "name": "artifacts",
+      "qualifyingSourceCommits": 5,
+      "rebaseline": null
+    },
+    {
+      "breakage": {
+        "coChangesOnly": [
+          "core"
+        ],
+        "collapsed": false,
+        "confidence": "low",
+        "importsAndCoChanges": [],
+        "importsOnly": [
+          "artifacts"
+        ]
+      },
+      "cohesion": 0,
+      "cohesionDropped": false,
+      "confidence": "low",
+      "highWater": null,
+      "name": "cli",
+      "qualifyingSourceCommits": 15,
+      "rebaseline": null
+    },
+    {
+      "breakage": {
+        "coChangesOnly": [],
+        "collapsed": false,
+        "confidence": "low",
+        "importsAndCoChanges": [
+          "cli"
+        ],
+        "importsOnly": [
+          "app",
+          "artifacts",
+          "xaman",
+          "xrpl"
+        ]
+      },
+      "cohesion": 0,
+      "cohesionDropped": false,
+      "confidence": "low",
+      "highWater": null,
+      "name": "core",
+      "qualifyingSourceCommits": 11,
+      "rebaseline": null
+    },
+    {
+      "breakage": {
+        "coChangesOnly": [],
+        "collapsed": false,
+        "confidence": "low",
+        "importsAndCoChanges": [],
+        "importsOnly": []
+      },
+      "cohesion": null,
+      "cohesionDropped": false,
+      "confidence": "low",
+      "highWater": null,
+      "name": "docs",
+      "qualifyingSourceCommits": 0,
+      "rebaseline": null
+    },
+    {
+      "breakage": {
+        "coChangesOnly": [],
+        "collapsed": false,
+        "confidence": "low",
+        "importsAndCoChanges": [],
+        "importsOnly": []
+      },
+      "cohesion": null,
+      "cohesionDropped": false,
+      "confidence": "low",
+      "highWater": null,
+      "name": "fixtures",
+      "qualifyingSourceCommits": 0,
+      "rebaseline": null
+    },
+    {
+      "breakage": {
+        "coChangesOnly": [],
+        "collapsed": false,
+        "confidence": "low",
+        "importsAndCoChanges": [],
+        "importsOnly": []
+      },
+      "cohesion": null,
+      "cohesionDropped": false,
+      "confidence": "low",
+      "highWater": null,
+      "name": "root",
+      "qualifyingSourceCommits": 3,
+      "rebaseline": null
+    },
+    {
+      "breakage": {
+        "coChangesOnly": [],
+        "collapsed": false,
+        "confidence": "low",
+        "importsAndCoChanges": [],
+        "importsOnly": []
+      },
+      "cohesion": null,
+      "cohesionDropped": false,
+      "confidence": "low",
+      "highWater": null,
+      "name": "site",
+      "qualifyingSourceCommits": 4,
+      "rebaseline": null
+    },
+    {
+      "breakage": {
+        "coChangesOnly": [],
+        "collapsed": false,
+        "confidence": "low",
+        "importsAndCoChanges": [],
+        "importsOnly": [
+          "app",
+          "cli",
+          "xrpl"
+        ]
+      },
+      "cohesion": null,
+      "cohesionDropped": false,
+      "confidence": "low",
+      "highWater": null,
+      "name": "storage",
+      "qualifyingSourceCommits": 3,
+      "rebaseline": null
+    },
+    {
+      "breakage": {
+        "coChangesOnly": [],
+        "collapsed": false,
+        "confidence": "low",
+        "importsAndCoChanges": [],
+        "importsOnly": [
+          "cli"
+        ]
+      },
+      "cohesion": null,
+      "cohesionDropped": false,
+      "confidence": "low",
+      "highWater": null,
+      "name": "xaman",
+      "qualifyingSourceCommits": 7,
+      "rebaseline": null
+    },
+    {
+      "breakage": {
+        "coChangesOnly": [],
+        "collapsed": false,
+        "confidence": "low",
+        "importsAndCoChanges": [],
+        "importsOnly": [
+          "app",
+          "artifacts",
+          "cli"
+        ]
+      },
+      "cohesion": null,
+      "cohesionDropped": false,
+      "confidence": "low",
+      "highWater": null,
+      "name": "xrpl",
+      "qualifyingSourceCommits": 10,
+      "rebaseline": null
+    }
+  ],
+  "churn": {
+    "definition": "commits is how many commits in the window touch the file, including merges and commits dropped from coupling. lines is added plus deleted in those commits.",
+    "files": [
+      {
+        "commits": 1,
+        "lines": 31,
+        "path": ".github/ISSUE_TEMPLATE/access-failure.md"
+      },
+      {
+        "commits": 1,
+        "lines": 40,
+        "path": ".github/ISSUE_TEMPLATE/bug.md"
+      },
+      {
+        "commits": 1,
+        "lines": 32,
+        "path": ".github/ISSUE_TEMPLATE/confusion.md"
+      },
+      {
+        "commits": 1,
+        "lines": 39,
+        "path": ".github/ISSUE_TEMPLATE/publish-failure.md"
+      },
+      {
+        "commits": 13,
+        "lines": 236,
+        "path": ".github/workflows/ci.yml"
+      },
+      {
+        "commits": 2,
+        "lines": 58,
+        "path": ".github/workflows/pages.yml"
+      },
+      {
+        "commits": 6,
+        "lines": 14,
+        "path": ".gitignore"
+      },
+      {
+        "commits": 4,
+        "lines": 99,
+        "path": "CHANGELOG.md"
+      },
+      {
+        "commits": 1,
+        "lines": 21,
+        "path": "LICENSE"
+      },
+      {
+        "commits": 4,
+        "lines": 435,
+        "path": "README.es.md"
+      },
+      {
+        "commits": 4,
+        "lines": 373,
+        "path": "README.fr.md"
+      },
+      {
+        "commits": 4,
+        "lines": 389,
+        "path": "README.hi.md"
+      },
+      {
+        "commits": 4,
+        "lines": 442,
+        "path": "README.it.md"
+      },
+      {
+        "commits": 4,
+        "lines": 381,
+        "path": "README.ja.md"
+      },
+      {
+        "commits": 5,
+        "lines": 284,
+        "path": "README.md"
+      },
+      {
+        "commits": 4,
+        "lines": 373,
+        "path": "README.pt-BR.md"
+      },
+      {
+        "commits": 4,
+        "lines": 411,
+        "path": "README.zh.md"
+      },
+      {
+        "commits": 1,
+        "lines": 49,
+        "path": "SCORECARD.md"
+      },
+      {
+        "commits": 1,
+        "lines": 35,
+        "path": "SECURITY.md"
+      },
+      {
+        "commits": 2,
+        "lines": 84,
+        "path": "SHIP_GATE.md"
+      },
+      {
+        "commits": 2,
+        "lines": 840,
+        "path": "app/bridge-worker-access.test.ts"
+      },
+      {
+        "commits": 6,
+        "lines": 2578,
+        "path": "app/bridge-worker-commands.ts"
+      },
+      {
+        "commits": 2,
+        "lines": 1012,
+        "path": "app/bridge-worker-governance.test.ts"
+      },
+      {
+        "commits": 2,
+        "lines": 564,
+        "path": "app/bridge-worker-manifest.test.ts"
+      },
+      {
+        "commits": 2,
+        "lines": 564,
+        "path": "app/bridge-worker-mint-persist.test.ts"
+      },
+      {
+        "commits": 4,
+        "lines": 1068,
+        "path": "app/bridge-worker-recovery.test.ts"
+      },
+      {
+        "commits": 3,
+        "lines": 266,
+        "path": "app/bridge-worker-stdout-flush.test.ts"
+      },
+      {
+        "commits": 4,
+        "lines": 1176,
+        "path": "app/bridge-worker-verify-release.test.ts"
+      },
+      {
+        "commits": 2,
+        "lines": 196,
+        "path": "app/bridge-worker.test.ts"
+      },
+      {
+        "commits": 8,
+        "lines": 3202,
+        "path": "app/bridge-worker.ts"
+      },
+      {
+        "commits": 1,
+        "lines": 12,
+        "path": "app/index.html"
+      },
+      {
+        "commits": 7,
+        "lines": 52,
+        "path": "app/package.json"
+      },
+      {
+        "commits": 1,
+        "lines": 24,
+        "path": "app/sample/README.md"
+      },
+      {
+        "commits": 1,
+        "lines": 31,
+        "path": "app/sample/demo-draft.json"
+      },
+      {
+        "commits": 1,
+        "lines": 39,
+        "path": "app/scripts/bundle-bridge.mjs"
+      },
+      {
+        "commits": 1,
+        "lines": 5159,
+        "path": "app/src-tauri/Cargo.lock"
+      },
+      {
+        "commits": 1,
+        "lines": 23,
+        "path": "app/src-tauri/Cargo.toml"
+      },
+      {
+        "commits": 1,
+        "lines": 3,
+        "path": "app/src-tauri/build.rs"
+      },
+      {
+        "commits": 2,
+        "lines": 26,
+        "path": "app/src-tauri/capabilities/default.json"
+      },
+      {
+        "commits": 1,
+        "lines": 1,
+        "path": "app/src-tauri/gen/schemas/acl-manifests.json"
+      },
+      {
+        "commits": 1,
+        "lines": 1,
+        "path": "app/src-tauri/gen/schemas/capabilities.json"
+      },
+      {
+        "commits": 1,
+        "lines": 6158,
+        "path": "app/src-tauri/gen/schemas/desktop-schema.json"
+      },
+      {
+        "commits": 1,
+        "lines": 6158,
+        "path": "app/src-tauri/gen/schemas/windows-schema.json"
+      },
+      {
+        "commits": 1,
+        "lines": 0,
+        "path": "app/src-tauri/icons/128x128.png"
+      },
+      {
+        "commits": 1,
+        "lines": 0,
+        "path": "app/src-tauri/icons/128x128@2x.png"
+      },
+      {
+        "commits": 1,
+        "lines": 0,
+        "path": "app/src-tauri/icons/32x32.png"
+      },
+      {
+        "commits": 1,
+        "lines": 0,
+        "path": "app/src-tauri/icons/64x64.png"
+      },
+      {
+        "commits": 1,
+        "lines": 0,
+        "path": "app/src-tauri/icons/Square107x107Logo.png"
+      },
+      {
+        "commits": 1,
+        "lines": 0,
+        "path": "app/src-tauri/icons/Square142x142Logo.png"
+      },
+      {
+        "commits": 1,
+        "lines": 0,
+        "path": "app/src-tauri/icons/Square150x150Logo.png"
+      },
+      {
+        "commits": 1,
+        "lines": 0,
+        "path": "app/src-tauri/icons/Square284x284Logo.png"
+      },
+      {
+        "commits": 1,
+        "lines": 0,
+        "path": "app/src-tauri/icons/Square30x30Logo.png"
+      },
+      {
+        "commits": 1,
+        "lines": 0,
+        "path": "app/src-tauri/icons/Square310x310Logo.png"
+      },
+      {
+        "commits": 1,
+        "lines": 0,
+        "path": "app/src-tauri/icons/Square44x44Logo.png"
+      },
+      {
+        "commits": 1,
+        "lines": 0,
+        "path": "app/src-tauri/icons/Square71x71Logo.png"
+      },
+      {
+        "commits": 1,
+        "lines": 0,
+        "path": "app/src-tauri/icons/Square89x89Logo.png"
+      },
+      {
+        "commits": 1,
+        "lines": 0,
+        "path": "app/src-tauri/icons/StoreLogo.png"
+      },
+      {
+        "commits": 1,
+        "lines": 5,
+        "path": "app/src-tauri/icons/android/mipmap-anydpi-v26/ic_launcher.xml"
+      },
+      {
+        "commits": 1,
+        "lines": 0,
+        "path": "app/src-tauri/icons/android/mipmap-hdpi/ic_launcher.png"
+      },
+      {
+        "commits": 1,
+        "lines": 0,
+        "path": "app/src-tauri/icons/android/mipmap-hdpi/ic_launcher_foreground.png"
+      },
+      {
+        "commits": 1,
+        "lines": 0,
+        "path": "app/src-tauri/icons/android/mipmap-hdpi/ic_launcher_round.png"
+      },
+      {
+        "commits": 1,
+        "lines": 0,
+        "path": "app/src-tauri/icons/android/mipmap-mdpi/ic_launcher.png"
+      },
+      {
+        "commits": 1,
+        "lines": 0,
+        "path": "app/src-tauri/icons/android/mipmap-mdpi/ic_launcher_foreground.png"
+      },
+      {
+        "commits": 1,
+        "lines": 0,
+        "path": "app/src-tauri/icons/android/mipmap-mdpi/ic_launcher_round.png"
+      },
+      {
+        "commits": 1,
+        "lines": 0,
+        "path": "app/src-tauri/icons/android/mipmap-xhdpi/ic_launcher.png"
+      },
+      {
+        "commits": 1,
+        "lines": 0,
+        "path": "app/src-tauri/icons/android/mipmap-xhdpi/ic_launcher_foreground.png"
+      },
+      {
+        "commits": 1,
+        "lines": 0,
+        "path": "app/src-tauri/icons/android/mipmap-xhdpi/ic_launcher_round.png"
+      },
+      {
+        "commits": 1,
+        "lines": 0,
+        "path": "app/src-tauri/icons/android/mipmap-xxhdpi/ic_launcher.png"
+      },
+      {
+        "commits": 1,
+        "lines": 0,
+        "path": "app/src-tauri/icons/android/mipmap-xxhdpi/ic_launcher_foreground.png"
+      },
+      {
+        "commits": 1,
+        "lines": 0,
+        "path": "app/src-tauri/icons/android/mipmap-xxhdpi/ic_launcher_round.png"
+      },
+      {
+        "commits": 1,
+        "lines": 0,
+        "path": "app/src-tauri/icons/android/mipmap-xxxhdpi/ic_launcher.png"
+      },
+      {
+        "commits": 1,
+        "lines": 0,
+        "path": "app/src-tauri/icons/android/mipmap-xxxhdpi/ic_launcher_foreground.png"
+      },
+      {
+        "commits": 1,
+        "lines": 0,
+        "path": "app/src-tauri/icons/android/mipmap-xxxhdpi/ic_launcher_round.png"
+      },
+      {
+        "commits": 1,
+        "lines": 4,
+        "path": "app/src-tauri/icons/android/values/ic_launcher_background.xml"
+      },
+      {
+        "commits": 1,
+        "lines": 0,
+        "path": "app/src-tauri/icons/icon.icns"
+      },
+      {
+        "commits": 1,
+        "lines": 0,
+        "path": "app/src-tauri/icons/icon.ico"
+      },
+      {
+        "commits": 1,
+        "lines": 0,
+        "path": "app/src-tauri/icons/icon.png"
+      },
+      {
+        "commits": 1,
+        "lines": 0,
+        "path": "app/src-tauri/icons/ios/AppIcon-20x20@1x.png"
+      },
+      {
+        "commits": 1,
+        "lines": 0,
+        "path": "app/src-tauri/icons/ios/AppIcon-20x20@2x-1.png"
+      },
+      {
+        "commits": 1,
+        "lines": 0,
+        "path": "app/src-tauri/icons/ios/AppIcon-20x20@2x.png"
+      },
+      {
+        "commits": 1,
+        "lines": 0,
+        "path": "app/src-tauri/icons/ios/AppIcon-20x20@3x.png"
+      },
+      {
+        "commits": 1,
+        "lines": 0,
+        "path": "app/src-tauri/icons/ios/AppIcon-29x29@1x.png"
+      },
+      {
+        "commits": 1,
+        "lines": 0,
+        "path": "app/src-tauri/icons/ios/AppIcon-29x29@2x-1.png"
+      },
+      {
+        "commits": 1,
+        "lines": 0,
+        "path": "app/src-tauri/icons/ios/AppIcon-29x29@2x.png"
+      },
+      {
+        "commits": 1,
+        "lines": 0,
+        "path": "app/src-tauri/icons/ios/AppIcon-29x29@3x.png"
+      },
+      {
+        "commits": 1,
+        "lines": 0,
+        "path": "app/src-tauri/icons/ios/AppIcon-40x40@1x.png"
+      },
+      {
+        "commits": 1,
+        "lines": 0,
+        "path": "app/src-tauri/icons/ios/AppIcon-40x40@2x-1.png"
+      },
+      {
+        "commits": 1,
+        "lines": 0,
+        "path": "app/src-tauri/icons/ios/AppIcon-40x40@2x.png"
+      },
+      {
+        "commits": 1,
+        "lines": 0,
+        "path": "app/src-tauri/icons/ios/AppIcon-40x40@3x.png"
+      },
+      {
+        "commits": 1,
+        "lines": 0,
+        "path": "app/src-tauri/icons/ios/AppIcon-512@2x.png"
+      },
+      {
+        "commits": 1,
+        "lines": 0,
+        "path": "app/src-tauri/icons/ios/AppIcon-60x60@2x.png"
+      },
+      {
+        "commits": 1,
+        "lines": 0,
+        "path": "app/src-tauri/icons/ios/AppIcon-60x60@3x.png"
+      },
+      {
+        "commits": 1,
+        "lines": 0,
+        "path": "app/src-tauri/icons/ios/AppIcon-76x76@1x.png"
+      },
+      {
+        "commits": 1,
+        "lines": 0,
+        "path": "app/src-tauri/icons/ios/AppIcon-76x76@2x.png"
+      },
+      {
+        "commits": 1,
+        "lines": 0,
+        "path": "app/src-tauri/icons/ios/AppIcon-83.5x83.5@2x.png"
+      },
+      {
+        "commits": 2,
+        "lines": 42,
+        "path": "app/src-tauri/permissions/desktop-commands.toml"
+      },
+      {
+        "commits": 6,
+        "lines": 1544,
+        "path": "app/src-tauri/src/commands.rs"
+      },
+      {
+        "commits": 5,
+        "lines": 103,
+        "path": "app/src-tauri/src/lib.rs"
+      },
+      {
+        "commits": 1,
+        "lines": 5,
+        "path": "app/src-tauri/src/main.rs"
+      },
+      {
+        "commits": 8,
+        "lines": 75,
+        "path": "app/src-tauri/tauri.conf.json"
+      },
+      {
+        "commits": 6,
+        "lines": 97,
+        "path": "app/src/App.tsx"
+      },
+      {
+        "commits": 2,
+        "lines": 312,
+        "path": "app/src/ErrorBoundary.test.tsx"
+      },
+      {
+        "commits": 3,
+        "lines": 323,
+        "path": "app/src/ErrorBoundary.tsx"
+      },
+      {
+        "commits": 1,
+        "lines": 190,
+        "path": "app/src/__test__/fixtures.ts"
+      },
+      {
+        "commits": 3,
+        "lines": 45,
+        "path": "app/src/__test__/setup.ts"
+      },
+      {
+        "commits": 2,
+        "lines": 174,
+        "path": "app/src/__test__/tauri-security-config.test.ts"
+      },
+      {
+        "commits": 3,
+        "lines": 415,
+        "path": "app/src/bridge/engine.test.ts"
+      },
+      {
+        "commits": 9,
+        "lines": 661,
+        "path": "app/src/bridge/engine.ts"
+      },
+      {
+        "commits": 2,
+        "lines": 210,
+        "path": "app/src/components/CloseWarningGate.test.tsx"
+      },
+      {
+        "commits": 2,
+        "lines": 194,
+        "path": "app/src/components/CloseWarningGate.tsx"
+      },
+      {
+        "commits": 2,
+        "lines": 36,
+        "path": "app/src/components/ReleaseChamber.tsx"
+      },
+      {
+        "commits": 2,
+        "lines": 115,
+        "path": "app/src/components/Sidebar.tsx"
+      },
+      {
+        "commits": 2,
+        "lines": 150,
+        "path": "app/src/components/TitleBar.test.tsx"
+      },
+      {
+        "commits": 6,
+        "lines": 360,
+        "path": "app/src/components/TitleBar.tsx"
+      },
+      {
+        "commits": 3,
+        "lines": 372,
+        "path": "app/src/components/panels/AccessPanel.tsx"
+      },
+      {
+        "commits": 2,
+        "lines": 380,
+        "path": "app/src/components/panels/GovernancePanel.test.tsx"
+      },
+      {
+        "commits": 5,
+        "lines": 1176,
+        "path": "app/src/components/panels/GovernancePanel.tsx"
+      },
+      {
+        "commits": 2,
+        "lines": 203,
+        "path": "app/src/components/panels/ManifestPanel.tsx"
+      },
+      {
+        "commits": 2,
+        "lines": 174,
+        "path": "app/src/components/panels/MintPanel.test.tsx"
+      },
+      {
+        "commits": 8,
+        "lines": 310,
+        "path": "app/src/components/panels/MintPanel.tsx"
+      },
+      {
+        "commits": 2,
+        "lines": 104,
+        "path": "app/src/components/panels/PanelShell.test.tsx"
+      },
+      {
+        "commits": 9,
+        "lines": 690,
+        "path": "app/src/components/panels/PanelShell.tsx"
+      },
+      {
+        "commits": 2,
+        "lines": 266,
+        "path": "app/src/components/panels/RecoveryPanel.test.tsx"
+      },
+      {
+        "commits": 5,
+        "lines": 579,
+        "path": "app/src/components/panels/RecoveryPanel.tsx"
+      },
+      {
+        "commits": 2,
+        "lines": 135,
+        "path": "app/src/components/panels/VerifyPanel.tsx"
+      },
+      {
+        "commits": 1,
+        "lines": 227,
+        "path": "app/src/components/studio/CollectorBenefitPage.tsx"
+      },
+      {
+        "commits": 3,
+        "lines": 345,
+        "path": "app/src/components/studio/CreateReleasePage.tsx"
+      },
+      {
+        "commits": 6,
+        "lines": 992,
+        "path": "app/src/components/studio/PublishPage.tsx"
+      },
+      {
+        "commits": 2,
+        "lines": 199,
+        "path": "app/src/components/studio/RecoveryPage.tsx"
+      },
+      {
+        "commits": 1,
+        "lines": 213,
+        "path": "app/src/components/studio/ReviewPage.tsx"
+      },
+      {
+        "commits": 2,
+        "lines": 134,
+        "path": "app/src/components/studio/StudioShell.sample-error.test.tsx"
+      },
+      {
+        "commits": 4,
+        "lines": 440,
+        "path": "app/src/components/studio/StudioShell.test.tsx"
+      },
+      {
+        "commits": 6,
+        "lines": 334,
+        "path": "app/src/components/studio/StudioShell.tsx"
+      },
+      {
+        "commits": 3,
+        "lines": 255,
+        "path": "app/src/components/studio/StudioSidebar.tsx"
+      },
+      {
+        "commits": 4,
+        "lines": 216,
+        "path": "app/src/components/studio/TestAccessPage.tsx"
+      },
+      {
+        "commits": 1,
+        "lines": 160,
+        "path": "app/src/components/studio/WelcomePage.tsx"
+      },
+      {
+        "commits": 2,
+        "lines": 574,
+        "path": "app/src/errors/humanize.test.ts"
+      },
+      {
+        "commits": 2,
+        "lines": 492,
+        "path": "app/src/errors/humanize.ts"
+      },
+      {
+        "commits": 4,
+        "lines": 40,
+        "path": "app/src/main.tsx"
+      },
+      {
+        "commits": 1,
+        "lines": 402,
+        "path": "app/src/state/actionlog.test.ts"
+      },
+      {
+        "commits": 1,
+        "lines": 307,
+        "path": "app/src/state/actionlog.ts"
+      },
+      {
+        "commits": 2,
+        "lines": 422,
+        "path": "app/src/state/release-reconcile.test.tsx"
+      },
+      {
+        "commits": 2,
+        "lines": 1136,
+        "path": "app/src/state/release-timeout.test.tsx"
+      },
+      {
+        "commits": 4,
+        "lines": 523,
+        "path": "app/src/state/release-trust.test.tsx"
+      },
+      {
+        "commits": 5,
+        "lines": 570,
+        "path": "app/src/state/release.test.tsx"
+      },
+      {
+        "commits": 15,
+        "lines": 3099,
+        "path": "app/src/state/release.tsx"
+      },
+      {
+        "commits": 6,
+        "lines": 551,
+        "path": "app/src/state/session.test.ts"
+      },
+      {
+        "commits": 5,
+        "lines": 407,
+        "path": "app/src/state/session.ts"
+      },
+      {
+        "commits": 6,
+        "lines": 987,
+        "path": "app/src/state/studio.test.tsx"
+      },
+      {
+        "commits": 6,
+        "lines": 622,
+        "path": "app/src/state/studio.tsx"
+      },
+      {
+        "commits": 2,
+        "lines": 336,
+        "path": "app/src/state/validate.test.ts"
+      },
+      {
+        "commits": 2,
+        "lines": 302,
+        "path": "app/src/state/validate.ts"
+      },
+      {
+        "commits": 1,
+        "lines": 36,
+        "path": "app/src/styles.css"
+      },
+      {
+        "commits": 3,
+        "lines": 101,
+        "path": "app/src/support/bundle.ts"
+      },
+      {
+        "commits": 2,
+        "lines": 20,
+        "path": "app/tsconfig.json"
+      },
+      {
+        "commits": 2,
+        "lines": 14,
+        "path": "app/tsconfig.node.json"
+      },
+      {
+        "commits": 1,
+        "lines": 22,
+        "path": "app/vite.config.ts"
+      },
+      {
+        "commits": 1,
+        "lines": 10,
+        "path": "app/vitest.config.ts"
+      },
+      {
+        "commits": 2,
+        "lines": 30,
+        "path": "artifacts/.gitattributes"
+      },
+      {
+        "commits": 3,
+        "lines": 13,
+        "path": "artifacts/.gitignore"
+      },
+      {
+        "commits": 1,
+        "lines": 103,
+        "path": "artifacts/PROOF-3-SIMULATION-TRIALS.md"
+      },
+      {
+        "commits": 1,
+        "lines": 95,
+        "path": "artifacts/PROOF-4-DESKTOP-RUNTIME-TRUST.md"
+      },
+      {
+        "commits": 1,
+        "lines": 25,
+        "path": "artifacts/PROOF-4A-MODE-SWITCH-TRUTH.md"
+      },
+      {
+        "commits": 1,
+        "lines": 31,
+        "path": "artifacts/PROOF-4B-RESTART-TRUTH.md"
+      },
+      {
+        "commits": 1,
+        "lines": 33,
+        "path": "artifacts/PROOF-4C-INTERRUPTION-TRUTH.md"
+      },
+      {
+        "commits": 1,
+        "lines": 38,
+        "path": "artifacts/PROOF-4D-NETWORK-FAILURE-TRUTH.md"
+      },
+      {
+        "commits": 1,
+        "lines": 35,
+        "path": "artifacts/PROOF-4E-TIMING-TRUTH.md"
+      },
+      {
+        "commits": 1,
+        "lines": 82,
+        "path": "artifacts/PROOF-B5-DIRECT-RAIL.md"
+      },
+      {
+        "commits": 1,
+        "lines": 90,
+        "path": "artifacts/PROOF-C-ACCESS-TRUTH.md"
+      },
+      {
+        "commits": 1,
+        "lines": 98,
+        "path": "artifacts/PROOF-D-GOVERNANCE-TRUTH.md"
+      },
+      {
+        "commits": 1,
+        "lines": 93,
+        "path": "artifacts/PROOF-E-DURABILITY-TRUTH.md"
+      },
+      {
+        "commits": 1,
+        "lines": 27,
+        "path": "artifacts/direct-rail/access-grant-allow.json"
+      },
+      {
+        "commits": 1,
+        "lines": 20,
+        "path": "artifacts/direct-rail/access-grant-deny.json"
+      },
+      {
+        "commits": 1,
+        "lines": 22,
+        "path": "artifacts/direct-rail/access-policy.json"
+      },
+      {
+        "commits": 1,
+        "lines": 32,
+        "path": "artifacts/direct-rail/governance-policy.json"
+      },
+      {
+        "commits": 1,
+        "lines": 50,
+        "path": "artifacts/direct-rail/issuance-receipt.json"
+      },
+      {
+        "commits": 1,
+        "lines": 29,
+        "path": "artifacts/direct-rail/manifest-input.json"
+      },
+      {
+        "commits": 1,
+        "lines": 33,
+        "path": "artifacts/direct-rail/payout-decision.json"
+      },
+      {
+        "commits": 1,
+        "lines": 41,
+        "path": "artifacts/direct-rail/payout-execution.json"
+      },
+      {
+        "commits": 1,
+        "lines": 29,
+        "path": "artifacts/direct-rail/payout-proposal.json"
+      },
+      {
+        "commits": 1,
+        "lines": 53,
+        "path": "artifacts/direct-rail/recovery-bundle.json"
+      },
+      {
+        "commits": 1,
+        "lines": 27,
+        "path": "artifacts/direct-rail/recovery-replay-allow.json"
+      },
+      {
+        "commits": 1,
+        "lines": 20,
+        "path": "artifacts/direct-rail/recovery-replay-deny.json"
+      },
+      {
+        "commits": 1,
+        "lines": 30,
+        "path": "artifacts/direct-rail/release.json"
+      },
+      {
+        "commits": 1,
+        "lines": 142,
+        "path": "artifacts/failure-drills.test.ts"
+      },
+      {
+        "commits": 1,
+        "lines": 385,
+        "path": "artifacts/governance-drills.test.ts"
+      },
+      {
+        "commits": 3,
+        "lines": 435,
+        "path": "artifacts/governance-golden-path.test.ts"
+      },
+      {
+        "commits": 4,
+        "lines": 927,
+        "path": "artifacts/simulation-trials.test.ts"
+      },
+      {
+        "commits": 1,
+        "lines": 15,
+        "path": "artifacts/tsconfig.json"
+      },
+      {
+        "commits": 1,
+        "lines": 11,
+        "path": "artifacts/verify-minter-check.ts"
+      },
+      {
+        "commits": 1,
+        "lines": 225,
+        "path": "docs/handbook.md"
+      },
+      {
+        "commits": 1,
+        "lines": 27,
+        "path": "fixtures/direct-rail-access-grant-allow.json"
+      },
+      {
+        "commits": 1,
+        "lines": 20,
+        "path": "fixtures/direct-rail-access-grant-deny.json"
+      },
+      {
+        "commits": 1,
+        "lines": 22,
+        "path": "fixtures/direct-rail-access-policy.json"
+      },
+      {
+        "commits": 1,
+        "lines": 32,
+        "path": "fixtures/direct-rail-governance-policy.json"
+      },
+      {
+        "commits": 1,
+        "lines": 30,
+        "path": "fixtures/direct-rail-manifest.json"
+      },
+      {
+        "commits": 1,
+        "lines": 33,
+        "path": "fixtures/direct-rail-payout-decision.json"
+      },
+      {
+        "commits": 1,
+        "lines": 41,
+        "path": "fixtures/direct-rail-payout-execution.json"
+      },
+      {
+        "commits": 1,
+        "lines": 29,
+        "path": "fixtures/direct-rail-payout-proposal.json"
+      },
+      {
+        "commits": 1,
+        "lines": 50,
+        "path": "fixtures/direct-rail-receipt.json"
+      },
+      {
+        "commits": 1,
+        "lines": 53,
+        "path": "fixtures/direct-rail-recovery-bundle.json"
+      },
+      {
+        "commits": 1,
+        "lines": 9,
+        "path": "fixtures/direct-rail-wallets.json"
+      },
+      {
+        "commits": 1,
+        "lines": 34,
+        "path": "fixtures/sample-release.json"
+      },
+      {
+        "commits": 8,
+        "lines": 5252,
+        "path": "package-lock.json"
+      },
+      {
+        "commits": 8,
+        "lines": 38,
+        "path": "package.json"
+      },
+      {
+        "commits": 4,
+        "lines": 26,
+        "path": "packages/cli/package.json"
+      },
+      {
+        "commits": 2,
+        "lines": 154,
+        "path": "packages/cli/src/bin-help.test.ts"
+      },
+      {
+        "commits": 2,
+        "lines": 228,
+        "path": "packages/cli/src/bin-json-args.test.ts"
+      },
+      {
+        "commits": 2,
+        "lines": 196,
+        "path": "packages/cli/src/bin-mainnet-write.test.ts"
+      },
+      {
+        "commits": 2,
+        "lines": 166,
+        "path": "packages/cli/src/bin-network.test.ts"
+      },
+      {
+        "commits": 2,
+        "lines": 470,
+        "path": "packages/cli/src/bin-required-args.test.ts"
+      },
+      {
+        "commits": 5,
+        "lines": 296,
+        "path": "packages/cli/src/bin.test.ts"
+      },
+      {
+        "commits": 12,
+        "lines": 1235,
+        "path": "packages/cli/src/bin.ts"
+      },
+      {
+        "commits": 2,
+        "lines": 262,
+        "path": "packages/cli/src/commands/configure-minter.test.ts"
+      },
+      {
+        "commits": 3,
+        "lines": 67,
+        "path": "packages/cli/src/commands/configure-minter.ts"
+      },
+      {
+        "commits": 2,
+        "lines": 298,
+        "path": "packages/cli/src/commands/create-governance-policy.test.ts"
+      },
+      {
+        "commits": 3,
+        "lines": 79,
+        "path": "packages/cli/src/commands/create-governance-policy.ts"
+      },
+      {
+        "commits": 3,
+        "lines": 48,
+        "path": "packages/cli/src/commands/create-release.test.ts"
+      },
+      {
+        "commits": 1,
+        "lines": 42,
+        "path": "packages/cli/src/commands/create-release.ts"
+      },
+      {
+        "commits": 2,
+        "lines": 380,
+        "path": "packages/cli/src/commands/decide-payout.test.ts"
+      },
+      {
+        "commits": 3,
+        "lines": 98,
+        "path": "packages/cli/src/commands/decide-payout.ts"
+      },
+      {
+        "commits": 2,
+        "lines": 428,
+        "path": "packages/cli/src/commands/execute-payout.test.ts"
+      },
+      {
+        "commits": 3,
+        "lines": 123,
+        "path": "packages/cli/src/commands/execute-payout.ts"
+      },
+      {
+        "commits": 1,
+        "lines": 380,
+        "path": "packages/cli/src/commands/grant-access.test.ts"
+      },
+      {
+        "commits": 3,
+        "lines": 232,
+        "path": "packages/cli/src/commands/grant-access.ts"
+      },
+      {
+        "commits": 2,
+        "lines": 162,
+        "path": "packages/cli/src/commands/init-wallets.test.ts"
+      },
+      {
+        "commits": 5,
+        "lines": 111,
+        "path": "packages/cli/src/commands/init-wallets.ts"
+      },
+      {
+        "commits": 2,
+        "lines": 206,
+        "path": "packages/cli/src/commands/mint-release.test.ts"
+      },
+      {
+        "commits": 4,
+        "lines": 108,
+        "path": "packages/cli/src/commands/mint-release.ts"
+      },
+      {
+        "commits": 2,
+        "lines": 288,
+        "path": "packages/cli/src/commands/propose-payout.test.ts"
+      },
+      {
+        "commits": 3,
+        "lines": 75,
+        "path": "packages/cli/src/commands/propose-payout.ts"
+      },
+      {
+        "commits": 5,
+        "lines": 659,
+        "path": "packages/cli/src/commands/recover-release.test.ts"
+      },
+      {
+        "commits": 5,
+        "lines": 500,
+        "path": "packages/cli/src/commands/recover-release.ts"
+      },
+      {
+        "commits": 2,
+        "lines": 92,
+        "path": "packages/cli/src/commands/resolve.test.ts"
+      },
+      {
+        "commits": 3,
+        "lines": 37,
+        "path": "packages/cli/src/commands/resolve.ts"
+      },
+      {
+        "commits": 2,
+        "lines": 234,
+        "path": "packages/cli/src/commands/validate.test.ts"
+      },
+      {
+        "commits": 1,
+        "lines": 21,
+        "path": "packages/cli/src/commands/validate.ts"
+      },
+      {
+        "commits": 2,
+        "lines": 498,
+        "path": "packages/cli/src/commands/verify-payout.test.ts"
+      },
+      {
+        "commits": 5,
+        "lines": 548,
+        "path": "packages/cli/src/commands/verify-payout.ts"
+      },
+      {
+        "commits": 3,
+        "lines": 586,
+        "path": "packages/cli/src/commands/verify-release.test.ts"
+      },
+      {
+        "commits": 6,
+        "lines": 517,
+        "path": "packages/cli/src/commands/verify-release.ts"
+      },
+      {
+        "commits": 2,
+        "lines": 364,
+        "path": "packages/cli/src/commands/xaman-flow.test.ts"
+      },
+      {
+        "commits": 5,
+        "lines": 429,
+        "path": "packages/cli/src/commands/xaman-flow.ts"
+      },
+      {
+        "commits": 3,
+        "lines": 8,
+        "path": "packages/cli/src/index.ts"
+      },
+      {
+        "commits": 2,
+        "lines": 204,
+        "path": "packages/cli/src/lib/json-input.test.ts"
+      },
+      {
+        "commits": 2,
+        "lines": 132,
+        "path": "packages/cli/src/lib/json-input.ts"
+      },
+      {
+        "commits": 3,
+        "lines": 140,
+        "path": "packages/cli/src/test-support/run-bin.ts"
+      },
+      {
+        "commits": 2,
+        "lines": 15,
+        "path": "packages/cli/tsconfig.json"
+      },
+      {
+        "commits": 2,
+        "lines": 24,
+        "path": "packages/core/package.json"
+      },
+      {
+        "commits": 1,
+        "lines": 67,
+        "path": "packages/core/src/access-grant-schema.ts"
+      },
+      {
+        "commits": 1,
+        "lines": 133,
+        "path": "packages/core/src/access-grant-validate.test.ts"
+      },
+      {
+        "commits": 3,
+        "lines": 52,
+        "path": "packages/core/src/access-grant-validate.ts"
+      },
+      {
+        "commits": 1,
+        "lines": 56,
+        "path": "packages/core/src/access-grant.ts"
+      },
+      {
+        "commits": 1,
+        "lines": 59,
+        "path": "packages/core/src/access-policy-schema.ts"
+      },
+      {
+        "commits": 1,
+        "lines": 224,
+        "path": "packages/core/src/access-policy-validate.test.ts"
+      },
+      {
+        "commits": 3,
+        "lines": 101,
+        "path": "packages/core/src/access-policy-validate.ts"
+      },
+      {
+        "commits": 1,
+        "lines": 46,
+        "path": "packages/core/src/access-policy.ts"
+      },
+      {
+        "commits": 2,
+        "lines": 68,
+        "path": "packages/core/src/ajv-formats-interop.ts"
+      },
+      {
+        "commits": 1,
+        "lines": 55,
+        "path": "packages/core/src/governance-policy-schema.ts"
+      },
+      {
+        "commits": 1,
+        "lines": 51,
+        "path": "packages/core/src/governance-policy.ts"
+      },
+      {
+        "commits": 7,
+        "lines": 853,
+        "path": "packages/core/src/governance-validate.test.ts"
+      },
+      {
+        "commits": 9,
+        "lines": 663,
+        "path": "packages/core/src/governance-validate.ts"
+      },
+      {
+        "commits": 2,
+        "lines": 107,
+        "path": "packages/core/src/hash.test.ts"
+      },
+      {
+        "commits": 3,
+        "lines": 68,
+        "path": "packages/core/src/hash.ts"
+      },
+      {
+        "commits": 5,
+        "lines": 96,
+        "path": "packages/core/src/index.ts"
+      },
+      {
+        "commits": 1,
+        "lines": 93,
+        "path": "packages/core/src/manifest.ts"
+      },
+      {
+        "commits": 1,
+        "lines": 50,
+        "path": "packages/core/src/payout-decision-schema.ts"
+      },
+      {
+        "commits": 1,
+        "lines": 39,
+        "path": "packages/core/src/payout-decision.ts"
+      },
+      {
+        "commits": 1,
+        "lines": 61,
+        "path": "packages/core/src/payout-execution-schema.ts"
+      },
+      {
+        "commits": 1,
+        "lines": 45,
+        "path": "packages/core/src/payout-execution.ts"
+      },
+      {
+        "commits": 1,
+        "lines": 40,
+        "path": "packages/core/src/payout-proposal-schema.ts"
+      },
+      {
+        "commits": 1,
+        "lines": 35,
+        "path": "packages/core/src/payout-proposal.ts"
+      },
+      {
+        "commits": 1,
+        "lines": 110,
+        "path": "packages/core/src/receipt-schema.ts"
+      },
+      {
+        "commits": 2,
+        "lines": 164,
+        "path": "packages/core/src/receipt-validate.test.ts"
+      },
+      {
+        "commits": 4,
+        "lines": 83,
+        "path": "packages/core/src/receipt-validate.ts"
+      },
+      {
+        "commits": 1,
+        "lines": 91,
+        "path": "packages/core/src/receipt.ts"
+      },
+      {
+        "commits": 1,
+        "lines": 93,
+        "path": "packages/core/src/recovery-bundle-schema.ts"
+      },
+      {
+        "commits": 3,
+        "lines": 352,
+        "path": "packages/core/src/recovery-bundle-validate.test.ts"
+      },
+      {
+        "commits": 5,
+        "lines": 312,
+        "path": "packages/core/src/recovery-bundle-validate.ts"
+      },
+      {
+        "commits": 1,
+        "lines": 97,
+        "path": "packages/core/src/recovery-bundle.ts"
+      },
+      {
+        "commits": 1,
+        "lines": 67,
+        "path": "packages/core/src/resolve.test.ts"
+      },
+      {
+        "commits": 1,
+        "lines": 103,
+        "path": "packages/core/src/resolve.ts"
+      },
+      {
+        "commits": 1,
+        "lines": 79,
+        "path": "packages/core/src/schema.ts"
+      },
+      {
+        "commits": 1,
+        "lines": 85,
+        "path": "packages/core/src/validate.test.ts"
+      },
+      {
+        "commits": 3,
+        "lines": 44,
+        "path": "packages/core/src/validate.ts"
+      },
+      {
+        "commits": 1,
+        "lines": 10,
+        "path": "packages/core/tsconfig.json"
+      },
+      {
+        "commits": 2,
+        "lines": 23,
+        "path": "packages/storage/package.json"
+      },
+      {
+        "commits": 1,
+        "lines": 42,
+        "path": "packages/storage/src/delivery.test.ts"
+      },
+      {
+        "commits": 1,
+        "lines": 55,
+        "path": "packages/storage/src/delivery.ts"
+      },
+      {
+        "commits": 3,
+        "lines": 108,
+        "path": "packages/storage/src/fs-store.test.ts"
+      },
+      {
+        "commits": 3,
+        "lines": 101,
+        "path": "packages/storage/src/fs-store.ts"
+      },
+      {
+        "commits": 2,
+        "lines": 6,
+        "path": "packages/storage/src/index.ts"
+      },
+      {
+        "commits": 1,
+        "lines": 50,
+        "path": "packages/storage/src/mock-store.test.ts"
+      },
+      {
+        "commits": 1,
+        "lines": 35,
+        "path": "packages/storage/src/mock-store.ts"
+      },
+      {
+        "commits": 1,
+        "lines": 26,
+        "path": "packages/storage/src/store.ts"
+      },
+      {
+        "commits": 1,
+        "lines": 12,
+        "path": "packages/storage/tsconfig.json"
+      },
+      {
+        "commits": 2,
+        "lines": 24,
+        "path": "packages/xaman/package.json"
+      },
+      {
+        "commits": 4,
+        "lines": 572,
+        "path": "packages/xaman/src/client.test.ts"
+      },
+      {
+        "commits": 5,
+        "lines": 614,
+        "path": "packages/xaman/src/client.ts"
+      },
+      {
+        "commits": 3,
+        "lines": 27,
+        "path": "packages/xaman/src/index.ts"
+      },
+      {
+        "commits": 5,
+        "lines": 271,
+        "path": "packages/xaman/src/payloads.test.ts"
+      },
+      {
+        "commits": 4,
+        "lines": 135,
+        "path": "packages/xaman/src/payloads.ts"
+      },
+      {
+        "commits": 1,
+        "lines": 66,
+        "path": "packages/xaman/src/types.ts"
+      },
+      {
+        "commits": 3,
+        "lines": 143,
+        "path": "packages/xaman/src/verify.test.ts"
+      },
+      {
+        "commits": 3,
+        "lines": 128,
+        "path": "packages/xaman/src/verify.ts"
+      },
+      {
+        "commits": 1,
+        "lines": 12,
+        "path": "packages/xaman/tsconfig.json"
+      },
+      {
+        "commits": 3,
+        "lines": 25,
+        "path": "packages/xrpl/package.json"
+      },
+      {
+        "commits": 2,
+        "lines": 208,
+        "path": "packages/xrpl/src/account-nfts.test.ts"
+      },
+      {
+        "commits": 2,
+        "lines": 122,
+        "path": "packages/xrpl/src/account-nfts.ts"
+      },
+      {
+        "commits": 4,
+        "lines": 288,
+        "path": "packages/xrpl/src/check-holder.test.ts"
+      },
+      {
+        "commits": 3,
+        "lines": 107,
+        "path": "packages/xrpl/src/check-holder.ts"
+      },
+      {
+        "commits": 9,
+        "lines": 46,
+        "path": "packages/xrpl/src/index.ts"
+      },
+      {
+        "commits": 4,
+        "lines": 638,
+        "path": "packages/xrpl/src/issue-release.test.ts"
+      },
+      {
+        "commits": 5,
+        "lines": 272,
+        "path": "packages/xrpl/src/issue-release.ts"
+      },
+      {
+        "commits": 6,
+        "lines": 762,
+        "path": "packages/xrpl/src/mint.test.ts"
+      },
+      {
+        "commits": 6,
+        "lines": 455,
+        "path": "packages/xrpl/src/mint.ts"
+      },
+      {
+        "commits": 1,
+        "lines": 43,
+        "path": "packages/xrpl/src/network.test.ts"
+      },
+      {
+        "commits": 1,
+        "lines": 55,
+        "path": "packages/xrpl/src/network.ts"
+      },
+      {
+        "commits": 4,
+        "lines": 316,
+        "path": "packages/xrpl/src/read-nft.test.ts"
+      },
+      {
+        "commits": 6,
+        "lines": 197,
+        "path": "packages/xrpl/src/read-nft.ts"
+      },
+      {
+        "commits": 2,
+        "lines": 250,
+        "path": "packages/xrpl/src/verify-minter.test.ts"
+      },
+      {
+        "commits": 7,
+        "lines": 206,
+        "path": "packages/xrpl/src/verify-minter.ts"
+      },
+      {
+        "commits": 5,
+        "lines": 259,
+        "path": "packages/xrpl/src/wallet.test.ts"
+      },
+      {
+        "commits": 6,
+        "lines": 209,
+        "path": "packages/xrpl/src/wallet.ts"
+      },
+      {
+        "commits": 2,
+        "lines": 15,
+        "path": "packages/xrpl/tsconfig.json"
+      },
+      {
+        "commits": 2,
+        "lines": 35,
+        "path": "site/astro.config.mjs"
+      },
+      {
+        "commits": 2,
+        "lines": 13990,
+        "path": "site/package-lock.json"
+      },
+      {
+        "commits": 2,
+        "lines": 24,
+        "path": "site/package.json"
+      },
+      {
+        "commits": 1,
+        "lines": 7,
+        "path": "site/src/content.config.ts"
+      },
+      {
+        "commits": 3,
+        "lines": 98,
+        "path": "site/src/content/docs/handbook/architecture.md"
+      },
+      {
+        "commits": 2,
+        "lines": 237,
+        "path": "site/src/content/docs/handbook/beginners.md"
+      },
+      {
+        "commits": 3,
+        "lines": 119,
+        "path": "site/src/content/docs/handbook/contracts.md"
+      },
+      {
+        "commits": 4,
+        "lines": 74,
+        "path": "site/src/content/docs/handbook/getting-started.md"
+      },
+      {
+        "commits": 2,
+        "lines": 51,
+        "path": "site/src/content/docs/handbook/index.md"
+      },
+      {
+        "commits": 3,
+        "lines": 215,
+        "path": "site/src/content/docs/handbook/reference.md"
+      },
+      {
+        "commits": 3,
+        "lines": 129,
+        "path": "site/src/content/docs/handbook/release-lifecycle.md"
+      },
+      {
+        "commits": 3,
+        "lines": 76,
+        "path": "site/src/content/docs/handbook/security.md"
+      },
+      {
+        "commits": 1,
+        "lines": 33,
+        "path": "site/src/pages/index.astro"
+      },
+      {
+        "commits": 2,
+        "lines": 57,
+        "path": "site/src/site-config.ts"
+      },
+      {
+        "commits": 1,
+        "lines": 3,
+        "path": "site/src/styles/global.css"
+      },
+      {
+        "commits": 1,
+        "lines": 5,
+        "path": "site/src/styles/starlight-custom.css"
+      },
+      {
+        "commits": 1,
+        "lines": 5,
+        "path": "site/tsconfig.json"
+      },
+      {
+        "commits": 2,
+        "lines": 26,
+        "path": "tsconfig.json"
+      },
+      {
+        "commits": 3,
+        "lines": 33,
+        "path": "verify.sh"
+      },
+      {
+        "commits": 3,
+        "lines": 25,
+        "path": "vitest.config.ts"
+      }
+    ]
+  },
+  "confidence": {
+    "level": "low",
+    "reason": "fewer than 20 source files reach 10 revisions in the window"
+  },
+  "generatedAt": "2026-09-24T08:33:39.867Z",
+  "generatedFrom": {
+    "commit": "1f7eeff8bb9d6761be60a628902c6d498472cec8"
+  },
+  "pairs": [
+    {
+      "a": "app/bridge-worker.ts",
+      "b": "app/src/bridge/engine.ts",
+      "either": 7,
+      "shared": 5,
+      "strength": 0.714286
+    },
+    {
+      "a": "app/src/bridge/engine.ts",
+      "b": "app/src/components/panels/MintPanel.tsx",
+      "either": 7,
+      "shared": 4,
+      "strength": 0.571429
+    },
+    {
+      "a": "app/src/bridge/engine.ts",
+      "b": "app/src/state/release.tsx",
+      "either": 10,
+      "shared": 6,
+      "strength": 0.6
+    },
+    {
+      "a": "app/src/components/panels/MintPanel.tsx",
+      "b": "app/src/components/panels/PanelShell.tsx",
+      "either": 6,
+      "shared": 4,
+      "strength": 0.666667
+    },
+    {
+      "a": "app/src/components/panels/MintPanel.tsx",
+      "b": "app/src/state/release.tsx",
+      "either": 10,
+      "shared": 5,
+      "strength": 0.5
+    },
+    {
+      "a": "app/src/components/panels/PanelShell.tsx",
+      "b": "app/src/state/release.tsx",
+      "either": 10,
+      "shared": 5,
+      "strength": 0.5
+    },
+    {
+      "a": "packages/cli/src/bin.ts",
+      "b": "packages/core/src/index.ts",
+      "either": 9,
+      "shared": 5,
+      "strength": 0.555556
+    }
+  ],
+  "parameters": {
+    "appliedChangesetLimit": 50,
+    "changeset": 50,
+    "changesetFraction": 0.25,
+    "cohesionDrop": 0.2,
+    "couplingPopulation": "source",
+    "fallenShared": 3,
+    "floor": "fallen",
+    "floorHeld": false,
+    "floorTrigger": "revision-depth",
+    "headDate": "2026-09-17T18:38:19-07:00",
+    "inScopeFiles": 345,
+    "pinnedStart": null,
+    "priorFloor": null,
+    "qualifyingCommits": 73,
+    "qualifyingMinimum": 30,
+    "revisions": 5,
+    "shared": 10,
+    "sharedFloorUsed": 3,
+    "since": "2026-03-22T01:38:19.000Z",
+    "sourceExtensions": [
+      ".js",
+      ".mjs",
+      ".cjs",
+      ".jsx",
+      ".ts",
+      ".tsx",
+      ".mts",
+      ".cts",
+      ".py"
+    ],
+    "sourceFileReach": 20,
+    "sourceFileRise": 25,
+    "sourceFilesReachingStrongFloor": 1,
+    "strength": 0.5,
+    "windowDays": 180
+  },
+  "strengthDefinition": "strength is the shared qualifying commits divided by either. either is the number of qualifying commits that touch either file."
+}

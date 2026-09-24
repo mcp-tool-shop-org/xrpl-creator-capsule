@@ -1,0 +1,5767 @@
+{
+  "boundaries": [
+    {
+      "dynamicReads": 0,
+      "dynamicSpawns": 0,
+      "dynamicSpawnsInTests": 0,
+      "dynamicWrites": 0,
+      "entryPoints": [],
+      "externals": 0,
+      "files": [
+        {
+          "hash": "e73db50a17d5b3a9e263a66cb2263ccfbbf2515b242b95bdabd1b93cdab07898",
+          "path": ".github/ISSUE_TEMPLATE/access-failure.md"
+        },
+        {
+          "hash": "4bbfe9e6cd0b2c6fd1c1baf809ea941c0cf7c97da1ffac1baa6d8726c2add49a",
+          "path": ".github/ISSUE_TEMPLATE/bug.md"
+        },
+        {
+          "hash": "ad11d57b1f46b10f284b82d683aab4ba8e2368b061b16fd4772e89d769ac195a",
+          "path": ".github/ISSUE_TEMPLATE/confusion.md"
+        },
+        {
+          "hash": "9df832b6ea37ea5862d8379ce39f8f0b05dc40b7fd708f6c944ee0d9bdb44df9",
+          "path": ".github/ISSUE_TEMPLATE/publish-failure.md"
+        },
+        {
+          "hash": "5cb5a5afb695e57a949ce9df33b38f0263533db1941efa74b0bd567b071679f4",
+          "path": ".github/workflows/ci.yml"
+        },
+        {
+          "hash": "4eb81eeb113bdba84a09846e4b80ab63d20507cb41935566c110e37f99afe899",
+          "path": ".github/workflows/pages.yml"
+        }
+      ],
+      "globs": [
+        ".github/**"
+      ],
+      "importConfidence": "full",
+      "name": ".github",
+      "origin": "authored",
+      "role": "config",
+      "testedBy": 0,
+      "unresolvedSites": 0
+    },
+    {
+      "dynamicReads": 13,
+      "dynamicSpawns": 1,
+      "dynamicSpawnsInTests": 1,
+      "dynamicWrites": 0,
+      "entryPoints": [],
+      "externals": 0,
+      "files": [
+        {
+          "hash": "eeebb6db86a4b97deb95be3abaf3f5f8e74ee7b7a782c9c880b6d538ccb7dd32",
+          "importsFiles": [
+            "app/bridge-worker-commands.ts",
+            "packages/core/src/index.ts",
+            "packages/xrpl/src/index.ts"
+          ],
+          "path": "app/bridge-worker-access.test.ts"
+        },
+        {
+          "exports": [
+            "dispatch"
+          ],
+          "hash": "cfc4d73cf818f5acb8254e672b9dae5947be918c6e0cee365b9d0101d459d7c7",
+          "importsFiles": [
+            "packages/core/src/index.ts",
+            "packages/storage/src/index.ts",
+            "packages/xrpl/src/index.ts"
+          ],
+          "path": "app/bridge-worker-commands.ts"
+        },
+        {
+          "hash": "4b089c1110a79edb99fba4be80b9a0080d374403bb880ff0c1f0f3ca8219ea7a",
+          "importsFiles": [
+            "app/bridge-worker-commands.ts",
+            "packages/core/src/index.ts"
+          ],
+          "path": "app/bridge-worker-governance.test.ts"
+        },
+        {
+          "hash": "1b5c38c74f98be865d8d1f2a4c28c9f6dc1d0dfc7ec20da3ba6badfed9238f51",
+          "importsFiles": [
+            "app/bridge-worker-commands.ts",
+            "packages/core/src/index.ts"
+          ],
+          "path": "app/bridge-worker-manifest.test.ts"
+        },
+        {
+          "hash": "daa02948e7566095647090168e825014799a9827ddc72a3b13dffb4c1392cb51",
+          "parseError": true,
+          "path": "app/bridge-worker-mint-persist.test.ts",
+          "unreadSyntax": "typeof-import-argument"
+        },
+        {
+          "hash": "25bc737d5c8d495f7c5a75c460c6c464e0813e2e49ef633822e5f084f3cf444c",
+          "importsFiles": [
+            "app/bridge-worker-commands.ts",
+            "packages/core/src/index.ts",
+            "packages/xrpl/src/index.ts"
+          ],
+          "path": "app/bridge-worker-recovery.test.ts"
+        },
+        {
+          "hash": "bad4da983c6790eac41ae5b721e3af8fb5290700acb13f94d3feea77fd39205e",
+          "path": "app/bridge-worker-stdout-flush.test.ts"
+        },
+        {
+          "hash": "9dcce7dfe231f44cbdb550d2d8e8619d85d193ad26a995fffc40a8dec80bd781",
+          "importsFiles": [
+            "app/bridge-worker-commands.ts",
+            "packages/core/src/index.ts",
+            "packages/xrpl/src/index.ts"
+          ],
+          "path": "app/bridge-worker-verify-release.test.ts"
+        },
+        {
+          "hash": "5ff064a855f2ff3f4a281f66b6045289627cad718bf4cc48aea8cff5fd69bdad",
+          "importsFiles": [
+            "app/bridge-worker-commands.ts"
+          ],
+          "path": "app/bridge-worker.test.ts"
+        },
+        {
+          "hash": "05db73e6c0fd8ffaca4e36c6f1209366fde10832b772fc3f85f07baca9abb44b",
+          "importsFiles": [
+            "app/bridge-worker-commands.ts"
+          ],
+          "path": "app/bridge-worker.ts"
+        },
+        {
+          "hash": "4d04174d318a6c7efc3b1f78e9b0bd14c3025d8d397ed1e1db46838420b2feb4",
+          "path": "app/index.html"
+        },
+        {
+          "hash": "d4bd27ea53f1540be354d354b708f335748780c103475137179867bcacf3d93c",
+          "path": "app/package.json"
+        },
+        {
+          "hash": "7e42efaeaee9cb77fb6520f0bd15df41631a832854f4a0093cca3209f52359f2",
+          "path": "app/sample/README.md"
+        },
+        {
+          "hash": "eafe299f9c3f936c02c34b5b13d7fbbbc14bf9627c86d06053b1e3d838ba6ae4",
+          "path": "app/sample/demo-draft.json"
+        },
+        {
+          "hash": "2de230807efb855e9a287ace52683506b237bd0b8af87558e54654a09f0b32cd",
+          "path": "app/scripts/bundle-bridge.mjs"
+        },
+        {
+          "hash": "e004c8510ac8a65f265f4a87c6fbdcdfa66cb5d14c426eb58051122981ed2a69",
+          "path": "app/src-tauri/Cargo.lock"
+        },
+        {
+          "hash": "a02a536f2d31fda272de27418366222bfa24441ff4ad9fc417693bb64deaf6ef",
+          "path": "app/src-tauri/Cargo.toml"
+        },
+        {
+          "hash": "4ae2333b11623039cc115e29b696e7ff5cdfcd5b7d628280ddf48fa733e6418d",
+          "path": "app/src-tauri/build.rs"
+        },
+        {
+          "hash": "23d719f61e8c66433e44845550306e5d815832a75c638dbf9fda93ea41cd3427",
+          "path": "app/src-tauri/capabilities/default.json"
+        },
+        {
+          "hash": "d5b96c76c0e3f7d9e46c34f4de83aba6be7d4a9b4e9dfefccb28cf07b846bd51",
+          "path": "app/src-tauri/gen/schemas/acl-manifests.json"
+        },
+        {
+          "hash": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+          "path": "app/src-tauri/gen/schemas/capabilities.json"
+        },
+        {
+          "hash": "9081354649d9d980950a334e9c5fdd3b6da92792384bc1784c1e4ab49d066e24",
+          "path": "app/src-tauri/gen/schemas/desktop-schema.json"
+        },
+        {
+          "hash": "9081354649d9d980950a334e9c5fdd3b6da92792384bc1784c1e4ab49d066e24",
+          "path": "app/src-tauri/gen/schemas/windows-schema.json"
+        },
+        {
+          "hash": "d845116f2291232906f8de4750952471dbb607e426dce1ff8e32b8beb4b46c62",
+          "path": "app/src-tauri/icons/128x128.png"
+        },
+        {
+          "hash": "db1b19bd54deb618ebca8d65e684e107b39be870e29e9154f23687ede99e1102",
+          "path": "app/src-tauri/icons/128x128@2x.png"
+        },
+        {
+          "hash": "9e92ea54d2918a60c7c7fb4d3a47cad3cad6a07032f32bb6e05d2687a43d7f70",
+          "path": "app/src-tauri/icons/32x32.png"
+        },
+        {
+          "hash": "fefc05a8f48ee3338d68a818357bc84a49dc126f569638a219e24fa521a76f3b",
+          "path": "app/src-tauri/icons/64x64.png"
+        },
+        {
+          "hash": "a4081189b544d30bcee6d514ded21bdcad2410d68e19bba28f7527379b2103b1",
+          "path": "app/src-tauri/icons/Square107x107Logo.png"
+        },
+        {
+          "hash": "557e7552e838837914c2c19191e6e8f18eafa26d0c4e9290bc615ae81ad7a69b",
+          "path": "app/src-tauri/icons/Square142x142Logo.png"
+        },
+        {
+          "hash": "1e9cc778e19f20ce2afd62da42989ce5505d1540b2127d0082908c885de8d14c",
+          "path": "app/src-tauri/icons/Square150x150Logo.png"
+        },
+        {
+          "hash": "1c4d923306fb23485a378a5beef4ab024c20548259fec2c7d504029de5cccc4d",
+          "path": "app/src-tauri/icons/Square284x284Logo.png"
+        },
+        {
+          "hash": "e80e4660544df35f950015531c9c1f777557162e4588be88a8bc8221ec81085b",
+          "path": "app/src-tauri/icons/Square30x30Logo.png"
+        },
+        {
+          "hash": "15130176920b663806f3150bafb64ca03b168f951babca0667bb26c40b91eba7",
+          "path": "app/src-tauri/icons/Square310x310Logo.png"
+        },
+        {
+          "hash": "d573ee18a26c6b7d63aef29f264790c5a336a0cd0cea22d78d06846037531a0c",
+          "path": "app/src-tauri/icons/Square44x44Logo.png"
+        },
+        {
+          "hash": "cc3a0d0f7d50846324889928a4fec04afcef29211085e3f38223794ed4c66a69",
+          "path": "app/src-tauri/icons/Square71x71Logo.png"
+        },
+        {
+          "hash": "14be503b746b21b3365cf09263903c0f3121ed1e4ce50cbcaa3958e210cd8849",
+          "path": "app/src-tauri/icons/Square89x89Logo.png"
+        },
+        {
+          "hash": "c50a20c2aa6ddc812ca3141a45c403a3dca9887300f66b967052cfad649f8101",
+          "path": "app/src-tauri/icons/StoreLogo.png"
+        },
+        {
+          "hash": "7fe18cc0bcab884b6cd485758b8e5b3665737390fb8a35dabd37149aae83e1ee",
+          "path": "app/src-tauri/icons/android/mipmap-anydpi-v26/ic_launcher.xml"
+        },
+        {
+          "hash": "e1086a71cc060ab3cd8838a3a2362862c0600492cfdcc1855c24fd77c39a22f1",
+          "path": "app/src-tauri/icons/android/mipmap-hdpi/ic_launcher.png"
+        },
+        {
+          "hash": "d4512c9013a00ff17b3ddd40422e58c55d8af7bc2cf1e8075c93ddafc0488a8f",
+          "path": "app/src-tauri/icons/android/mipmap-hdpi/ic_launcher_foreground.png"
+        },
+        {
+          "hash": "5415cab6c68643c73143d521a639dc121e8c68ecaa51455b67e8ab33f6d2455a",
+          "path": "app/src-tauri/icons/android/mipmap-hdpi/ic_launcher_round.png"
+        },
+        {
+          "hash": "c0735a19151e808a8783e68e87cbcb6833cc98187975032f77ff829b1cc1502a",
+          "path": "app/src-tauri/icons/android/mipmap-mdpi/ic_launcher.png"
+        },
+        {
+          "hash": "e94658e3d3fb160ca24ec0f440c7ce4036cfa554850d616fad5d1341beafff8c",
+          "path": "app/src-tauri/icons/android/mipmap-mdpi/ic_launcher_foreground.png"
+        },
+        {
+          "hash": "a261d50b28928f68ce45cfc7bf68c314e11b177a16f5e56b07735e4ff6bee133",
+          "path": "app/src-tauri/icons/android/mipmap-mdpi/ic_launcher_round.png"
+        },
+        {
+          "hash": "40eba7913c6dab4c2877939afd809c3743a8c4e6c9095ee054d5a8e037254451",
+          "path": "app/src-tauri/icons/android/mipmap-xhdpi/ic_launcher.png"
+        },
+        {
+          "hash": "b358f6403de7234f6ed4119265d32b1c68f7ca0b58c1f42c25413fd6223e31e8",
+          "path": "app/src-tauri/icons/android/mipmap-xhdpi/ic_launcher_foreground.png"
+        },
+        {
+          "hash": "1f568e8ed5e3d8a2fd2a2e444ee546d19ec92c588866de3337e05918d5da678b",
+          "path": "app/src-tauri/icons/android/mipmap-xhdpi/ic_launcher_round.png"
+        },
+        {
+          "hash": "b65e28ac42cc494bbe5369ce9334e9bae7e9f8d93c2449dd70ce93afcd5da2a5",
+          "path": "app/src-tauri/icons/android/mipmap-xxhdpi/ic_launcher.png"
+        },
+        {
+          "hash": "7c5632eaf02108a4aebcacb30a5d9011bdcc74ac9b6eccd3314e557b7fb3879a",
+          "path": "app/src-tauri/icons/android/mipmap-xxhdpi/ic_launcher_foreground.png"
+        },
+        {
+          "hash": "6b51229f0cd77b5a0e59d304a0ba285b28c09b8eb4995b6af9a080ca833de2e8",
+          "path": "app/src-tauri/icons/android/mipmap-xxhdpi/ic_launcher_round.png"
+        },
+        {
+          "hash": "9cdea88d04fe7bd7ecffe938a16791495bb8826fc5cbff2dd2d3e1b8c32e3093",
+          "path": "app/src-tauri/icons/android/mipmap-xxxhdpi/ic_launcher.png"
+        },
+        {
+          "hash": "5d1fdb21dc49182fc6c0bf793107eb79decce8850911476093e42ddadb2900c7",
+          "path": "app/src-tauri/icons/android/mipmap-xxxhdpi/ic_launcher_foreground.png"
+        },
+        {
+          "hash": "55f2eef514b59acdab6a521eb792548fca3c9774141d22a60764dfa4a1fed9ba",
+          "path": "app/src-tauri/icons/android/mipmap-xxxhdpi/ic_launcher_round.png"
+        },
+        {
+          "hash": "388946bbba99e5a1b91750343f8dbdfd11692d51afb8ba5ea28d7e5ad13b4d79",
+          "path": "app/src-tauri/icons/android/values/ic_launcher_background.xml"
+        },
+        {
+          "hash": "0a0dfc9c7f05342ba8497b3f31c7dfc10051d11387318764045a46e2855ce645",
+          "path": "app/src-tauri/icons/icon.icns"
+        },
+        {
+          "hash": "e78a6ff6f3408f0a90f4aa414dd6c0d5c80907351e032cfaefad5cf7cc631dc8",
+          "path": "app/src-tauri/icons/icon.ico"
+        },
+        {
+          "hash": "30b40250faf281b94ae39ec6168f66d2da3a9943b249acfce1d31df650b6ce28",
+          "path": "app/src-tauri/icons/icon.png"
+        },
+        {
+          "hash": "39760d5e2caa478be884065d1cadd8a7ecbf397227bfb853da01ea511e2056b5",
+          "path": "app/src-tauri/icons/ios/AppIcon-20x20@1x.png"
+        },
+        {
+          "hash": "762c48ba9ca28d8797c8941220197000f989a3f0429a5d43da949fbefbc10bce",
+          "path": "app/src-tauri/icons/ios/AppIcon-20x20@2x-1.png"
+        },
+        {
+          "hash": "762c48ba9ca28d8797c8941220197000f989a3f0429a5d43da949fbefbc10bce",
+          "path": "app/src-tauri/icons/ios/AppIcon-20x20@2x.png"
+        },
+        {
+          "hash": "ac25f20e0445ee0dae2a64703428b81b0cb79b34ae4235a7bca1e2d04712ea04",
+          "path": "app/src-tauri/icons/ios/AppIcon-20x20@3x.png"
+        },
+        {
+          "hash": "8e5ac812bdc0e339cac54068884e19df92bbe68670c9a2950468adf7b6b828f8",
+          "path": "app/src-tauri/icons/ios/AppIcon-29x29@1x.png"
+        },
+        {
+          "hash": "184023a4590339c8076d2698344d6362a0ecb74fa3ecffc51d070ed87bf8e008",
+          "path": "app/src-tauri/icons/ios/AppIcon-29x29@2x-1.png"
+        },
+        {
+          "hash": "184023a4590339c8076d2698344d6362a0ecb74fa3ecffc51d070ed87bf8e008",
+          "path": "app/src-tauri/icons/ios/AppIcon-29x29@2x.png"
+        },
+        {
+          "hash": "f565e9405589b122dee3033bc55bf42cfd331a44d76196ad2b80bd3f352ef2a6",
+          "path": "app/src-tauri/icons/ios/AppIcon-29x29@3x.png"
+        },
+        {
+          "hash": "762c48ba9ca28d8797c8941220197000f989a3f0429a5d43da949fbefbc10bce",
+          "path": "app/src-tauri/icons/ios/AppIcon-40x40@1x.png"
+        },
+        {
+          "hash": "173fcfc5c71fdcba2aeb3f2ad5b9e79dca82d63ddf07c272dcf4ab8f6691200b",
+          "path": "app/src-tauri/icons/ios/AppIcon-40x40@2x-1.png"
+        },
+        {
+          "hash": "173fcfc5c71fdcba2aeb3f2ad5b9e79dca82d63ddf07c272dcf4ab8f6691200b",
+          "path": "app/src-tauri/icons/ios/AppIcon-40x40@2x.png"
+        },
+        {
+          "hash": "50c710c2ec27f4e7bab4b6f63e2a2d26c4d4a7dbb6a69072548873114043fb64",
+          "path": "app/src-tauri/icons/ios/AppIcon-40x40@3x.png"
+        },
+        {
+          "hash": "7afb54bd9c5e36eb70a2d84ae14f5bfe8ece7170a946124f2eb85cf7fe16728f",
+          "path": "app/src-tauri/icons/ios/AppIcon-512@2x.png"
+        },
+        {
+          "hash": "50c710c2ec27f4e7bab4b6f63e2a2d26c4d4a7dbb6a69072548873114043fb64",
+          "path": "app/src-tauri/icons/ios/AppIcon-60x60@2x.png"
+        },
+        {
+          "hash": "360dad0d2eeff8f48def333ad86a03409751850613b04364557dd3fa9ae1e7ad",
+          "path": "app/src-tauri/icons/ios/AppIcon-60x60@3x.png"
+        },
+        {
+          "hash": "8137b034bde7881936a976aa929ae79e5a6699a1cce21bff80834c182199f3db",
+          "path": "app/src-tauri/icons/ios/AppIcon-76x76@1x.png"
+        },
+        {
+          "hash": "ecd06fbdd01391dd7100b6b6e757a6155d123bfd5419901764680cfe7038d0b6",
+          "path": "app/src-tauri/icons/ios/AppIcon-76x76@2x.png"
+        },
+        {
+          "hash": "a74f9188730ee95238395c8dd656300c1409ced162ead38df5746884e40c09d7",
+          "path": "app/src-tauri/icons/ios/AppIcon-83.5x83.5@2x.png"
+        },
+        {
+          "hash": "413fccd9168dba44f27651fe271419a41bbcbc430453f85194fc18ed140c0415",
+          "path": "app/src-tauri/permissions/desktop-commands.toml"
+        },
+        {
+          "hash": "efcd919fd3a86e5d0ef924369a92641d7d904913aa1249a41a3f2738a183cf4b",
+          "path": "app/src-tauri/src/commands.rs"
+        },
+        {
+          "hash": "0c1acd181b4d9fe4c1af4a82c9bc70437eaf0822322aa6fb9be4d0456e3a9351",
+          "path": "app/src-tauri/src/lib.rs"
+        },
+        {
+          "hash": "8df0f97d3cce03114be750e9bc0b6ed75528d8eb4c1b880cb068b4147c6284bd",
+          "path": "app/src-tauri/src/main.rs"
+        },
+        {
+          "hash": "b1dd52fa45f05ddf84c11ae9e573ab568432739997beb51f98dc57b1cc8f372d",
+          "path": "app/src-tauri/tauri.conf.json"
+        },
+        {
+          "exports": [
+            "App"
+          ],
+          "hash": "80c32f04f44b786753b3657dcdb8d38f0b2642dd44af51768773ba4765e5c0ab",
+          "importsFiles": [
+            "app/src/components/CloseWarningGate.tsx",
+            "app/src/components/ReleaseChamber.tsx",
+            "app/src/components/Sidebar.tsx",
+            "app/src/components/TitleBar.tsx",
+            "app/src/components/studio/StudioShell.tsx",
+            "app/src/components/studio/StudioSidebar.tsx",
+            "app/src/state/release.tsx",
+            "app/src/state/session.ts",
+            "app/src/state/studio.tsx"
+          ],
+          "path": "app/src/App.tsx"
+        },
+        {
+          "hash": "a23c94db5b6235e098b3e2956a0399ee0435e86f243b01066086e8d62c15488b",
+          "importsFiles": [
+            "app/src/ErrorBoundary.tsx",
+            "app/src/state/release.tsx"
+          ],
+          "path": "app/src/ErrorBoundary.test.tsx"
+        },
+        {
+          "hash": "5a2aa5bec06e64d5c54a721576b53f1e3fb53bc3f2492d008e48aaf0b4160566",
+          "importsFiles": [
+            "app/src/state/release.tsx",
+            "app/src/state/session.ts"
+          ],
+          "path": "app/src/ErrorBoundary.tsx"
+        },
+        {
+          "exports": [
+            "makeGrant"
+          ],
+          "hash": "d7d01c4a562900a69e94bd1013077612422ce09862fb4d712b2dd35d8d78ee57",
+          "importsFiles": [
+            "app/src/bridge/engine.ts",
+            "app/src/state/session.ts",
+            "app/src/state/studio.tsx"
+          ],
+          "path": "app/src/__test__/fixtures.ts"
+        },
+        {
+          "hash": "cb3b2e2baa33e1beead5aa80cd82b5b729794cd0b52df96c0908d297fdbe5a74",
+          "path": "app/src/__test__/setup.ts"
+        },
+        {
+          "hash": "67dc71b3ffd57028fdd3f531f75e37e3074e3c8e2d513dc9042278dfc82953d3",
+          "path": "app/src/__test__/tauri-security-config.test.ts"
+        },
+        {
+          "hash": "951a2579bb98de1d885a11b95db337b03ba077578e13fd72d768a1db06277e93",
+          "importsFiles": [
+            "app/src/bridge/engine.ts"
+          ],
+          "path": "app/src/bridge/engine.test.ts"
+        },
+        {
+          "exports": [
+            "checkHolderAccess",
+            "confirmCloseAndExit",
+            "createAccessPolicy",
+            "createGovernancePolicy",
+            "decidePayout",
+            "executePayout",
+            "grantAccess",
+            "isMintReceiptUnsaved",
+            "loadFile",
+            "mintRelease",
+            "proposePayout",
+            "readWalletAddresses",
+            "recoverRelease",
+            "resolveManifest",
+            "saveFile",
+            "saveFileAtomic",
+            "stampManifest",
+            "validateManifest",
+            "verifyPayout",
+            "verifyRecovery",
+            "verifyRelease"
+          ],
+          "hash": "d0c3469ef381b6f80d9399ce36698118d75dcf1f99e6a80870bc8b663cf1dbef",
+          "path": "app/src/bridge/engine.ts"
+        },
+        {
+          "hash": "839ae449a9f24554c8b8f867300ea816b85948670a5d14aed5b4e25ae99898f3",
+          "importsFiles": [
+            "app/src/bridge/engine.ts",
+            "app/src/components/CloseWarningGate.tsx"
+          ],
+          "path": "app/src/components/CloseWarningGate.test.tsx"
+        },
+        {
+          "exports": [
+            "CloseWarningGate"
+          ],
+          "hash": "a4e73c5a2efc4c0cdfdfc5875abac2447f3b52beede7ca0febcffa1a536a54ce",
+          "importsFiles": [
+            "app/src/bridge/engine.ts",
+            "app/src/components/panels/PanelShell.tsx"
+          ],
+          "path": "app/src/components/CloseWarningGate.tsx"
+        },
+        {
+          "exports": [
+            "ReleaseChamber"
+          ],
+          "hash": "76dfea7c5d9c24139671d7754f5942dbf98f56ed4dc25926d96b6aad8c5d0240",
+          "importsFiles": [
+            "app/src/App.tsx",
+            "app/src/components/panels/AccessPanel.tsx",
+            "app/src/components/panels/GovernancePanel.tsx",
+            "app/src/components/panels/ManifestPanel.tsx",
+            "app/src/components/panels/MintPanel.tsx",
+            "app/src/components/panels/RecoveryPanel.tsx",
+            "app/src/components/panels/VerifyPanel.tsx"
+          ],
+          "path": "app/src/components/ReleaseChamber.tsx"
+        },
+        {
+          "exports": [
+            "Sidebar"
+          ],
+          "hash": "be9cfc8f7d96b66889e3df23bcb4895586a6769c6230a848b6d00f0cfe1cf6d2",
+          "importsFiles": [
+            "app/src/App.tsx",
+            "app/src/state/release.tsx"
+          ],
+          "path": "app/src/components/Sidebar.tsx"
+        },
+        {
+          "hash": "e534060f24d129bfcef31027e2eb4438055f9734feec92f10fbb0e85b22fe36c",
+          "importsFiles": [
+            "app/src/components/TitleBar.tsx",
+            "app/src/support/bundle.ts"
+          ],
+          "path": "app/src/components/TitleBar.test.tsx"
+        },
+        {
+          "exports": [
+            "TitleBar"
+          ],
+          "hash": "0536c044f209540d983838331930ceac8f7795f62e0a9d1109f74790c5d4bd58",
+          "importsFiles": [
+            "app/src/components/panels/PanelShell.tsx",
+            "app/src/state/release.tsx",
+            "app/src/support/bundle.ts"
+          ],
+          "path": "app/src/components/TitleBar.tsx"
+        },
+        {
+          "exports": [
+            "AccessPanel"
+          ],
+          "hash": "b0ac5bcffad33283be6eea459676f2c5a06bd168f39b08506346f93c620b4489",
+          "importsFiles": [
+            "app/src/components/panels/PanelShell.tsx",
+            "app/src/state/release.tsx"
+          ],
+          "path": "app/src/components/panels/AccessPanel.tsx"
+        },
+        {
+          "hash": "6bc32ff51ea12246fb5a704f60b9ed44a4abcd5d0885d9ffe727802f512bea69",
+          "importsFiles": [
+            "app/src/__test__/fixtures.ts",
+            "app/src/components/panels/GovernancePanel.tsx",
+            "app/src/state/release.tsx"
+          ],
+          "path": "app/src/components/panels/GovernancePanel.test.tsx"
+        },
+        {
+          "exports": [
+            "GovernancePanel"
+          ],
+          "hash": "0e41ff4b6dc63913112e69b7c00039959f048ecf81c53a4b7529da9d243e59f1",
+          "importsFiles": [
+            "app/src/bridge/engine.ts",
+            "app/src/components/panels/PanelShell.tsx",
+            "app/src/state/release.tsx"
+          ],
+          "path": "app/src/components/panels/GovernancePanel.tsx"
+        },
+        {
+          "exports": [
+            "ManifestPanel"
+          ],
+          "hash": "b8516407b14d9a07224c1fa1a7e3b55a17fab7044ba7346ff45dc5c977d2a374",
+          "importsFiles": [
+            "app/src/components/panels/PanelShell.tsx",
+            "app/src/state/release.tsx"
+          ],
+          "path": "app/src/components/panels/ManifestPanel.tsx"
+        },
+        {
+          "hash": "871bece4e91851f146206adbb4603a9a5cfc7161f3b4bb6026274a45f48894cf",
+          "importsFiles": [
+            "app/src/__test__/fixtures.ts",
+            "app/src/components/panels/MintPanel.tsx",
+            "app/src/state/release.tsx"
+          ],
+          "path": "app/src/components/panels/MintPanel.test.tsx"
+        },
+        {
+          "exports": [
+            "MintPanel"
+          ],
+          "hash": "434e8b5d145f57e4fef93d536e306171cdc5c92a50534fa8ae551dddaa3ad122",
+          "importsFiles": [
+            "app/src/components/panels/PanelShell.tsx",
+            "app/src/state/release.tsx"
+          ],
+          "path": "app/src/components/panels/MintPanel.tsx"
+        },
+        {
+          "hash": "8476fbe8b39c59a17d4445a2fe44ba29a865878fac9a696a6e74cc659709f6d5",
+          "importsFiles": [
+            "app/src/components/panels/PanelShell.tsx"
+          ],
+          "path": "app/src/components/panels/PanelShell.test.tsx"
+        },
+        {
+          "exports": [
+            "ActionButton",
+            "ArtifactCard",
+            "ArtifactField",
+            "CancelBanner",
+            "CheckRow",
+            "ConfirmBanner",
+            "ErrorBanner",
+            "PanelShell",
+            "ReceiptUnsavedBanner",
+            "TimeoutBanner"
+          ],
+          "hash": "8fc312ecb2bf33b1b94d1aebd7b458eecc41acf3833a0545bde5139cd6d26f9a",
+          "importsFiles": [
+            "app/src/errors/humanize.ts"
+          ],
+          "path": "app/src/components/panels/PanelShell.tsx"
+        },
+        {
+          "hash": "99bafe65ce6e6970cbd792dcff004bc20e383ff6fc9b937a42fd95de7bdc1d94",
+          "importsFiles": [
+            "app/src/__test__/fixtures.ts",
+            "app/src/components/panels/RecoveryPanel.tsx",
+            "app/src/state/release.tsx"
+          ],
+          "path": "app/src/components/panels/RecoveryPanel.test.tsx"
+        },
+        {
+          "exports": [
+            "RecoveryPanel"
+          ],
+          "hash": "7266d1ca71bd0acfcb2615e7c98e6f1d15e90aa78c80bc509bb10829d04585e5",
+          "importsFiles": [
+            "app/src/components/panels/PanelShell.tsx",
+            "app/src/state/release.tsx"
+          ],
+          "path": "app/src/components/panels/RecoveryPanel.tsx"
+        },
+        {
+          "exports": [
+            "VerifyPanel"
+          ],
+          "hash": "48256e414a09a8dd444656eb83f70f3210349cf292a5cf7978a2dd8f1ea9c95b",
+          "importsFiles": [
+            "app/src/components/panels/PanelShell.tsx",
+            "app/src/state/release.tsx"
+          ],
+          "path": "app/src/components/panels/VerifyPanel.tsx"
+        },
+        {
+          "exports": [
+            "CollectorBenefitPage"
+          ],
+          "hash": "4c908defed70bedb3624e406c6c766e506714bceaa1446ae923f59a243538349",
+          "importsFiles": [
+            "app/src/components/panels/PanelShell.tsx",
+            "app/src/state/studio.tsx"
+          ],
+          "path": "app/src/components/studio/CollectorBenefitPage.tsx"
+        },
+        {
+          "exports": [
+            "CreateReleasePage"
+          ],
+          "hash": "892f6ec57040cff042ee655aa99d4785d81b840132477f50d917f5a84283e0c1",
+          "importsFiles": [
+            "app/src/bridge/engine.ts",
+            "app/src/components/panels/PanelShell.tsx",
+            "app/src/state/studio.tsx"
+          ],
+          "path": "app/src/components/studio/CreateReleasePage.tsx"
+        },
+        {
+          "exports": [
+            "PublishPage"
+          ],
+          "hash": "3daeee26634447f61ae0bc042a2e529c144926e8fb8b6db7a27e9bdec2535790",
+          "importsFiles": [
+            "app/src/bridge/engine.ts",
+            "app/src/components/panels/PanelShell.tsx",
+            "app/src/state/release.tsx",
+            "app/src/state/session.ts",
+            "app/src/state/studio.tsx"
+          ],
+          "path": "app/src/components/studio/PublishPage.tsx"
+        },
+        {
+          "hash": "e8f5753eaa884b9fd76aacb4c09a7a38df2006355c383f5f56f2420199d3b308",
+          "parseError": true,
+          "path": "app/src/components/studio/RecoveryPage.tsx",
+          "unreadSyntax": "jsx-ampersand"
+        },
+        {
+          "hash": "5065e7451ff7de85bd660bb82692009cad2ef88eca6c1d41d26f93b1d9a183d9",
+          "parseError": true,
+          "path": "app/src/components/studio/ReviewPage.tsx",
+          "unreadSyntax": "jsx-ampersand"
+        },
+        {
+          "hash": "95cfcbcde9b582f78479fbcaf8a63191c499f6895af95c3a9433a7576bb2ed1e",
+          "importsFiles": [
+            "app/src/components/studio/StudioShell.tsx",
+            "app/src/state/release.tsx",
+            "app/src/state/studio.tsx"
+          ],
+          "path": "app/src/components/studio/StudioShell.sample-error.test.tsx"
+        },
+        {
+          "hash": "3c5d6d5d0d017f81fc10556c70cdcc2bde3176ecaf7b930bd1ce6ad6f88b1540",
+          "importsFiles": [
+            "app/src/components/studio/StudioShell.tsx",
+            "app/src/components/studio/StudioSidebar.tsx",
+            "app/src/state/release.tsx",
+            "app/src/state/studio.tsx"
+          ],
+          "path": "app/src/components/studio/StudioShell.test.tsx"
+        },
+        {
+          "exports": [
+            "StudioShell"
+          ],
+          "hash": "12e3e30282b1a36d86c570b17a19c9bc0568e881988153c0d7d33efa3d9c5a10",
+          "importsFiles": [
+            "app/sample/demo-draft.json",
+            "app/src/components/panels/PanelShell.tsx",
+            "app/src/components/studio/CollectorBenefitPage.tsx",
+            "app/src/components/studio/CreateReleasePage.tsx",
+            "app/src/components/studio/PublishPage.tsx",
+            "app/src/components/studio/RecoveryPage.tsx",
+            "app/src/components/studio/ReviewPage.tsx",
+            "app/src/components/studio/TestAccessPage.tsx",
+            "app/src/components/studio/WelcomePage.tsx",
+            "app/src/state/studio.tsx",
+            "app/src/state/validate.ts"
+          ],
+          "path": "app/src/components/studio/StudioShell.tsx"
+        },
+        {
+          "exports": [
+            "StudioSidebar"
+          ],
+          "hash": "b02c1cc82b1c09dcabed878aae58975af5ef77558a49051438587ffc730149d7",
+          "importsFiles": [
+            "app/src/components/panels/PanelShell.tsx",
+            "app/src/state/release.tsx",
+            "app/src/state/studio.tsx"
+          ],
+          "path": "app/src/components/studio/StudioSidebar.tsx"
+        },
+        {
+          "exports": [
+            "TestAccessPage"
+          ],
+          "hash": "cafaa731183efb2098ce9e5af398647ec6184409570d58862d3f92ff91fef6b1",
+          "importsFiles": [
+            "app/src/components/panels/PanelShell.tsx",
+            "app/src/state/release.tsx",
+            "app/src/state/studio.tsx"
+          ],
+          "path": "app/src/components/studio/TestAccessPage.tsx"
+        },
+        {
+          "exports": [
+            "WelcomePage"
+          ],
+          "hash": "882267da2458342290d3d99071444df5116be342e401dfa203b51862eebe9d26",
+          "importsFiles": [
+            "app/src/components/panels/PanelShell.tsx",
+            "app/src/state/studio.tsx"
+          ],
+          "path": "app/src/components/studio/WelcomePage.tsx"
+        },
+        {
+          "hash": "f1e7e7e777b76ea2b312b549302d22afc685150faccdabffa49cb5110b296024",
+          "importsFiles": [
+            "app/src/errors/humanize.ts"
+          ],
+          "path": "app/src/errors/humanize.test.ts"
+        },
+        {
+          "exports": [
+            "humanizeError",
+            "isNotFoundFsError"
+          ],
+          "hash": "b2bab596f00bfcb8601b87fa6b0c5515d2116acb5a0741a56eab5fe4010b36df",
+          "path": "app/src/errors/humanize.ts"
+        },
+        {
+          "hash": "1fb51eeb9ba0a9b357be9eeb9fedb9d1129f1312fb4c13ba6abc99f4e54c59b9",
+          "importsFiles": [
+            "app/src/App.tsx",
+            "app/src/ErrorBoundary.tsx",
+            "app/src/state/actionlog.ts",
+            "app/src/state/release.tsx",
+            "app/src/styles.css"
+          ],
+          "path": "app/src/main.tsx"
+        },
+        {
+          "hash": "b6fa842607e1f94fe3ff1dd650c01e8b81b9ba5e09cb5499f8f290d07930c715",
+          "importsFiles": [
+            "app/src/state/actionlog.ts"
+          ],
+          "path": "app/src/state/actionlog.test.ts"
+        },
+        {
+          "exports": [
+            "clearActionLog",
+            "getActionLog",
+            "initActionLog",
+            "logAction",
+            "resetActionLogForTests"
+          ],
+          "hash": "16e090a58750d94d101472982ebfe48e38c6f0bf7f50d73738a43934cf9f8a3d",
+          "importsFiles": [
+            "app/src/bridge/engine.ts",
+            "app/src/errors/humanize.ts"
+          ],
+          "path": "app/src/state/actionlog.ts"
+        },
+        {
+          "hash": "d8aeb1bc2665adcf09e32d853f3d65f590c0feeda96e0c2300c04eab973dceea",
+          "importsFiles": [
+            "app/src/__test__/fixtures.ts",
+            "app/src/state/release.tsx"
+          ],
+          "path": "app/src/state/release-reconcile.test.tsx"
+        },
+        {
+          "hash": "b93700786d6c4c979cfbbb455e4d4de66031c4b2b57595194c714265dcdc3324",
+          "importsFiles": [
+            "app/src/__test__/fixtures.ts",
+            "app/src/state/release.tsx"
+          ],
+          "path": "app/src/state/release-timeout.test.tsx"
+        },
+        {
+          "hash": "a2e7029490122bf036702936d8280a6e3cdaa3e73f36acebafae4fc4d92853f3",
+          "importsFiles": [
+            "app/src/__test__/fixtures.ts",
+            "app/src/state/release.tsx",
+            "app/src/state/studio.tsx"
+          ],
+          "path": "app/src/state/release-trust.test.tsx"
+        },
+        {
+          "hash": "ea5edf7eabb62de1a453edb8786695fa759e5b825a8ed9133b550456d918345c",
+          "importsFiles": [
+            "app/src/__test__/fixtures.ts",
+            "app/src/state/release.tsx"
+          ],
+          "path": "app/src/state/release.test.tsx"
+        },
+        {
+          "exports": [
+            "ReleaseProvider",
+            "useRelease"
+          ],
+          "hash": "ed65b2935535408445d308709ae0e3ec72bac07e164d880bd2d4cd6db361e345",
+          "importsFiles": [
+            "app/src/bridge/engine.ts",
+            "app/src/state/actionlog.ts"
+          ],
+          "path": "app/src/state/release.tsx"
+        },
+        {
+          "hash": "8df82070f05bcb037179d078d54560b7ed4fb81dce57f7532893739720401ce5",
+          "importsFiles": [
+            "app/src/__test__/fixtures.ts",
+            "app/src/state/release.tsx",
+            "app/src/state/session.ts"
+          ],
+          "path": "app/src/state/session.test.ts"
+        },
+        {
+          "exports": [
+            "clearSession",
+            "loadSession",
+            "saveSession",
+            "validateSession"
+          ],
+          "hash": "510e992a8db0d6b84589f072666cd2b84888aae2402d1f39c3e7906be94ab360",
+          "importsFiles": [
+            "app/src/bridge/engine.ts",
+            "app/src/errors/humanize.ts",
+            "app/src/state/release.tsx",
+            "app/src/state/studio.tsx",
+            "app/src/state/validate.ts"
+          ],
+          "path": "app/src/state/session.ts"
+        },
+        {
+          "hash": "1334587b19ec0876df7569e0c7df0bac93e7e332dd84e3a369e8a9e5a764fb45",
+          "importsFiles": [
+            "app/src/__test__/fixtures.ts",
+            "app/src/state/studio.tsx"
+          ],
+          "path": "app/src/state/studio.test.tsx"
+        },
+        {
+          "exports": [
+            "StudioProvider",
+            "useStudio"
+          ],
+          "hash": "4312172289fe7577fbb9f08a8f04006273fd37c3165ce0750c4e739267d947d4",
+          "importsFiles": [
+            "app/src/bridge/engine.ts",
+            "app/src/state/session.ts",
+            "app/src/state/validate.ts"
+          ],
+          "path": "app/src/state/studio.tsx"
+        },
+        {
+          "hash": "ebd911e00f5850f2550de0bb6e42ac51d0c5698f95d231822253d7f6c4efe8ec",
+          "importsFiles": [
+            "app/src/__test__/fixtures.ts",
+            "app/src/state/validate.ts"
+          ],
+          "path": "app/src/state/validate.test.ts"
+        },
+        {
+          "exports": [
+            "isValidSessionState",
+            "isValidStudioDraft"
+          ],
+          "hash": "53ac707c53a82bcd610c3a74d00ff8989a178bd6f62085635ffcefbde90fb74c",
+          "importsFiles": [
+            "app/src/state/session.ts",
+            "app/src/state/studio.tsx"
+          ],
+          "path": "app/src/state/validate.ts"
+        },
+        {
+          "hash": "94ee802f18a4facd74d2236089e4b23db2f92d837ad8ef0f8bb60d3a332acad8",
+          "path": "app/src/styles.css"
+        },
+        {
+          "exports": [
+            "exportSupportBundle"
+          ],
+          "hash": "6c692a445e99e586b870d14ab8b446cbd3c6028734c688d28c0b4939c9d40ec3",
+          "importsFiles": [
+            "app/package.json",
+            "app/src/bridge/engine.ts",
+            "app/src/state/release.tsx",
+            "app/src/state/session.ts"
+          ],
+          "path": "app/src/support/bundle.ts"
+        },
+        {
+          "hash": "a4700ac36f804eadd5bac9c293538594ee5fce1250c440f85b58533bfd53d466",
+          "path": "app/tsconfig.json"
+        },
+        {
+          "hash": "d5fd89d39e1263f077ed51b5d6dd862a0807e37c4103c5d4da0ebbedba83b52f",
+          "path": "app/tsconfig.node.json"
+        },
+        {
+          "hash": "0a30b2a3e66897f45f97e3ac45eb588b5e05cd9d9163baf4896aa25e6c827b64",
+          "path": "app/vite.config.ts"
+        },
+        {
+          "hash": "d6a9c97d652fbf59489e509446e68f279f51c8cb86104735a7e0864084ce9a90",
+          "path": "app/vitest.config.ts"
+        }
+      ],
+      "globs": [
+        "app/**"
+      ],
+      "importConfidence": "full",
+      "name": "app",
+      "origin": "authored",
+      "outsideReads": 31,
+      "outsideWrites": 13,
+      "role": "code",
+      "testedBy": 25,
+      "unresolvedSites": 3
+    },
+    {
+      "dynamicReads": 0,
+      "dynamicSpawns": 0,
+      "dynamicSpawnsInTests": 0,
+      "dynamicWrites": 0,
+      "entryPoints": [],
+      "externals": 0,
+      "files": [
+        {
+          "hash": "f9535d7410f48870d4c91704236132e725953d28d3590218525d33932516b692",
+          "path": "artifacts/.gitattributes"
+        },
+        {
+          "hash": "7e63c4a101bccc643cc340fe5aa64acbc6682fffb9c0be390eb951ec516ef8c5",
+          "path": "artifacts/.gitignore"
+        },
+        {
+          "hash": "27e7af0af46c04efdf76b5b1d438a7d864a6ae47917e0a3b598977c9b35c4d80",
+          "path": "artifacts/PROOF-3-SIMULATION-TRIALS.md"
+        },
+        {
+          "hash": "6fbdde13240d9310ba6d066abc8502092d2597a30dfb538cff558216e1719745",
+          "path": "artifacts/PROOF-4-DESKTOP-RUNTIME-TRUST.md"
+        },
+        {
+          "hash": "5fac9eaef0f414d8f054e4afc2f2f8adcb231d1608eca3b5843763b440db6460",
+          "path": "artifacts/PROOF-4A-MODE-SWITCH-TRUTH.md"
+        },
+        {
+          "hash": "b93df3d3a1524514a92a26f01d4dd8ad7670123665a90b6c8ca2480b7e9c9af8",
+          "path": "artifacts/PROOF-4B-RESTART-TRUTH.md"
+        },
+        {
+          "hash": "064a0fc209f554dc0f7bb6584a97dbcd2a5c8007d793b0cdfcc9d347f61338f6",
+          "path": "artifacts/PROOF-4C-INTERRUPTION-TRUTH.md"
+        },
+        {
+          "hash": "eec09f2a02a07c5d789bdd2faf5557d0f805eb3c7910dcea4607f31b1b8732c2",
+          "path": "artifacts/PROOF-4D-NETWORK-FAILURE-TRUTH.md"
+        },
+        {
+          "hash": "d9dee7f2ff4ef2afd47428ff47279d95fde24dad17456035343c3cd827abe8cf",
+          "path": "artifacts/PROOF-4E-TIMING-TRUTH.md"
+        },
+        {
+          "hash": "117ab64e3a3ae18b4ee26851083564a029fd5892dfb1a1c254a6057f1e9e76bd",
+          "path": "artifacts/PROOF-B5-DIRECT-RAIL.md"
+        },
+        {
+          "hash": "084f9ccbb56cf23a52163fd940714bf7153721f4a9312372c15ccc6d5cad7850",
+          "path": "artifacts/PROOF-C-ACCESS-TRUTH.md"
+        },
+        {
+          "hash": "a4beba1d83a53dbd9b1fc92d9c085874e3533c1e0b479c891a6d9e7e80102796",
+          "path": "artifacts/PROOF-D-GOVERNANCE-TRUTH.md"
+        },
+        {
+          "hash": "556f0f93a2172eae9b90cc6d0e593cbb7a731b5599fd207b559f81cf8ec0a1f1",
+          "path": "artifacts/PROOF-E-DURABILITY-TRUTH.md"
+        },
+        {
+          "hash": "128f57b1319bc2e6923a82e69622d606c52d76ba99078953e6c9da25801bf87a",
+          "path": "artifacts/direct-rail/access-grant-allow.json"
+        },
+        {
+          "hash": "52066fab072aa9eae4b324e041d38e1d04e19ff0a8617ea848af24a62d654e50",
+          "path": "artifacts/direct-rail/access-grant-deny.json"
+        },
+        {
+          "hash": "82009cd1e089a4b10d35707c195c7e0ad8fd3facffba6396c47e60939b6811d2",
+          "path": "artifacts/direct-rail/access-policy.json"
+        },
+        {
+          "hash": "7a638dfb30850e08001712e5cd90c530505d9f4c39758d5ec690c2a414c678b6",
+          "path": "artifacts/direct-rail/governance-policy.json"
+        },
+        {
+          "hash": "5550e4776e051286c6df0d37ceb12ce69c7397bd7691ca72303188c8cdcbb050",
+          "path": "artifacts/direct-rail/issuance-receipt.json"
+        },
+        {
+          "hash": "b9942728d20f32aa47d2058f90535034ac0e20143de847844d7c839dcc5154da",
+          "path": "artifacts/direct-rail/manifest-input.json"
+        },
+        {
+          "hash": "4bdb8d16bb1d61989619b0d55a9ec54a3684eb4fe6540d61f3acda4b0f0ebde3",
+          "path": "artifacts/direct-rail/payout-decision.json"
+        },
+        {
+          "hash": "174d927f45b127b770a6d6ec9065f4df05dc5e405aa56ba8de6c9dc034bba2f1",
+          "path": "artifacts/direct-rail/payout-execution.json"
+        },
+        {
+          "hash": "837542639aa43ba4b4ba86c0e08c8ba06ac777fa63595686407df5172f219f46",
+          "path": "artifacts/direct-rail/payout-proposal.json"
+        },
+        {
+          "hash": "dc662ed02501cf860430a0df20d35a107b65c9740b61ebdaa6cb44ab4a24156b",
+          "path": "artifacts/direct-rail/recovery-bundle.json"
+        },
+        {
+          "hash": "5c2ac38238be1ebfedb61e9a1f4fcada479a37fbc79789402fa526d4377225f8",
+          "path": "artifacts/direct-rail/recovery-replay-allow.json"
+        },
+        {
+          "hash": "aaf6586925873cc24e9bc53cd83799aeaf1d8456d9d00103f24c850c3a00697b",
+          "path": "artifacts/direct-rail/recovery-replay-deny.json"
+        },
+        {
+          "hash": "65f958e22d967e8defed8ab4fbff703e726e3e9e6faf7ed18960293e8ec9d439",
+          "path": "artifacts/direct-rail/release.json"
+        },
+        {
+          "hash": "909ffa3096735ade1ff8617ad5398d8f434b4b62290bf9a71f1c9dbd648d2faf",
+          "importsFiles": [
+            "packages/cli/src/commands/verify-release.ts"
+          ],
+          "path": "artifacts/failure-drills.test.ts"
+        },
+        {
+          "hash": "f69244441e06553d72c32e0f8dc0c356d632bcb68aad46463c08d7c0ed059dcd",
+          "importsFiles": [
+            "packages/core/src/index.ts"
+          ],
+          "path": "artifacts/governance-drills.test.ts"
+        },
+        {
+          "hash": "d69683d248662d084492482fd38ee95d7922c005d15f1a6bcf08b185a353385f",
+          "importsFiles": [
+            "packages/core/src/index.ts"
+          ],
+          "path": "artifacts/governance-golden-path.test.ts"
+        },
+        {
+          "hash": "a4f0aed6972338650259f676357375a92277a81ec3797e3003f789ae0e27527a",
+          "importsFiles": [
+            "packages/core/src/index.ts"
+          ],
+          "path": "artifacts/simulation-trials.test.ts"
+        },
+        {
+          "hash": "1833cc2a4dbe675b8c0ed0d09af007883ae0e7e33785e5537b929dc95ad27220",
+          "path": "artifacts/tsconfig.json"
+        },
+        {
+          "hash": "4b83a9e68ed3a81955e3837b6981a6fe0693b284a498d215f4e204b28d404af3",
+          "importsFiles": [
+            "packages/xrpl/src/verify-minter.ts"
+          ],
+          "path": "artifacts/verify-minter-check.ts"
+        }
+      ],
+      "globs": [
+        "artifacts/**"
+      ],
+      "importConfidence": "full",
+      "name": "artifacts",
+      "origin": "authored",
+      "role": "config",
+      "testedBy": 0,
+      "unresolvedSites": 0
+    },
+    {
+      "dynamicReads": 0,
+      "dynamicSpawns": 0,
+      "dynamicSpawnsInTests": 0,
+      "dynamicWrites": 1,
+      "entryPoints": [
+        "packages/cli/src/bin.ts",
+        "packages/cli/src/index.ts"
+      ],
+      "externals": 0,
+      "files": [
+        {
+          "hash": "db9cdf5ae8bf16c2c5375628accbf93aee874ccc81c97b2331e33a543c21c392",
+          "path": "packages/cli/package.json"
+        },
+        {
+          "hash": "94299241b10525d9e88c371596b0891885d1c58184bbbb723168d86f2cc0cfc9",
+          "importsFiles": [
+            "packages/cli/src/test-support/run-bin.ts"
+          ],
+          "path": "packages/cli/src/bin-help.test.ts"
+        },
+        {
+          "hash": "51c34f100a5234a946b94041059fc824715c2f5919367295b1ed623e1eeb4740",
+          "importsFiles": [
+            "packages/cli/src/test-support/run-bin.ts"
+          ],
+          "path": "packages/cli/src/bin-json-args.test.ts"
+        },
+        {
+          "hash": "a6a5db5dd378b21fc97210c10c4018b423e7b7d17c733f8e63bc44de75baa3b0",
+          "parseError": true,
+          "path": "packages/cli/src/bin-mainnet-write.test.ts",
+          "unreadSyntax": "typeof-import-argument"
+        },
+        {
+          "hash": "caa9a9d11305889f5d2d7187e067c303fee71be2a1a3f213bf5569f418226cad",
+          "importsFiles": [
+            "packages/cli/src/test-support/run-bin.ts"
+          ],
+          "path": "packages/cli/src/bin-network.test.ts"
+        },
+        {
+          "hash": "c9c871b612a9f7925a041009a86593e83eafb7f7b1d9bff6f55511aaa4196b30",
+          "importsFiles": [
+            "packages/cli/src/test-support/run-bin.ts"
+          ],
+          "path": "packages/cli/src/bin-required-args.test.ts"
+        },
+        {
+          "hash": "fcb6b93e65d49d35014c841139cc48558fa456923d6017f9a59937060e4a3ef3",
+          "importsFiles": [
+            "packages/cli/src/test-support/run-bin.ts"
+          ],
+          "path": "packages/cli/src/bin.test.ts"
+        },
+        {
+          "entry": "main",
+          "entryRule": 1,
+          "hash": "985eab00f0c0cc517d916c5e067f0c1454b753c790f8cbbe618daa4eac5a1e4d",
+          "importsFiles": [
+            "packages/cli/src/commands/configure-minter.ts",
+            "packages/cli/src/commands/create-governance-policy.ts",
+            "packages/cli/src/commands/create-release.ts",
+            "packages/cli/src/commands/decide-payout.ts",
+            "packages/cli/src/commands/execute-payout.ts",
+            "packages/cli/src/commands/grant-access.ts",
+            "packages/cli/src/commands/init-wallets.ts",
+            "packages/cli/src/commands/mint-release.ts",
+            "packages/cli/src/commands/propose-payout.ts",
+            "packages/cli/src/commands/recover-release.ts",
+            "packages/cli/src/commands/resolve.ts",
+            "packages/cli/src/commands/validate.ts",
+            "packages/cli/src/commands/verify-payout.ts",
+            "packages/cli/src/commands/verify-release.ts",
+            "packages/cli/src/commands/xaman-flow.ts",
+            "packages/cli/src/lib/json-input.ts",
+            "packages/core/src/index.ts",
+            "packages/storage/src/index.ts",
+            "packages/xaman/src/index.ts",
+            "packages/xrpl/src/index.ts"
+          ],
+          "path": "packages/cli/src/bin.ts",
+          "sequences": [
+            {
+              "calls": [
+                {
+                  "inner": [
+                    {
+                      "line": 41,
+                      "name": "generateWalletPair",
+                      "target": {
+                        "file": "packages/xrpl/src/index.ts"
+                      }
+                    },
+                    {
+                      "line": 46,
+                      "name": "fundWalletPair",
+                      "target": {
+                        "file": "packages/xrpl/src/index.ts"
+                      }
+                    },
+                    {
+                      "line": 56,
+                      "name": "authorizeOperatorAsMinter",
+                      "target": {
+                        "file": "packages/xrpl/src/index.ts"
+                      }
+                    },
+                    {
+                      "line": 67,
+                      "name": "exportWalletPair",
+                      "target": {
+                        "file": "packages/xrpl/src/index.ts"
+                      }
+                    }
+                  ],
+                  "line": 223,
+                  "name": "initWallets",
+                  "target": {
+                    "file": "packages/cli/src/commands/init-wallets.ts"
+                  }
+                },
+                {
+                  "inner": [
+                    {
+                      "line": 127,
+                      "name": "buildConfigureMinterPayload",
+                      "target": {
+                        "file": "packages/xaman/src/index.ts"
+                      }
+                    },
+                    {
+                      "line": 128,
+                      "name": "createPayload",
+                      "receiver": "XamanClient",
+                      "target": {
+                        "file": "packages/xaman/src/index.ts"
+                      }
+                    },
+                    {
+                      "line": 135,
+                      "name": "subscribeToPayload",
+                      "receiver": "XamanClient",
+                      "target": {
+                        "file": "packages/xaman/src/index.ts"
+                      }
+                    },
+                    {
+                      "line": 141,
+                      "name": "verifyPayloadResult",
+                      "target": {
+                        "file": "packages/xaman/src/index.ts"
+                      }
+                    }
+                  ],
+                  "line": 262,
+                  "name": "configureMinterViaXaman",
+                  "target": {
+                    "file": "packages/cli/src/commands/xaman-flow.ts"
+                  }
+                },
+                {
+                  "inner": [
+                    {
+                      "line": 31,
+                      "name": "readJsonFile",
+                      "target": {
+                        "file": "packages/cli/src/lib/json-input.ts"
+                      }
+                    },
+                    {
+                      "line": 32,
+                      "name": "importWalletPair",
+                      "target": {
+                        "file": "packages/xrpl/src/index.ts"
+                      }
+                    },
+                    {
+                      "line": 35,
+                      "name": "authorizeOperatorAsMinter",
+                      "target": {
+                        "file": "packages/xrpl/src/index.ts"
+                      }
+                    },
+                    {
+                      "line": 42,
+                      "name": "verifyAuthorizedMinter",
+                      "target": {
+                        "file": "packages/xrpl/src/index.ts"
+                      }
+                    }
+                  ],
+                  "line": 269,
+                  "name": "configureMinter",
+                  "target": {
+                    "file": "packages/cli/src/commands/configure-minter.ts"
+                  }
+                },
+                {
+                  "inner": [
+                    {
+                      "line": 33,
+                      "name": "assertManifest",
+                      "target": {
+                        "file": "packages/core/src/index.ts"
+                      }
+                    },
+                    {
+                      "line": 36,
+                      "name": "stampManifestId",
+                      "target": {
+                        "file": "packages/core/src/index.ts"
+                      }
+                    }
+                  ],
+                  "line": 300,
+                  "name": "createRelease",
+                  "target": {
+                    "file": "packages/cli/src/commands/create-release.ts"
+                  }
+                },
+                {
+                  "inner": [
+                    {
+                      "line": 20,
+                      "name": "validateManifest",
+                      "target": {
+                        "file": "packages/core/src/index.ts"
+                      }
+                    }
+                  ],
+                  "line": 318,
+                  "name": "validateManifestFile",
+                  "target": {
+                    "file": "packages/cli/src/commands/validate.ts"
+                  }
+                },
+                {
+                  "inner": [
+                    {
+                      "line": 19,
+                      "name": "readJsonFile",
+                      "target": {
+                        "file": "packages/cli/src/lib/json-input.ts"
+                      }
+                    },
+                    {
+                      "line": 20,
+                      "name": "assertManifest",
+                      "target": {
+                        "file": "packages/core/src/index.ts"
+                      }
+                    },
+                    {
+                      "line": 21,
+                      "name": "resolveManifestPointers",
+                      "target": {
+                        "file": "packages/core/src/index.ts"
+                      }
+                    }
+                  ],
+                  "line": 338,
+                  "name": "resolveManifestFile",
+                  "target": {
+                    "file": "packages/cli/src/commands/resolve.ts"
+                  }
+                },
+                {
+                  "inner": [
+                    {
+                      "line": 170,
+                      "name": "readJsonFile",
+                      "target": {
+                        "file": "packages/cli/src/lib/json-input.ts"
+                      }
+                    },
+                    {
+                      "line": 170,
+                      "name": "assertManifest",
+                      "target": {
+                        "file": "packages/core/src/index.ts"
+                      }
+                    },
+                    {
+                      "line": 172,
+                      "name": "computeManifestId",
+                      "target": {
+                        "file": "packages/core/src/index.ts"
+                      }
+                    },
+                    {
+                      "line": 173,
+                      "name": "computeRevisionHash",
+                      "target": {
+                        "file": "packages/core/src/index.ts"
+                      }
+                    },
+                    {
+                      "line": 184,
+                      "name": "buildMintPayload",
+                      "target": {
+                        "file": "packages/xaman/src/index.ts"
+                      }
+                    },
+                    {
+                      "line": 185,
+                      "name": "createPayload",
+                      "receiver": "XamanClient",
+                      "target": {
+                        "file": "packages/xaman/src/index.ts"
+                      }
+                    },
+                    {
+                      "line": 192,
+                      "name": "subscribeToPayload",
+                      "receiver": "XamanClient",
+                      "target": {
+                        "file": "packages/xaman/src/index.ts"
+                      }
+                    },
+                    {
+                      "line": 203,
+                      "name": "verifySignerAddress",
+                      "target": {
+                        "file": "packages/xaman/src/index.ts"
+                      }
+                    },
+                    {
+                      "line": 204,
+                      "name": "verifyPayloadResult",
+                      "target": {
+                        "file": "packages/xaman/src/index.ts"
+                      }
+                    }
+                  ],
+                  "line": 382,
+                  "name": "mintReleaseViaXaman",
+                  "target": {
+                    "file": "packages/cli/src/commands/xaman-flow.ts"
+                  }
+                },
+                {
+                  "inner": [
+                    {
+                      "line": 35,
+                      "name": "readJsonFile",
+                      "target": {
+                        "file": "packages/cli/src/lib/json-input.ts"
+                      }
+                    },
+                    {
+                      "line": 35,
+                      "name": "assertManifest",
+                      "target": {
+                        "file": "packages/core/src/index.ts"
+                      }
+                    },
+                    {
+                      "line": 38,
+                      "name": "readJsonFile",
+                      "target": {
+                        "file": "packages/cli/src/lib/json-input.ts"
+                      }
+                    },
+                    {
+                      "line": 38,
+                      "name": "importWalletPair",
+                      "target": {
+                        "file": "packages/xrpl/src/index.ts"
+                      }
+                    },
+                    {
+                      "line": 57,
+                      "name": "issueRelease",
+                      "target": {
+                        "file": "packages/xrpl/src/index.ts"
+                      }
+                    }
+                  ],
+                  "line": 417,
+                  "name": "mintReleaseCommand",
+                  "target": {
+                    "file": "packages/cli/src/commands/mint-release.ts"
+                  }
+                },
+                {
+                  "inner": [
+                    {
+                      "line": 44,
+                      "name": "readJsonFile",
+                      "target": {
+                        "file": "packages/cli/src/lib/json-input.ts"
+                      }
+                    },
+                    {
+                      "line": 44,
+                      "name": "assertManifest",
+                      "target": {
+                        "file": "packages/core/src/index.ts"
+                      }
+                    },
+                    {
+                      "line": 45,
+                      "name": "readJsonFile",
+                      "target": {
+                        "file": "packages/cli/src/lib/json-input.ts"
+                      }
+                    },
+                    {
+                      "line": 45,
+                      "name": "assertReceipt",
+                      "target": {
+                        "file": "packages/core/src/index.ts"
+                      }
+                    },
+                    {
+                      "line": 49,
+                      "name": "computeManifestId",
+                      "target": {
+                        "file": "packages/core/src/index.ts"
+                      }
+                    },
+                    {
+                      "line": 61,
+                      "name": "computeRevisionHash",
+                      "target": {
+                        "file": "packages/core/src/index.ts"
+                      }
+                    },
+                    {
+                      "line": 74,
+                      "name": "computeReceiptHash",
+                      "target": {
+                        "file": "packages/core/src/index.ts"
+                      }
+                    },
+                    {
+                      "line": 170,
+                      "name": "verifyAuthorizedMinter",
+                      "target": {
+                        "file": "packages/xrpl/src/index.ts"
+                      }
+                    },
+                    {
+                      "line": 198,
+                      "name": "readNftFromLedger",
+                      "target": {
+                        "file": "packages/xrpl/src/index.ts"
+                      }
+                    }
+                  ],
+                  "line": 449,
+                  "name": "verifyRelease",
+                  "target": {
+                    "file": "packages/cli/src/commands/verify-release.ts"
+                  }
+                },
+                {
+                  "line": 490,
+                  "name": "readJsonFile",
+                  "target": {
+                    "file": "packages/cli/src/lib/json-input.ts"
+                  }
+                },
+                {
+                  "line": 490,
+                  "name": "assertManifest",
+                  "target": {
+                    "file": "packages/core/src/index.ts"
+                  }
+                },
+                {
+                  "line": 491,
+                  "name": "readJsonFile",
+                  "target": {
+                    "file": "packages/cli/src/lib/json-input.ts"
+                  }
+                },
+                {
+                  "line": 491,
+                  "name": "assertReceipt",
+                  "target": {
+                    "file": "packages/core/src/index.ts"
+                  }
+                },
+                {
+                  "line": 496,
+                  "name": "computeManifestId",
+                  "target": {
+                    "file": "packages/core/src/index.ts"
+                  }
+                },
+                {
+                  "inner": [
+                    {
+                      "line": 40,
+                      "name": "readJsonFile",
+                      "target": {
+                        "file": "packages/cli/src/lib/json-input.ts"
+                      }
+                    },
+                    {
+                      "line": 40,
+                      "name": "assertManifest",
+                      "target": {
+                        "file": "packages/core/src/index.ts"
+                      }
+                    },
+                    {
+                      "line": 41,
+                      "name": "readJsonFile",
+                      "target": {
+                        "file": "packages/cli/src/lib/json-input.ts"
+                      }
+                    },
+                    {
+                      "line": 41,
+                      "name": "assertReceipt",
+                      "target": {
+                        "file": "packages/core/src/index.ts"
+                      }
+                    },
+                    {
+                      "line": 42,
+                      "name": "readJsonFile",
+                      "target": {
+                        "file": "packages/cli/src/lib/json-input.ts"
+                      }
+                    },
+                    {
+                      "line": 42,
+                      "name": "assertAccessPolicy",
+                      "target": {
+                        "file": "packages/core/src/index.ts"
+                      }
+                    },
+                    {
+                      "line": 48,
+                      "name": "checkPolicyCoherence",
+                      "target": {
+                        "file": "packages/core/src/index.ts"
+                      }
+                    },
+                    {
+                      "branch": "!coherence.coherent",
+                      "line": 50,
+                      "name": "stampGrantHash",
+                      "target": {
+                        "file": "packages/core/src/index.ts"
+                      }
+                    },
+                    {
+                      "line": 68,
+                      "name": "computeReceiptHash",
+                      "target": {
+                        "file": "packages/core/src/index.ts"
+                      }
+                    },
+                    {
+                      "branch": "receipt.receiptHash !== expectedHash",
+                      "line": 70,
+                      "name": "stampGrantHash",
+                      "target": {
+                        "file": "packages/core/src/index.ts"
+                      }
+                    },
+                    {
+                      "line": 88,
+                      "name": "computeManifestId",
+                      "target": {
+                        "file": "packages/core/src/index.ts"
+                      }
+                    },
+                    {
+                      "branch": "receipt.manifestId !== expectedManifestId",
+                      "line": 90,
+                      "name": "stampGrantHash",
+                      "target": {
+                        "file": "packages/core/src/index.ts"
+                      }
+                    }
+                  ],
+                  "innerTruncated": true,
+                  "line": 542,
+                  "name": "grantAccess",
+                  "target": {
+                    "file": "packages/cli/src/commands/grant-access.ts"
+                  }
+                },
+                {
+                  "inner": [
+                    {
+                      "line": 103,
+                      "name": "readJsonFile",
+                      "target": {
+                        "file": "packages/cli/src/lib/json-input.ts"
+                      }
+                    },
+                    {
+                      "line": 103,
+                      "name": "assertManifest",
+                      "target": {
+                        "file": "packages/core/src/index.ts"
+                      }
+                    },
+                    {
+                      "line": 104,
+                      "name": "readJsonFile",
+                      "target": {
+                        "file": "packages/cli/src/lib/json-input.ts"
+                      }
+                    },
+                    {
+                      "line": 104,
+                      "name": "assertReceipt",
+                      "target": {
+                        "file": "packages/core/src/index.ts"
+                      }
+                    },
+                    {
+                      "line": 108,
+                      "name": "readJsonFile",
+                      "target": {
+                        "file": "packages/cli/src/lib/json-input.ts"
+                      }
+                    },
+                    {
+                      "line": 108,
+                      "name": "assertAccessPolicy",
+                      "target": {
+                        "file": "packages/core/src/index.ts"
+                      }
+                    },
+                    {
+                      "line": 113,
+                      "name": "deriveRecoveryBundle",
+                      "target": {
+                        "file": "packages/core/src/index.ts"
+                      }
+                    },
+                    {
+                      "line": 117,
+                      "name": "computeManifestId",
+                      "target": {
+                        "file": "packages/core/src/index.ts"
+                      }
+                    },
+                    {
+                      "line": 118,
+                      "name": "computeRevisionHash",
+                      "target": {
+                        "file": "packages/core/src/index.ts"
+                      }
+                    },
+                    {
+                      "line": 150,
+                      "name": "computeReceiptHash",
+                      "target": {
+                        "file": "packages/core/src/index.ts"
+                      }
+                    },
+                    {
+                      "line": 223,
+                      "name": "verifyAuthorizedMinter",
+                      "target": {
+                        "file": "packages/xrpl/src/index.ts"
+                      }
+                    },
+                    {
+                      "line": 244,
+                      "name": "readNftFromLedger",
+                      "target": {
+                        "file": "packages/xrpl/src/index.ts"
+                      }
+                    }
+                  ],
+                  "line": 589,
+                  "name": "recoverRelease",
+                  "target": {
+                    "file": "packages/cli/src/commands/recover-release.ts"
+                  }
+                },
+                {
+                  "line": 648,
+                  "name": "parseJsonArgument",
+                  "target": {
+                    "file": "packages/cli/src/lib/json-input.ts"
+                  }
+                },
+                {
+                  "inner": [
+                    {
+                      "line": 34,
+                      "name": "readJsonFile",
+                      "target": {
+                        "file": "packages/cli/src/lib/json-input.ts"
+                      }
+                    },
+                    {
+                      "line": 34,
+                      "name": "assertManifest",
+                      "target": {
+                        "file": "packages/core/src/index.ts"
+                      }
+                    },
+                    {
+                      "line": 35,
+                      "name": "computeManifestId",
+                      "target": {
+                        "file": "packages/core/src/index.ts"
+                      }
+                    },
+                    {
+                      "line": 59,
+                      "name": "assertGovernancePolicy",
+                      "target": {
+                        "file": "packages/core/src/index.ts"
+                      }
+                    },
+                    {
+                      "line": 61,
+                      "name": "stampPolicyHash",
+                      "target": {
+                        "file": "packages/core/src/index.ts"
+                      }
+                    }
+                  ],
+                  "line": 644,
+                  "name": "createGovernancePolicy",
+                  "target": {
+                    "file": "packages/cli/src/commands/create-governance-policy.ts"
+                  }
+                },
+                {
+                  "line": 692,
+                  "name": "parseJsonArgument",
+                  "target": {
+                    "file": "packages/cli/src/lib/json-input.ts"
+                  }
+                },
+                {
+                  "inner": [
+                    {
+                      "line": 30,
+                      "name": "readJsonFile",
+                      "target": {
+                        "file": "packages/cli/src/lib/json-input.ts"
+                      }
+                    },
+                    {
+                      "line": 30,
+                      "name": "assertGovernancePolicy",
+                      "target": {
+                        "file": "packages/core/src/index.ts"
+                      }
+                    },
+                    {
+                      "line": 47,
+                      "name": "assertPayoutProposal",
+                      "target": {
+                        "file": "packages/core/src/index.ts"
+                      }
+                    },
+                    {
+                      "line": 50,
+                      "name": "checkProposalAgainstPolicy",
+                      "target": {
+                        "file": "packages/core/src/index.ts"
+                      }
+                    },
+                    {
+                      "line": 57,
+                      "name": "stampProposalHash",
+                      "target": {
+                        "file": "packages/core/src/index.ts"
+                      }
+                    }
+                  ],
+                  "line": 689,
+                  "name": "proposePayout",
+                  "target": {
+                    "file": "packages/cli/src/commands/propose-payout.ts"
+                  }
+                },
+                {
+                  "line": 728,
+                  "name": "parseJsonArgument",
+                  "target": {
+                    "file": "packages/cli/src/lib/json-input.ts"
+                  }
+                },
+                {
+                  "inner": [
+                    {
+                      "line": 30,
+                      "name": "readJsonFile",
+                      "target": {
+                        "file": "packages/cli/src/lib/json-input.ts"
+                      }
+                    },
+                    {
+                      "line": 30,
+                      "name": "assertGovernancePolicy",
+                      "target": {
+                        "file": "packages/core/src/index.ts"
+                      }
+                    },
+                    {
+                      "line": 31,
+                      "name": "readJsonFile",
+                      "target": {
+                        "file": "packages/cli/src/lib/json-input.ts"
+                      }
+                    },
+                    {
+                      "line": 31,
+                      "name": "assertPayoutProposal",
+                      "target": {
+                        "file": "packages/core/src/index.ts"
+                      }
+                    },
+                    {
+                      "line": 34,
+                      "name": "evaluateApprovals",
+                      "target": {
+                        "file": "packages/core/src/index.ts"
+                      }
+                    },
+                    {
+                      "line": 63,
+                      "name": "checkDecisionAgainstProposal",
+                      "target": {
+                        "file": "packages/core/src/index.ts"
+                      }
+                    },
+                    {
+                      "line": 70,
+                      "name": "stampDecisionHash",
+                      "target": {
+                        "file": "packages/core/src/index.ts"
+                      }
+                    }
+                  ],
+                  "line": 725,
+                  "name": "decidePayout",
+                  "target": {
+                    "file": "packages/cli/src/commands/decide-payout.ts"
+                  }
+                },
+                {
+                  "line": 777,
+                  "name": "parseJsonArgument",
+                  "target": {
+                    "file": "packages/cli/src/lib/json-input.ts"
+                  }
+                },
+                {
+                  "inner": [
+                    {
+                      "line": 40,
+                      "name": "readJsonFile",
+                      "target": {
+                        "file": "packages/cli/src/lib/json-input.ts"
+                      }
+                    },
+                    {
+                      "line": 40,
+                      "name": "assertGovernancePolicy",
+                      "target": {
+                        "file": "packages/core/src/index.ts"
+                      }
+                    },
+                    {
+                      "line": 41,
+                      "name": "readJsonFile",
+                      "target": {
+                        "file": "packages/cli/src/lib/json-input.ts"
+                      }
+                    },
+                    {
+                      "line": 41,
+                      "name": "assertPayoutProposal",
+                      "target": {
+                        "file": "packages/core/src/index.ts"
+                      }
+                    },
+                    {
+                      "line": 42,
+                      "name": "readJsonFile",
+                      "target": {
+                        "file": "packages/cli/src/lib/json-input.ts"
+                      }
+                    },
+                    {
+                      "line": 42,
+                      "name": "assertPayoutDecision",
+                      "target": {
+                        "file": "packages/core/src/index.ts"
+                      }
+                    },
+                    {
+                      "line": 73,
+                      "name": "checkExecutionAgainstDecision",
+                      "target": {
+                        "file": "packages/core/src/index.ts"
+                      }
+                    },
+                    {
+                      "line": 85,
+                      "name": "stampExecutionHash",
+                      "target": {
+                        "file": "packages/core/src/index.ts"
+                      }
+                    }
+                  ],
+                  "line": 773,
+                  "name": "executePayout",
+                  "target": {
+                    "file": "packages/cli/src/commands/execute-payout.ts"
+                  }
+                }
+              ],
+              "exported": false,
+              "invokedAtTopLevel": true,
+              "isDefaultExport": false,
+              "name": "main",
+              "truncated": true
+            }
+          ]
+        },
+        {
+          "hash": "d20e7d5c4f4276d36a4f49e031e530ec1deba46351ab01bc08f30fb86c1dc0d8",
+          "importsFiles": [
+            "packages/cli/src/commands/configure-minter.ts",
+            "packages/xrpl/src/index.ts"
+          ],
+          "path": "packages/cli/src/commands/configure-minter.test.ts"
+        },
+        {
+          "entry": "configureMinter",
+          "entryRule": 4,
+          "exports": [
+            "configureMinter"
+          ],
+          "hash": "a67e4932fb7c6a9cccdc4bcbbb5c9db14e805fd0a84fbac03ef6f5eaa029e6e2",
+          "importsFiles": [
+            "packages/cli/src/lib/json-input.ts",
+            "packages/xrpl/src/index.ts"
+          ],
+          "path": "packages/cli/src/commands/configure-minter.ts",
+          "sequences": [
+            {
+              "calls": [
+                {
+                  "line": 31,
+                  "name": "readJsonFile",
+                  "target": {
+                    "file": "packages/cli/src/lib/json-input.ts"
+                  }
+                },
+                {
+                  "line": 32,
+                  "name": "importWalletPair",
+                  "target": {
+                    "file": "packages/xrpl/src/index.ts"
+                  }
+                },
+                {
+                  "line": 35,
+                  "name": "authorizeOperatorAsMinter",
+                  "target": {
+                    "file": "packages/xrpl/src/index.ts"
+                  }
+                },
+                {
+                  "line": 42,
+                  "name": "verifyAuthorizedMinter",
+                  "target": {
+                    "file": "packages/xrpl/src/index.ts"
+                  }
+                }
+              ],
+              "exported": true,
+              "invokedAtTopLevel": false,
+              "isDefaultExport": false,
+              "name": "configureMinter"
+            }
+          ]
+        },
+        {
+          "hash": "f0af46c543ca18171fa8f82057a93f8eb933285e9d89e787af40b25ecf466ba5",
+          "importsFiles": [
+            "packages/cli/src/commands/create-governance-policy.ts",
+            "packages/xrpl/src/index.ts"
+          ],
+          "path": "packages/cli/src/commands/create-governance-policy.test.ts"
+        },
+        {
+          "entry": "createGovernancePolicy",
+          "entryRule": 4,
+          "exports": [
+            "createGovernancePolicy"
+          ],
+          "hash": "e6898c46dda0b8206280b7c059b9cc2039f7acc3403856b7a11146fcaf683aaf",
+          "importsFiles": [
+            "packages/cli/src/lib/json-input.ts",
+            "packages/core/src/index.ts"
+          ],
+          "path": "packages/cli/src/commands/create-governance-policy.ts",
+          "sequences": [
+            {
+              "calls": [
+                {
+                  "line": 34,
+                  "name": "readJsonFile",
+                  "target": {
+                    "file": "packages/cli/src/lib/json-input.ts"
+                  }
+                },
+                {
+                  "line": 34,
+                  "name": "assertManifest",
+                  "target": {
+                    "file": "packages/core/src/index.ts"
+                  }
+                },
+                {
+                  "line": 35,
+                  "name": "computeManifestId",
+                  "target": {
+                    "file": "packages/core/src/index.ts"
+                  }
+                },
+                {
+                  "line": 59,
+                  "name": "assertGovernancePolicy",
+                  "target": {
+                    "file": "packages/core/src/index.ts"
+                  }
+                },
+                {
+                  "line": 61,
+                  "name": "stampPolicyHash",
+                  "target": {
+                    "file": "packages/core/src/index.ts"
+                  }
+                }
+              ],
+              "exported": true,
+              "invokedAtTopLevel": false,
+              "isDefaultExport": false,
+              "name": "createGovernancePolicy"
+            }
+          ]
+        },
+        {
+          "hash": "8acfac1278ba045ffedb21514c4bacb89747d916390bd58440196be4e294a030",
+          "importsFiles": [
+            "packages/cli/src/commands/create-release.ts"
+          ],
+          "path": "packages/cli/src/commands/create-release.test.ts"
+        },
+        {
+          "entry": "createRelease",
+          "entryRule": 4,
+          "exports": [
+            "createRelease"
+          ],
+          "hash": "f7912012f6e6498ffb35d5bb94b8a1a59e3b5070c74d857f8a68d8f4249c5268",
+          "importsFiles": [
+            "packages/core/src/index.ts"
+          ],
+          "path": "packages/cli/src/commands/create-release.ts",
+          "sequences": [
+            {
+              "calls": [
+                {
+                  "line": 33,
+                  "name": "assertManifest",
+                  "target": {
+                    "file": "packages/core/src/index.ts"
+                  }
+                },
+                {
+                  "line": 36,
+                  "name": "stampManifestId",
+                  "target": {
+                    "file": "packages/core/src/index.ts"
+                  }
+                }
+              ],
+              "exported": true,
+              "invokedAtTopLevel": false,
+              "isDefaultExport": false,
+              "name": "createRelease"
+            }
+          ]
+        },
+        {
+          "hash": "3ee6a8769eccd569b518e3ae2d7a36e76948b40a150577f06e9f66c5bc2b7145",
+          "importsFiles": [
+            "packages/cli/src/commands/decide-payout.ts",
+            "packages/core/src/index.ts",
+            "packages/xrpl/src/index.ts"
+          ],
+          "path": "packages/cli/src/commands/decide-payout.test.ts"
+        },
+        {
+          "entry": "decidePayout",
+          "entryRule": 4,
+          "exports": [
+            "decidePayout"
+          ],
+          "hash": "fe0e090249e9479a0a4698de909738c1516513b9904581345e1bddee7b0cdd65",
+          "importsFiles": [
+            "packages/cli/src/lib/json-input.ts",
+            "packages/core/src/index.ts"
+          ],
+          "path": "packages/cli/src/commands/decide-payout.ts",
+          "sequences": [
+            {
+              "calls": [
+                {
+                  "line": 30,
+                  "name": "readJsonFile",
+                  "target": {
+                    "file": "packages/cli/src/lib/json-input.ts"
+                  }
+                },
+                {
+                  "line": 30,
+                  "name": "assertGovernancePolicy",
+                  "target": {
+                    "file": "packages/core/src/index.ts"
+                  }
+                },
+                {
+                  "line": 31,
+                  "name": "readJsonFile",
+                  "target": {
+                    "file": "packages/cli/src/lib/json-input.ts"
+                  }
+                },
+                {
+                  "line": 31,
+                  "name": "assertPayoutProposal",
+                  "target": {
+                    "file": "packages/core/src/index.ts"
+                  }
+                },
+                {
+                  "line": 34,
+                  "name": "evaluateApprovals",
+                  "target": {
+                    "file": "packages/core/src/index.ts"
+                  }
+                },
+                {
+                  "line": 63,
+                  "name": "checkDecisionAgainstProposal",
+                  "target": {
+                    "file": "packages/core/src/index.ts"
+                  }
+                },
+                {
+                  "line": 70,
+                  "name": "stampDecisionHash",
+                  "target": {
+                    "file": "packages/core/src/index.ts"
+                  }
+                }
+              ],
+              "exported": true,
+              "invokedAtTopLevel": false,
+              "isDefaultExport": false,
+              "name": "decidePayout"
+            }
+          ]
+        },
+        {
+          "hash": "c0513deca6a31f57a0d99ff1a43c0adf0d2a8c281ff4a80ac1dcffa9ae9aee52",
+          "importsFiles": [
+            "packages/cli/src/commands/execute-payout.ts",
+            "packages/core/src/index.ts",
+            "packages/xrpl/src/index.ts"
+          ],
+          "path": "packages/cli/src/commands/execute-payout.test.ts"
+        },
+        {
+          "entry": "executePayout",
+          "entryRule": 4,
+          "exports": [
+            "executePayout"
+          ],
+          "hash": "5a518cfe680555bf01e3a4ec366dfabfbf69ee8c13fe439d5670463f487e6eea",
+          "importsFiles": [
+            "packages/cli/src/lib/json-input.ts",
+            "packages/core/src/index.ts"
+          ],
+          "path": "packages/cli/src/commands/execute-payout.ts",
+          "sequences": [
+            {
+              "calls": [
+                {
+                  "line": 40,
+                  "name": "readJsonFile",
+                  "target": {
+                    "file": "packages/cli/src/lib/json-input.ts"
+                  }
+                },
+                {
+                  "line": 40,
+                  "name": "assertGovernancePolicy",
+                  "target": {
+                    "file": "packages/core/src/index.ts"
+                  }
+                },
+                {
+                  "line": 41,
+                  "name": "readJsonFile",
+                  "target": {
+                    "file": "packages/cli/src/lib/json-input.ts"
+                  }
+                },
+                {
+                  "line": 41,
+                  "name": "assertPayoutProposal",
+                  "target": {
+                    "file": "packages/core/src/index.ts"
+                  }
+                },
+                {
+                  "line": 42,
+                  "name": "readJsonFile",
+                  "target": {
+                    "file": "packages/cli/src/lib/json-input.ts"
+                  }
+                },
+                {
+                  "line": 42,
+                  "name": "assertPayoutDecision",
+                  "target": {
+                    "file": "packages/core/src/index.ts"
+                  }
+                },
+                {
+                  "line": 73,
+                  "name": "checkExecutionAgainstDecision",
+                  "target": {
+                    "file": "packages/core/src/index.ts"
+                  }
+                },
+                {
+                  "line": 85,
+                  "name": "stampExecutionHash",
+                  "target": {
+                    "file": "packages/core/src/index.ts"
+                  }
+                }
+              ],
+              "exported": true,
+              "invokedAtTopLevel": false,
+              "isDefaultExport": false,
+              "name": "executePayout"
+            }
+          ]
+        },
+        {
+          "hash": "bfbd70f034abcfc08f22b945d589d23e7e31bb7a86ef899722eb4b3b636fb0f0",
+          "importsFiles": [
+            "packages/cli/src/commands/grant-access.ts",
+            "packages/core/src/index.ts",
+            "packages/storage/src/index.ts",
+            "packages/xrpl/src/index.ts"
+          ],
+          "path": "packages/cli/src/commands/grant-access.test.ts"
+        },
+        {
+          "entry": "grantAccess",
+          "entryRule": 4,
+          "exports": [
+            "grantAccess"
+          ],
+          "hash": "0352817d510326c5998deeedcc3b20321af84c6922813b1cdbd65fc8e877b061",
+          "importsFiles": [
+            "packages/cli/src/lib/json-input.ts",
+            "packages/core/src/index.ts",
+            "packages/storage/src/index.ts",
+            "packages/xrpl/src/index.ts"
+          ],
+          "path": "packages/cli/src/commands/grant-access.ts",
+          "sequences": [
+            {
+              "calls": [
+                {
+                  "line": 40,
+                  "name": "readJsonFile",
+                  "target": {
+                    "file": "packages/cli/src/lib/json-input.ts"
+                  }
+                },
+                {
+                  "line": 40,
+                  "name": "assertManifest",
+                  "target": {
+                    "file": "packages/core/src/index.ts"
+                  }
+                },
+                {
+                  "line": 41,
+                  "name": "readJsonFile",
+                  "target": {
+                    "file": "packages/cli/src/lib/json-input.ts"
+                  }
+                },
+                {
+                  "line": 41,
+                  "name": "assertReceipt",
+                  "target": {
+                    "file": "packages/core/src/index.ts"
+                  }
+                },
+                {
+                  "line": 42,
+                  "name": "readJsonFile",
+                  "target": {
+                    "file": "packages/cli/src/lib/json-input.ts"
+                  }
+                },
+                {
+                  "line": 42,
+                  "name": "assertAccessPolicy",
+                  "target": {
+                    "file": "packages/core/src/index.ts"
+                  }
+                },
+                {
+                  "line": 48,
+                  "name": "checkPolicyCoherence",
+                  "target": {
+                    "file": "packages/core/src/index.ts"
+                  }
+                },
+                {
+                  "branch": "!coherence.coherent",
+                  "line": 50,
+                  "name": "stampGrantHash",
+                  "target": {
+                    "file": "packages/core/src/index.ts"
+                  }
+                },
+                {
+                  "line": 68,
+                  "name": "computeReceiptHash",
+                  "target": {
+                    "file": "packages/core/src/index.ts"
+                  }
+                },
+                {
+                  "branch": "receipt.receiptHash !== expectedHash",
+                  "line": 70,
+                  "name": "stampGrantHash",
+                  "target": {
+                    "file": "packages/core/src/index.ts"
+                  }
+                },
+                {
+                  "line": 88,
+                  "name": "computeManifestId",
+                  "target": {
+                    "file": "packages/core/src/index.ts"
+                  }
+                },
+                {
+                  "branch": "receipt.manifestId !== expectedManifestId",
+                  "line": 90,
+                  "name": "stampGrantHash",
+                  "target": {
+                    "file": "packages/core/src/index.ts"
+                  }
+                },
+                {
+                  "line": 107,
+                  "name": "computeRevisionHash",
+                  "target": {
+                    "file": "packages/core/src/index.ts"
+                  }
+                },
+                {
+                  "branch": "receipt.manifestRevisionHash !== expectedRevision",
+                  "line": 109,
+                  "name": "stampGrantHash",
+                  "target": {
+                    "file": "packages/core/src/index.ts"
+                  }
+                },
+                {
+                  "line": 126,
+                  "name": "checkHolder",
+                  "target": {
+                    "file": "packages/xrpl/src/index.ts"
+                  }
+                },
+                {
+                  "branch": "holderResult.error",
+                  "line": 133,
+                  "name": "stampGrantHash",
+                  "target": {
+                    "file": "packages/core/src/index.ts"
+                  }
+                },
+                {
+                  "branch": "!holderResult.holds",
+                  "line": 152,
+                  "name": "stampGrantHash",
+                  "target": {
+                    "file": "packages/core/src/index.ts"
+                  }
+                },
+                {
+                  "line": 172,
+                  "name": "createToken",
+                  "target": null
+                },
+                {
+                  "line": 177,
+                  "name": "stampGrantHash",
+                  "target": {
+                    "file": "packages/core/src/index.ts"
+                  }
+                }
+              ],
+              "exported": true,
+              "invokedAtTopLevel": false,
+              "isDefaultExport": false,
+              "name": "grantAccess"
+            }
+          ]
+        },
+        {
+          "hash": "f3a091706a0f6c64098acda8a6644fe6573829690a97b68a39ad4730b40d5136",
+          "parseError": true,
+          "path": "packages/cli/src/commands/init-wallets.test.ts",
+          "unreadSyntax": "typeof-import-argument"
+        },
+        {
+          "entry": "initWallets",
+          "entryRule": 4,
+          "exports": [
+            "initWallets"
+          ],
+          "hash": "cc5d106c5994092acc3eca484668a4f6b6ff5a52b337a1d8d1d3e0af00f7e149",
+          "importsFiles": [
+            "packages/xrpl/src/index.ts"
+          ],
+          "path": "packages/cli/src/commands/init-wallets.ts",
+          "sequences": [
+            {
+              "calls": [
+                {
+                  "line": 41,
+                  "name": "generateWalletPair",
+                  "target": {
+                    "file": "packages/xrpl/src/index.ts"
+                  }
+                },
+                {
+                  "line": 46,
+                  "name": "fundWalletPair",
+                  "target": {
+                    "file": "packages/xrpl/src/index.ts"
+                  }
+                },
+                {
+                  "line": 56,
+                  "name": "authorizeOperatorAsMinter",
+                  "target": {
+                    "file": "packages/xrpl/src/index.ts"
+                  }
+                },
+                {
+                  "line": 67,
+                  "name": "exportWalletPair",
+                  "target": {
+                    "file": "packages/xrpl/src/index.ts"
+                  }
+                }
+              ],
+              "exported": true,
+              "invokedAtTopLevel": false,
+              "isDefaultExport": false,
+              "name": "initWallets"
+            }
+          ]
+        },
+        {
+          "hash": "51b4a7357e331c6e69da4ef8d589e046cbb968145ea53120d447e7e2588e4ad4",
+          "importsFiles": [
+            "packages/cli/src/commands/mint-release.ts"
+          ],
+          "path": "packages/cli/src/commands/mint-release.test.ts"
+        },
+        {
+          "entry": "mintReleaseCommand",
+          "entryRule": 4,
+          "exports": [
+            "mintReleaseCommand"
+          ],
+          "hash": "2da08a4d9e6c001014cab49a288d9dfb8f789c10240d257fdf2f287e614f7f70",
+          "importsFiles": [
+            "packages/cli/src/lib/json-input.ts",
+            "packages/core/src/index.ts",
+            "packages/storage/src/index.ts",
+            "packages/xrpl/src/index.ts"
+          ],
+          "path": "packages/cli/src/commands/mint-release.ts",
+          "sequences": [
+            {
+              "calls": [
+                {
+                  "line": 35,
+                  "name": "readJsonFile",
+                  "target": {
+                    "file": "packages/cli/src/lib/json-input.ts"
+                  }
+                },
+                {
+                  "line": 35,
+                  "name": "assertManifest",
+                  "target": {
+                    "file": "packages/core/src/index.ts"
+                  }
+                },
+                {
+                  "line": 38,
+                  "name": "readJsonFile",
+                  "target": {
+                    "file": "packages/cli/src/lib/json-input.ts"
+                  }
+                },
+                {
+                  "line": 38,
+                  "name": "importWalletPair",
+                  "target": {
+                    "file": "packages/xrpl/src/index.ts"
+                  }
+                },
+                {
+                  "line": 57,
+                  "name": "issueRelease",
+                  "target": {
+                    "file": "packages/xrpl/src/index.ts"
+                  }
+                }
+              ],
+              "exported": true,
+              "invokedAtTopLevel": false,
+              "isDefaultExport": false,
+              "name": "mintReleaseCommand"
+            }
+          ]
+        },
+        {
+          "hash": "d366abd5ecd541685b42d74df357df14328b8829ad0417735649130f661f8142",
+          "importsFiles": [
+            "packages/cli/src/commands/propose-payout.ts",
+            "packages/core/src/index.ts",
+            "packages/xrpl/src/index.ts"
+          ],
+          "path": "packages/cli/src/commands/propose-payout.test.ts"
+        },
+        {
+          "entry": "proposePayout",
+          "entryRule": 4,
+          "exports": [
+            "proposePayout"
+          ],
+          "hash": "d31b7e55947f3dc746c2ee688ea081be20d63b5362b484a90562bfa0baed5ceb",
+          "importsFiles": [
+            "packages/cli/src/lib/json-input.ts",
+            "packages/core/src/index.ts"
+          ],
+          "path": "packages/cli/src/commands/propose-payout.ts",
+          "sequences": [
+            {
+              "calls": [
+                {
+                  "line": 30,
+                  "name": "readJsonFile",
+                  "target": {
+                    "file": "packages/cli/src/lib/json-input.ts"
+                  }
+                },
+                {
+                  "line": 30,
+                  "name": "assertGovernancePolicy",
+                  "target": {
+                    "file": "packages/core/src/index.ts"
+                  }
+                },
+                {
+                  "line": 47,
+                  "name": "assertPayoutProposal",
+                  "target": {
+                    "file": "packages/core/src/index.ts"
+                  }
+                },
+                {
+                  "line": 50,
+                  "name": "checkProposalAgainstPolicy",
+                  "target": {
+                    "file": "packages/core/src/index.ts"
+                  }
+                },
+                {
+                  "line": 57,
+                  "name": "stampProposalHash",
+                  "target": {
+                    "file": "packages/core/src/index.ts"
+                  }
+                }
+              ],
+              "exported": true,
+              "invokedAtTopLevel": false,
+              "isDefaultExport": false,
+              "name": "proposePayout"
+            }
+          ]
+        },
+        {
+          "hash": "24e5d13147dfb528a788d04b5dcd2ab2ca2174b9b4bd3270892a2959dec0c79b",
+          "importsFiles": [
+            "packages/cli/src/commands/recover-release.ts",
+            "packages/core/src/index.ts",
+            "packages/xrpl/src/index.ts"
+          ],
+          "path": "packages/cli/src/commands/recover-release.test.ts"
+        },
+        {
+          "entry": "recoverRelease",
+          "entryRule": 4,
+          "exports": [
+            "buildMintFactsLines",
+            "recoverRelease"
+          ],
+          "hash": "89f5046ca3f3aff742b1ef054332325a3b9e174d9717041a785c4b4e08bcd61a",
+          "importsFiles": [
+            "packages/cli/src/lib/json-input.ts",
+            "packages/core/src/index.ts",
+            "packages/xrpl/src/index.ts"
+          ],
+          "path": "packages/cli/src/commands/recover-release.ts",
+          "sequences": [
+            {
+              "calls": [
+                {
+                  "line": 103,
+                  "name": "readJsonFile",
+                  "target": {
+                    "file": "packages/cli/src/lib/json-input.ts"
+                  }
+                },
+                {
+                  "line": 103,
+                  "name": "assertManifest",
+                  "target": {
+                    "file": "packages/core/src/index.ts"
+                  }
+                },
+                {
+                  "line": 104,
+                  "name": "readJsonFile",
+                  "target": {
+                    "file": "packages/cli/src/lib/json-input.ts"
+                  }
+                },
+                {
+                  "line": 104,
+                  "name": "assertReceipt",
+                  "target": {
+                    "file": "packages/core/src/index.ts"
+                  }
+                },
+                {
+                  "line": 108,
+                  "name": "readJsonFile",
+                  "target": {
+                    "file": "packages/cli/src/lib/json-input.ts"
+                  }
+                },
+                {
+                  "line": 108,
+                  "name": "assertAccessPolicy",
+                  "target": {
+                    "file": "packages/core/src/index.ts"
+                  }
+                },
+                {
+                  "line": 113,
+                  "name": "deriveRecoveryBundle",
+                  "target": {
+                    "file": "packages/core/src/index.ts"
+                  }
+                },
+                {
+                  "line": 117,
+                  "name": "computeManifestId",
+                  "target": {
+                    "file": "packages/core/src/index.ts"
+                  }
+                },
+                {
+                  "line": 118,
+                  "name": "computeRevisionHash",
+                  "target": {
+                    "file": "packages/core/src/index.ts"
+                  }
+                },
+                {
+                  "line": 150,
+                  "name": "computeReceiptHash",
+                  "target": {
+                    "file": "packages/core/src/index.ts"
+                  }
+                },
+                {
+                  "line": 223,
+                  "name": "verifyAuthorizedMinter",
+                  "target": {
+                    "file": "packages/xrpl/src/index.ts"
+                  }
+                },
+                {
+                  "line": 244,
+                  "name": "readNftFromLedger",
+                  "target": {
+                    "file": "packages/xrpl/src/index.ts"
+                  }
+                }
+              ],
+              "exported": true,
+              "invokedAtTopLevel": false,
+              "isDefaultExport": false,
+              "name": "recoverRelease"
+            }
+          ]
+        },
+        {
+          "hash": "2f589fa9bf563d941dcb794d50a34806ec26668b0374958aca2944764a4f7703",
+          "importsFiles": [
+            "packages/cli/src/commands/resolve.ts"
+          ],
+          "path": "packages/cli/src/commands/resolve.test.ts"
+        },
+        {
+          "entry": "resolveManifestFile",
+          "entryRule": 4,
+          "exports": [
+            "resolveManifestFile"
+          ],
+          "hash": "915de1820616224978cf7f4c701ea9f4cca19a66f6a4eeaedf76c3891b9d04f3",
+          "importsFiles": [
+            "packages/cli/src/lib/json-input.ts",
+            "packages/core/src/index.ts"
+          ],
+          "path": "packages/cli/src/commands/resolve.ts",
+          "sequences": [
+            {
+              "calls": [
+                {
+                  "line": 19,
+                  "name": "readJsonFile",
+                  "target": {
+                    "file": "packages/cli/src/lib/json-input.ts"
+                  }
+                },
+                {
+                  "line": 20,
+                  "name": "assertManifest",
+                  "target": {
+                    "file": "packages/core/src/index.ts"
+                  }
+                },
+                {
+                  "line": 21,
+                  "name": "resolveManifestPointers",
+                  "target": {
+                    "file": "packages/core/src/index.ts"
+                  }
+                }
+              ],
+              "exported": true,
+              "invokedAtTopLevel": false,
+              "isDefaultExport": false,
+              "name": "resolveManifestFile"
+            }
+          ]
+        },
+        {
+          "hash": "fb1e35c51da5794dfa150a4e98f2fb2506f2733cdccd4a2adc5a48bf57e7a4dd",
+          "importsFiles": [
+            "packages/cli/src/commands/validate.ts"
+          ],
+          "path": "packages/cli/src/commands/validate.test.ts"
+        },
+        {
+          "entry": "validateManifestFile",
+          "entryRule": 4,
+          "exports": [
+            "validateManifestFile"
+          ],
+          "hash": "a814bad13202750f17ad966aa9d384dded9ec341e03a664a5986151963938b1e",
+          "importsFiles": [
+            "packages/core/src/index.ts"
+          ],
+          "path": "packages/cli/src/commands/validate.ts",
+          "sequences": [
+            {
+              "calls": [
+                {
+                  "line": 20,
+                  "name": "validateManifest",
+                  "target": {
+                    "file": "packages/core/src/index.ts"
+                  }
+                }
+              ],
+              "exported": true,
+              "invokedAtTopLevel": false,
+              "isDefaultExport": false,
+              "name": "validateManifestFile"
+            }
+          ]
+        },
+        {
+          "hash": "7436ddebd798d7c6fc3575f2f7ee51ac826ef5a2750f44a440dec8c7f60f63c4",
+          "parseError": true,
+          "path": "packages/cli/src/commands/verify-payout.test.ts",
+          "unreadSyntax": "typeof-import-argument"
+        },
+        {
+          "exports": [
+            "verifyPayout"
+          ],
+          "hash": "3baff81d09dfdbdc1b9f3a15bfb813b22c2fdbf97c4f3a43698f3cd6d2346d71",
+          "importsFiles": [
+            "packages/cli/src/lib/json-input.ts",
+            "packages/core/src/index.ts",
+            "packages/xrpl/src/index.ts"
+          ],
+          "path": "packages/cli/src/commands/verify-payout.ts"
+        },
+        {
+          "hash": "ec59c7bf7ed9329033a697dca7b60bc8459395f1c1b65cf53ccc7613dd59c22e",
+          "importsFiles": [
+            "packages/cli/src/commands/verify-release.ts",
+            "packages/core/src/index.ts",
+            "packages/xrpl/src/index.ts"
+          ],
+          "path": "packages/cli/src/commands/verify-release.test.ts"
+        },
+        {
+          "entry": "verifyRelease",
+          "entryRule": 4,
+          "exports": [
+            "verifyRelease"
+          ],
+          "hash": "1e8e37a8ba26705e629d3da045fcacee7deaaa24a52f39196915b509ebd9550a",
+          "importsFiles": [
+            "packages/cli/src/lib/json-input.ts",
+            "packages/core/src/index.ts",
+            "packages/xrpl/src/index.ts"
+          ],
+          "path": "packages/cli/src/commands/verify-release.ts",
+          "sequences": [
+            {
+              "calls": [
+                {
+                  "line": 44,
+                  "name": "readJsonFile",
+                  "target": {
+                    "file": "packages/cli/src/lib/json-input.ts"
+                  }
+                },
+                {
+                  "line": 44,
+                  "name": "assertManifest",
+                  "target": {
+                    "file": "packages/core/src/index.ts"
+                  }
+                },
+                {
+                  "line": 45,
+                  "name": "readJsonFile",
+                  "target": {
+                    "file": "packages/cli/src/lib/json-input.ts"
+                  }
+                },
+                {
+                  "line": 45,
+                  "name": "assertReceipt",
+                  "target": {
+                    "file": "packages/core/src/index.ts"
+                  }
+                },
+                {
+                  "line": 49,
+                  "name": "computeManifestId",
+                  "target": {
+                    "file": "packages/core/src/index.ts"
+                  }
+                },
+                {
+                  "line": 61,
+                  "name": "computeRevisionHash",
+                  "target": {
+                    "file": "packages/core/src/index.ts"
+                  }
+                },
+                {
+                  "line": 74,
+                  "name": "computeReceiptHash",
+                  "target": {
+                    "file": "packages/core/src/index.ts"
+                  }
+                },
+                {
+                  "line": 170,
+                  "name": "verifyAuthorizedMinter",
+                  "target": {
+                    "file": "packages/xrpl/src/index.ts"
+                  }
+                },
+                {
+                  "line": 198,
+                  "name": "readNftFromLedger",
+                  "target": {
+                    "file": "packages/xrpl/src/index.ts"
+                  }
+                }
+              ],
+              "exported": true,
+              "invokedAtTopLevel": false,
+              "isDefaultExport": false,
+              "name": "verifyRelease"
+            }
+          ]
+        },
+        {
+          "hash": "4508d07f2a3f615d377f35e89eb12fc7649c4edb5aecf33808822f7160055f1f",
+          "parseError": true,
+          "path": "packages/cli/src/commands/xaman-flow.test.ts",
+          "unreadSyntax": "typeof-import-argument"
+        },
+        {
+          "entry": "mintReleaseViaXaman",
+          "entryRule": 4,
+          "exports": [
+            "configureMinterViaXaman",
+            "mintReleaseViaXaman"
+          ],
+          "hash": "0ea8ce360be6f7281ff274a9a3e8f7655896670cd2eacc0e033131a2d1c79ac7",
+          "importsFiles": [
+            "packages/cli/src/lib/json-input.ts",
+            "packages/core/src/index.ts",
+            "packages/xaman/src/index.ts"
+          ],
+          "path": "packages/cli/src/commands/xaman-flow.ts",
+          "sequences": [
+            {
+              "calls": [
+                {
+                  "line": 127,
+                  "name": "buildConfigureMinterPayload",
+                  "target": {
+                    "file": "packages/xaman/src/index.ts"
+                  }
+                },
+                {
+                  "line": 128,
+                  "name": "createPayload",
+                  "receiver": "XamanClient",
+                  "target": {
+                    "file": "packages/xaman/src/index.ts"
+                  }
+                },
+                {
+                  "line": 135,
+                  "name": "subscribeToPayload",
+                  "receiver": "XamanClient",
+                  "target": {
+                    "file": "packages/xaman/src/index.ts"
+                  }
+                },
+                {
+                  "line": 141,
+                  "name": "verifyPayloadResult",
+                  "target": {
+                    "file": "packages/xaman/src/index.ts"
+                  }
+                }
+              ],
+              "exported": true,
+              "invokedAtTopLevel": false,
+              "isDefaultExport": false,
+              "name": "configureMinterViaXaman"
+            },
+            {
+              "calls": [
+                {
+                  "line": 170,
+                  "name": "readJsonFile",
+                  "target": {
+                    "file": "packages/cli/src/lib/json-input.ts"
+                  }
+                },
+                {
+                  "line": 170,
+                  "name": "assertManifest",
+                  "target": {
+                    "file": "packages/core/src/index.ts"
+                  }
+                },
+                {
+                  "line": 172,
+                  "name": "computeManifestId",
+                  "target": {
+                    "file": "packages/core/src/index.ts"
+                  }
+                },
+                {
+                  "line": 173,
+                  "name": "computeRevisionHash",
+                  "target": {
+                    "file": "packages/core/src/index.ts"
+                  }
+                },
+                {
+                  "line": 184,
+                  "name": "buildMintPayload",
+                  "target": {
+                    "file": "packages/xaman/src/index.ts"
+                  }
+                },
+                {
+                  "line": 185,
+                  "name": "createPayload",
+                  "receiver": "XamanClient",
+                  "target": {
+                    "file": "packages/xaman/src/index.ts"
+                  }
+                },
+                {
+                  "line": 192,
+                  "name": "subscribeToPayload",
+                  "receiver": "XamanClient",
+                  "target": {
+                    "file": "packages/xaman/src/index.ts"
+                  }
+                },
+                {
+                  "line": 203,
+                  "name": "verifySignerAddress",
+                  "target": {
+                    "file": "packages/xaman/src/index.ts"
+                  }
+                },
+                {
+                  "line": 204,
+                  "name": "verifyPayloadResult",
+                  "target": {
+                    "file": "packages/xaman/src/index.ts"
+                  }
+                }
+              ],
+              "exported": true,
+              "invokedAtTopLevel": false,
+              "isDefaultExport": false,
+              "name": "mintReleaseViaXaman"
+            }
+          ]
+        },
+        {
+          "hash": "df2d16a6e8cffdd4ef857ff570e6f01e474aa480241a9af9704f0dbe62891523",
+          "importsFiles": [
+            "packages/cli/src/commands/configure-minter.ts",
+            "packages/cli/src/commands/create-release.ts",
+            "packages/cli/src/commands/init-wallets.ts",
+            "packages/cli/src/commands/mint-release.ts",
+            "packages/cli/src/commands/resolve.ts",
+            "packages/cli/src/commands/validate.ts",
+            "packages/cli/src/commands/verify-release.ts",
+            "packages/cli/src/commands/xaman-flow.ts"
+          ],
+          "path": "packages/cli/src/index.ts"
+        },
+        {
+          "hash": "ade8e14119288c922f2585927acd9f36e567094c1f416303ac3b4e68af83384f",
+          "importsFiles": [
+            "packages/cli/src/lib/json-input.ts"
+          ],
+          "path": "packages/cli/src/lib/json-input.test.ts"
+        },
+        {
+          "exports": [
+            "parseJsonArgument",
+            "readJsonFile"
+          ],
+          "hash": "27bc650cfa8a31d831bf66d71b0570edd980ee656230e7b43cf4b70768155993",
+          "path": "packages/cli/src/lib/json-input.ts"
+        },
+        {
+          "exports": [
+            "runBin"
+          ],
+          "hash": "2ba1e3fdb565f54fc2ae591d4b56571fb2af2801f520811438d96c7ad984fc87",
+          "importsFiles": [
+            "packages/cli/src/bin.ts"
+          ],
+          "path": "packages/cli/src/test-support/run-bin.ts"
+        },
+        {
+          "hash": "e83db01d5bf68522cbf05255d51eb90057da026a5fd1fc205dbaa5cf67f2eb48",
+          "path": "packages/cli/tsconfig.json"
+        }
+      ],
+      "globs": [
+        "packages/cli/**"
+      ],
+      "importConfidence": "full",
+      "name": "cli",
+      "origin": "authored",
+      "outsideReads": 3,
+      "outsideWrites": 8,
+      "role": "code",
+      "testedBy": 22,
+      "unresolvedSites": 0
+    },
+    {
+      "dynamicReads": 0,
+      "dynamicSpawns": 0,
+      "dynamicSpawnsInTests": 0,
+      "dynamicWrites": 0,
+      "entryPoints": [
+        "packages/core/src/index.ts"
+      ],
+      "externals": 0,
+      "files": [
+        {
+          "hash": "d8d1138f5f9fe2f6ab2c807cc602d4ef99ea7ad84e7a91519ab317dd86fac35f",
+          "path": "packages/core/package.json"
+        },
+        {
+          "hash": "1613ef5da51456b6ba18d442d9c04e82f5e37f52ed2e87c500b67ff8ead5e670",
+          "importsFiles": [
+            "packages/core/src/access-grant.ts"
+          ],
+          "path": "packages/core/src/access-grant-schema.ts"
+        },
+        {
+          "hash": "432d1b494065864783001beb17e9dc2b7a01530e445b8f0d8a2cb7f56b6a8c29",
+          "importsFiles": [
+            "packages/core/src/access-grant-validate.ts",
+            "packages/core/src/access-grant.ts"
+          ],
+          "path": "packages/core/src/access-grant-validate.test.ts"
+        },
+        {
+          "exports": [
+            "assertAccessGrant",
+            "computeGrantHash",
+            "stampGrantHash",
+            "validateAccessGrant"
+          ],
+          "hash": "accbecdf84ad7f72f4f226888fec47d5e467b3829f9f72681d80d905886dd166",
+          "importsFiles": [
+            "packages/core/src/access-grant-schema.ts",
+            "packages/core/src/access-grant.ts",
+            "packages/core/src/ajv-formats-interop.ts",
+            "packages/core/src/hash.ts",
+            "packages/core/src/validate.ts"
+          ],
+          "path": "packages/core/src/access-grant-validate.ts"
+        },
+        {
+          "hash": "cc290e15f2a7a951ced89d0ff6120d98892987a2172c734db8e152a1f73294cd",
+          "path": "packages/core/src/access-grant.ts"
+        },
+        {
+          "hash": "61772d4a09ba92dfd5191cfbfad99f5df72d1d7f4578947bd17c3333c3e1bb27",
+          "importsFiles": [
+            "packages/core/src/access-policy.ts"
+          ],
+          "path": "packages/core/src/access-policy-schema.ts"
+        },
+        {
+          "hash": "e4df61309a1c8bffb25481ed8d2d08faa45f4cd45d3af2913106638e937d0a5c",
+          "importsFiles": [
+            "packages/core/src/access-policy-validate.ts",
+            "packages/core/src/access-policy.ts",
+            "packages/core/src/hash.ts",
+            "packages/core/src/manifest.ts",
+            "packages/core/src/receipt.ts"
+          ],
+          "path": "packages/core/src/access-policy-validate.test.ts"
+        },
+        {
+          "exports": [
+            "assertAccessPolicy",
+            "checkPolicyCoherence",
+            "validateAccessPolicy"
+          ],
+          "hash": "a641f478010c9fac0ac1a2aee23ab768746775ca7593e13c142c2955ca921542",
+          "importsFiles": [
+            "packages/core/src/access-policy-schema.ts",
+            "packages/core/src/access-policy.ts",
+            "packages/core/src/ajv-formats-interop.ts",
+            "packages/core/src/hash.ts",
+            "packages/core/src/manifest.ts",
+            "packages/core/src/receipt.ts",
+            "packages/core/src/validate.ts"
+          ],
+          "path": "packages/core/src/access-policy-validate.ts"
+        },
+        {
+          "hash": "c06e9a9e901fb3c374889f6c71eb539d21d1f4d55be553fb2596e3c849e5d7e7",
+          "path": "packages/core/src/access-policy.ts"
+        },
+        {
+          "hash": "22636b2ae17c4a260c93a42858517df222d41f70d517696c6c198f171f875980",
+          "path": "packages/core/src/ajv-formats-interop.ts"
+        },
+        {
+          "hash": "b2a8ee78c8604e6028bd8172526cbbe24c03526a5e3556417585d39abc2cc227",
+          "importsFiles": [
+            "packages/core/src/governance-policy.ts"
+          ],
+          "path": "packages/core/src/governance-policy-schema.ts"
+        },
+        {
+          "hash": "79f764959ebf233d868142f911073c454ac10b73919f4de42bf181bfaf325b4c",
+          "path": "packages/core/src/governance-policy.ts"
+        },
+        {
+          "hash": "a3c0ab44024f78ffef01a7eaf826c18b503d4d0e134c0637a3eb11e1d944653d",
+          "importsFiles": [
+            "packages/core/src/governance-policy.ts",
+            "packages/core/src/governance-validate.ts",
+            "packages/core/src/payout-decision.ts",
+            "packages/core/src/payout-execution.ts",
+            "packages/core/src/payout-proposal.ts"
+          ],
+          "path": "packages/core/src/governance-validate.test.ts"
+        },
+        {
+          "exports": [
+            "assertGovernancePolicy",
+            "assertPayoutDecision",
+            "assertPayoutExecution",
+            "assertPayoutProposal",
+            "checkDecisionAgainstProposal",
+            "checkExecutionAgainstDecision",
+            "checkProposalAgainstPolicy",
+            "computeDecisionHash",
+            "computeExecutionHash",
+            "computePolicyHash",
+            "computeProposalHash",
+            "evaluateApprovals",
+            "stampDecisionHash",
+            "stampExecutionHash",
+            "stampPolicyHash",
+            "stampProposalHash",
+            "validateGovernancePolicy",
+            "validatePayoutDecision",
+            "validatePayoutExecution",
+            "validatePayoutProposal"
+          ],
+          "hash": "91bc79db4a824269686a4cf273f76ca87f5b377a8200f3c4d23f0ecddfa7c184",
+          "importsFiles": [
+            "packages/core/src/ajv-formats-interop.ts",
+            "packages/core/src/governance-policy-schema.ts",
+            "packages/core/src/governance-policy.ts",
+            "packages/core/src/hash.ts",
+            "packages/core/src/payout-decision-schema.ts",
+            "packages/core/src/payout-decision.ts",
+            "packages/core/src/payout-execution-schema.ts",
+            "packages/core/src/payout-execution.ts",
+            "packages/core/src/payout-proposal-schema.ts",
+            "packages/core/src/payout-proposal.ts",
+            "packages/core/src/validate.ts"
+          ],
+          "path": "packages/core/src/governance-validate.ts"
+        },
+        {
+          "hash": "5a60ed4e2b5e1efb68f9b9fb177557cbcaa972e3768433ad7d74f4a4d30e1950",
+          "importsFiles": [
+            "packages/core/src/hash.ts",
+            "packages/core/src/validate.ts"
+          ],
+          "path": "packages/core/src/hash.test.ts"
+        },
+        {
+          "exports": [
+            "computeManifestId",
+            "computeRevisionHash",
+            "sortKeysDeep",
+            "stampManifestId"
+          ],
+          "hash": "9be4f69c14dfd94d46b2ae672d8773060fed16ad9ac699505b15c5c542373a8e",
+          "importsFiles": [
+            "packages/core/src/manifest.ts"
+          ],
+          "path": "packages/core/src/hash.ts"
+        },
+        {
+          "hash": "cc75e3edf581d62f972df01a61b4e5f4f51cc1cfbe0f239a63771aefc5c9fc85",
+          "importsFiles": [
+            "packages/core/src/access-grant-schema.ts",
+            "packages/core/src/access-grant-validate.ts",
+            "packages/core/src/access-grant.ts",
+            "packages/core/src/access-policy-schema.ts",
+            "packages/core/src/access-policy-validate.ts",
+            "packages/core/src/access-policy.ts",
+            "packages/core/src/governance-policy-schema.ts",
+            "packages/core/src/governance-policy.ts",
+            "packages/core/src/governance-validate.ts",
+            "packages/core/src/hash.ts",
+            "packages/core/src/manifest.ts",
+            "packages/core/src/payout-decision-schema.ts",
+            "packages/core/src/payout-decision.ts",
+            "packages/core/src/payout-execution-schema.ts",
+            "packages/core/src/payout-execution.ts",
+            "packages/core/src/payout-proposal-schema.ts",
+            "packages/core/src/payout-proposal.ts",
+            "packages/core/src/receipt-schema.ts",
+            "packages/core/src/receipt-validate.ts",
+            "packages/core/src/receipt.ts",
+            "packages/core/src/recovery-bundle-schema.ts",
+            "packages/core/src/recovery-bundle-validate.ts",
+            "packages/core/src/recovery-bundle.ts",
+            "packages/core/src/resolve.ts",
+            "packages/core/src/schema.ts",
+            "packages/core/src/validate.ts"
+          ],
+          "path": "packages/core/src/index.ts"
+        },
+        {
+          "hash": "f67f58afe44f8de61c2bade54644480620400595a14d042fe61787c71ed0c661",
+          "path": "packages/core/src/manifest.ts"
+        },
+        {
+          "hash": "6cdab94e7731c56c73db0143f939bfeafd0bc30998c740e063db965d4aa5a09f",
+          "importsFiles": [
+            "packages/core/src/payout-decision.ts"
+          ],
+          "path": "packages/core/src/payout-decision-schema.ts"
+        },
+        {
+          "hash": "244ac8c6e331e1478ee13081cb3c41e18310f61a503a2768b64ac0616172c653",
+          "importsFiles": [
+            "packages/core/src/governance-policy.ts"
+          ],
+          "path": "packages/core/src/payout-decision.ts"
+        },
+        {
+          "hash": "a908cb083290b235cb20d8b55959f02a538e6b7a94a701522470d8e92fdfef06",
+          "importsFiles": [
+            "packages/core/src/payout-execution.ts"
+          ],
+          "path": "packages/core/src/payout-execution-schema.ts"
+        },
+        {
+          "hash": "2b7043d2aad4b477e99f6dcc7ff4b48077871f3d80fb00d5dbad8bfe313e0cd7",
+          "importsFiles": [
+            "packages/core/src/governance-policy.ts"
+          ],
+          "path": "packages/core/src/payout-execution.ts"
+        },
+        {
+          "hash": "110a56489770cc1bd1d7c7a210581b118d076e3cdb230a21bf50d23565c37734",
+          "importsFiles": [
+            "packages/core/src/payout-proposal.ts"
+          ],
+          "path": "packages/core/src/payout-proposal-schema.ts"
+        },
+        {
+          "hash": "74a68d47e339f55175797f5f74d6cbb84863e16dd6e05423d4e1880c84cbb9cd",
+          "importsFiles": [
+            "packages/core/src/governance-policy.ts"
+          ],
+          "path": "packages/core/src/payout-proposal.ts"
+        },
+        {
+          "hash": "bbd88e0c7665913e7a75b3bba0276906d795f67562cafbeb45541741c90a2622",
+          "importsFiles": [
+            "packages/core/src/receipt.ts"
+          ],
+          "path": "packages/core/src/receipt-schema.ts"
+        },
+        {
+          "hash": "85eaafe0451a266a5208da5486b1cde0a926ed0c1ac5b1d17adb5c5b5478069c",
+          "importsFiles": [
+            "packages/core/src/receipt-validate.ts",
+            "packages/core/src/receipt.ts"
+          ],
+          "path": "packages/core/src/receipt-validate.test.ts"
+        },
+        {
+          "exports": [
+            "assertReceipt",
+            "computeReceiptHash",
+            "stampReceiptHash",
+            "validateReceipt"
+          ],
+          "hash": "622bd53096e1740b3ea9ce560502d93dad8c663f903119661351a2c5724603b8",
+          "importsFiles": [
+            "packages/core/src/ajv-formats-interop.ts",
+            "packages/core/src/hash.ts",
+            "packages/core/src/receipt-schema.ts",
+            "packages/core/src/receipt.ts",
+            "packages/core/src/validate.ts"
+          ],
+          "path": "packages/core/src/receipt-validate.ts"
+        },
+        {
+          "hash": "d2bdc592ceef2410d0eaccbec447fbf93d4620fee599f97b4cb30a45923cff48",
+          "path": "packages/core/src/receipt.ts"
+        },
+        {
+          "hash": "7c870571dad2b3e897ec20623befbf2c04f0ef87fad0d845ab47cf8186a86ed8",
+          "importsFiles": [
+            "packages/core/src/recovery-bundle.ts"
+          ],
+          "path": "packages/core/src/recovery-bundle-schema.ts"
+        },
+        {
+          "hash": "e185caa7e86bf99a3af711c17a2bf5b9647849d6b52f92225ebc12d152da1afe",
+          "importsFiles": [
+            "packages/core/src/access-policy.ts",
+            "packages/core/src/hash.ts",
+            "packages/core/src/manifest.ts",
+            "packages/core/src/receipt-validate.ts",
+            "packages/core/src/receipt.ts",
+            "packages/core/src/recovery-bundle-validate.ts",
+            "packages/core/src/recovery-bundle.ts"
+          ],
+          "path": "packages/core/src/recovery-bundle-validate.test.ts"
+        },
+        {
+          "exports": [
+            "assertRecoveryBundle",
+            "computeBundleHash",
+            "deriveRecoveryBundle",
+            "stampBundleHash",
+            "validateRecoveryBundle",
+            "verifyBundleConsistency"
+          ],
+          "hash": "28ead58615219786df2ff797f6f353133302299bd76e9a8b84bdbe4154a23127",
+          "importsFiles": [
+            "packages/core/src/access-policy.ts",
+            "packages/core/src/ajv-formats-interop.ts",
+            "packages/core/src/hash.ts",
+            "packages/core/src/manifest.ts",
+            "packages/core/src/receipt-validate.ts",
+            "packages/core/src/receipt.ts",
+            "packages/core/src/recovery-bundle-schema.ts",
+            "packages/core/src/recovery-bundle.ts",
+            "packages/core/src/validate.ts"
+          ],
+          "path": "packages/core/src/recovery-bundle-validate.ts"
+        },
+        {
+          "hash": "3e06b4d22b6387aa4c1d83a6133f36eca2de4e78db971bcd7d32bbd4878abe21",
+          "path": "packages/core/src/recovery-bundle.ts"
+        },
+        {
+          "hash": "8c1eea7db1d1a6fa7d11c126e175f47b6b507cfbe157185f77059a24752e17a9",
+          "importsFiles": [
+            "packages/core/src/resolve.ts",
+            "packages/core/src/validate.ts"
+          ],
+          "path": "packages/core/src/resolve.test.ts"
+        },
+        {
+          "exports": [
+            "resolveManifestPointers"
+          ],
+          "hash": "18b71909b2ae4dfc0c73f12da79349e823b47e718ac7d3da9582176878fa04af",
+          "importsFiles": [
+            "packages/core/src/manifest.ts"
+          ],
+          "path": "packages/core/src/resolve.ts"
+        },
+        {
+          "hash": "c92a4eb8a59a06a84a290bb539ba9311d9370b49f82d4b5982230c896c041837",
+          "importsFiles": [
+            "packages/core/src/manifest.ts"
+          ],
+          "path": "packages/core/src/schema.ts"
+        },
+        {
+          "hash": "8a3e833fecc09c6c31d7b29025f027dac37daf55c469deba5c160a97d4b3ad70",
+          "importsFiles": [
+            "packages/core/src/validate.ts"
+          ],
+          "path": "packages/core/src/validate.test.ts"
+        },
+        {
+          "exports": [
+            "assertManifest",
+            "validateManifest"
+          ],
+          "hash": "527c96d159c5369a4b58cde0ee2648aa47027f8be7b2efe4d4de73882ce89057",
+          "importsFiles": [
+            "packages/core/src/ajv-formats-interop.ts",
+            "packages/core/src/manifest.ts",
+            "packages/core/src/schema.ts"
+          ],
+          "path": "packages/core/src/validate.ts"
+        },
+        {
+          "hash": "b321bd6c93a0cb3a4eef58b3c886e4ef7895fae795a461bc8c2a1db3d85a5dfd",
+          "path": "packages/core/tsconfig.json"
+        }
+      ],
+      "globs": [
+        "packages/core/**"
+      ],
+      "importConfidence": "full",
+      "name": "core",
+      "origin": "authored",
+      "role": "code",
+      "testedBy": 30,
+      "unresolvedSites": 0
+    },
+    {
+      "dynamicReads": 0,
+      "dynamicSpawns": 0,
+      "dynamicSpawnsInTests": 0,
+      "dynamicWrites": 0,
+      "entryPoints": [],
+      "externals": 0,
+      "files": [
+        {
+          "hash": "306f06f6db88b28e1e5813748666f49eac941fb3a8c2468dc465785661f2b31d",
+          "path": "docs/handbook.md"
+        }
+      ],
+      "globs": [
+        "docs/**"
+      ],
+      "importConfidence": "full",
+      "name": "docs",
+      "origin": "authored",
+      "role": "docs",
+      "testedBy": 0,
+      "unresolvedSites": 0
+    },
+    {
+      "dynamicReads": 0,
+      "dynamicSpawns": 0,
+      "dynamicSpawnsInTests": 0,
+      "dynamicWrites": 0,
+      "entryPoints": [],
+      "externals": 0,
+      "files": [
+        {
+          "hash": "e65bbf56ece09371fc6523fd886758a9f93e8c27fc4c5a6bc5f311a518feb8c6",
+          "path": "fixtures/direct-rail-access-grant-allow.json"
+        },
+        {
+          "hash": "cf12ea0a1188f692343dc551379b395b610d3505a22630b424485ba920641542",
+          "path": "fixtures/direct-rail-access-grant-deny.json"
+        },
+        {
+          "hash": "87a982bfc8a1e6aa7bfa1d54496ff39dd9c30e87673bd79a1b10b392b8df4162",
+          "path": "fixtures/direct-rail-access-policy.json"
+        },
+        {
+          "hash": "a4d52e56e52feff80a9a72ed83e8d8bc2971ee0d1fed924c1c19fd2f5a7a4ae5",
+          "path": "fixtures/direct-rail-governance-policy.json"
+        },
+        {
+          "hash": "f38ed56791753be02bed5bcd2d255db4cf38416a084ef75cf86882ebc68e172d",
+          "path": "fixtures/direct-rail-manifest.json"
+        },
+        {
+          "hash": "a6247eb535192034cdbf647d4d522dd2bdd7b54952709af6a9db8c370715c52a",
+          "path": "fixtures/direct-rail-payout-decision.json"
+        },
+        {
+          "hash": "18021a666668add04a97b474c63e754b8f38a6e58968c38babbd453cdee1b7f3",
+          "path": "fixtures/direct-rail-payout-execution.json"
+        },
+        {
+          "hash": "fd6ffbfb933d226c38329a31fb7cfb35d70f40348ffd1f2e1a1c4a8bc60e008c",
+          "path": "fixtures/direct-rail-payout-proposal.json"
+        },
+        {
+          "hash": "662359570645fa6a1b86e88baae9a604de5fdde25e967eec56f4940549e0b481",
+          "path": "fixtures/direct-rail-receipt.json"
+        },
+        {
+          "hash": "0812c4bf8fba115bc11cd2be745f0ad35563d2f34dfd006a1ff3b9c7d1268a1d",
+          "path": "fixtures/direct-rail-recovery-bundle.json"
+        },
+        {
+          "hash": "19d14e00f6ac089c77270236817fea0466e1c51ba94e825175926e4410d8286e",
+          "path": "fixtures/direct-rail-wallets.json"
+        },
+        {
+          "hash": "18c86f62ebd2e27e62d540377061ebfd4166495fb1c66c0f0f32c2bf53a202e3",
+          "path": "fixtures/sample-release.json"
+        }
+      ],
+      "globs": [
+        "fixtures/**"
+      ],
+      "importConfidence": "full",
+      "name": "fixtures",
+      "origin": "authored",
+      "role": "data",
+      "testedBy": 0,
+      "unresolvedSites": 0
+    },
+    {
+      "dynamicReads": 0,
+      "dynamicSpawns": 0,
+      "dynamicSpawnsInTests": 0,
+      "dynamicWrites": 0,
+      "entryPoints": [],
+      "externals": 0,
+      "files": [
+        {
+          "hash": "eedb76c5a4258cfdc2d0927e5cfe3bd37b0abcfa0642e61b4caddb8091768ef4",
+          "path": ".gitignore"
+        },
+        {
+          "hash": "5989fa4421559360f21b10a20fbe5a7397fafd1770155490c7f7d93dd78eae43",
+          "path": "CHANGELOG.md"
+        },
+        {
+          "hash": "5ae6b3c8f446f0a7cb95176e4dadb91b68aaffb16b3be09f64f5de248b6a973a",
+          "path": "LICENSE"
+        },
+        {
+          "hash": "a9bb527c1b1cc6bf233284977f803b8d416e3df85c1296fa60b3dad86f74b0f5",
+          "path": "README.es.md"
+        },
+        {
+          "hash": "5807615fc1c6ccaaef7772cd4ea030c385e41b33271fd8c63f2ba8efd4466052",
+          "path": "README.fr.md"
+        },
+        {
+          "hash": "169392d174204fe51084bb3117863ce9abfa8c2e05211ab02f0d5d9572033b7d",
+          "path": "README.hi.md"
+        },
+        {
+          "hash": "0c2582c8e475c422e1745fa1cf934997e96f65959a776079b395ec1652f95c29",
+          "path": "README.it.md"
+        },
+        {
+          "hash": "260e2873fb98f90b8e525740a0daed8679f70744d23c7dc810abaf4dc3fdb94a",
+          "path": "README.ja.md"
+        },
+        {
+          "hash": "72a023daa2476327793ba5765c093a56c1877ebb429f8b68a3d720c5bad6f9c9",
+          "path": "README.md"
+        },
+        {
+          "hash": "2b54e68d994ff51793cb10d292c131c355f5676c2bef839f4c01ef19c90ae39b",
+          "path": "README.pt-BR.md"
+        },
+        {
+          "hash": "b435b8c40c08b4eb6a31dfe7bdf6caac0502b8fbf5536b17a27e91ec3bdedcdb",
+          "path": "README.zh.md"
+        },
+        {
+          "hash": "3c97799787538a61aed96675d7e9a21bf189a77e9bd7afa414113c5aa7840dfc",
+          "path": "SCORECARD.md"
+        },
+        {
+          "hash": "a95a66f75716da8d3dcfc6acb195d4fe5bf2413e48782063ef74dbcf7402af15",
+          "path": "SECURITY.md"
+        },
+        {
+          "hash": "8e37e7cbdaee8c464dafe86a7f92a6eb901396d0ef26c4224d8514c8c9b5223f",
+          "path": "SHIP_GATE.md"
+        },
+        {
+          "hash": "79d5565374df24f057135bf27179b72201c403129161f50b977e3fb46a9afe39",
+          "path": "package-lock.json"
+        },
+        {
+          "hash": "bcc384e6375af6489d9b046b78958687cb47b6f5a34ca9acb69d4b57d9568eca",
+          "path": "package.json"
+        },
+        {
+          "hash": "e9510a77175f5f51b5ddbd08d2f4e52bc2b8fce211922a7f92077c5b5ab16f46",
+          "path": "tsconfig.json"
+        },
+        {
+          "hash": "b7feed099284f4126e812c1817421021e3dfe83f8dd8298193227296879b22b7",
+          "path": "verify.sh"
+        },
+        {
+          "hash": "ab8120ac008ec8182211800f5f4c129f910ba58fd49c7e78d5da959e1dbe187a",
+          "path": "vitest.config.ts"
+        }
+      ],
+      "globs": [
+        "*"
+      ],
+      "importConfidence": "full",
+      "name": "root",
+      "origin": "authored",
+      "role": "config",
+      "testedBy": 0,
+      "unresolvedSites": 0
+    },
+    {
+      "dynamicReads": 0,
+      "dynamicSpawns": 0,
+      "dynamicSpawnsInTests": 0,
+      "dynamicWrites": 0,
+      "entryPoints": [],
+      "externals": 0,
+      "files": [
+        {
+          "hash": "8540372843fa6ddd26dc7c5e3ecc8d20c8d7c13fb3f3d4a41ca74f58717ec21f",
+          "path": "site/astro.config.mjs"
+        },
+        {
+          "hash": "b5578baf42cab82e5e7b451b6992cb929aeb6ff8d02d8e11ab690e6f67fea144",
+          "path": "site/package-lock.json"
+        },
+        {
+          "hash": "0fe0343f8ddb0628d954129b02a72b3b2c8f8f884b1380c5567403c4f55942f8",
+          "path": "site/package.json"
+        },
+        {
+          "hash": "ec030f2e4bf6dc57eaca075d390c228b3212cf29db267e32ef92e110de1acdcc",
+          "path": "site/src/content.config.ts"
+        },
+        {
+          "hash": "4629c4ebe77e4315bea7001f0eac236a079da6b74f9f0bdf4616807ad8c336fe",
+          "path": "site/src/content/docs/handbook/architecture.md"
+        },
+        {
+          "hash": "85ff6e83d1461864560305b85553c9ad9d82496a6a06d890cc5ef08614075bc9",
+          "path": "site/src/content/docs/handbook/beginners.md"
+        },
+        {
+          "hash": "81750a17d16e12ec8e27d788626a0cf96b298f164cd6aeeddca7df513624f780",
+          "path": "site/src/content/docs/handbook/contracts.md"
+        },
+        {
+          "hash": "e676456aa1b3200d9eda32bb0f9683a972a09c59dbf312d6f8f8e9267195bb31",
+          "path": "site/src/content/docs/handbook/getting-started.md"
+        },
+        {
+          "hash": "40c51f6860edcebb915fa3342d690b1d8caabd9b504cb78fac9ec67854021f90",
+          "path": "site/src/content/docs/handbook/index.md"
+        },
+        {
+          "hash": "aa3a3e19a2d4302aa0f72a8de8a5f5a243771e6754e3d9d92b8ddec0b2c271f5",
+          "path": "site/src/content/docs/handbook/reference.md"
+        },
+        {
+          "hash": "67a812fa0f9f274332a4c802b049ff9923d9734fbd6d9e513e7b0afa2494cffd",
+          "path": "site/src/content/docs/handbook/release-lifecycle.md"
+        },
+        {
+          "hash": "a0fd1c0e69e9026ef614d8a73c295366f9d1fbfee2dbb127420ad66b7dab1ac6",
+          "path": "site/src/content/docs/handbook/security.md"
+        },
+        {
+          "hash": "a699ad78a6d27d6864ccfe4c3a4a01993aca28ecb4a3d20893f37db9f9b1a522",
+          "path": "site/src/pages/index.astro"
+        },
+        {
+          "hash": "83a54fc6c52f147b007b481aea47a436ebe77ad45be15b44fdded41241393db1",
+          "path": "site/src/site-config.ts"
+        },
+        {
+          "hash": "5995279a40a9a63426a93feec129006b261cc7200426a398914d0317722ef19b",
+          "path": "site/src/styles/global.css"
+        },
+        {
+          "hash": "9699457f0a7a31093d48944cabb11812852f0ce480732986b04896d53d29c4ca",
+          "path": "site/src/styles/starlight-custom.css"
+        },
+        {
+          "hash": "61fc24492db9aef7ec38eb91cfeebaef96155014bb5f22648fd8ed2327c6cae2",
+          "path": "site/tsconfig.json"
+        }
+      ],
+      "globs": [
+        "site/**"
+      ],
+      "importConfidence": "full",
+      "name": "site",
+      "origin": "authored",
+      "role": "site",
+      "testedBy": 0,
+      "unresolvedSites": 0
+    },
+    {
+      "dynamicReads": 1,
+      "dynamicSpawns": 0,
+      "dynamicSpawnsInTests": 0,
+      "dynamicWrites": 1,
+      "entryPoints": [
+        "packages/storage/src/index.ts"
+      ],
+      "externals": 0,
+      "files": [
+        {
+          "hash": "78cf0cef96d30c0f0cc973ee18441f9e3c96deb634a490927fc7431efac5cec7",
+          "path": "packages/storage/package.json"
+        },
+        {
+          "hash": "217b6fd90c5c065155c13869d466ad08918dbf1678905a65194e453286fc8655",
+          "importsFiles": [
+            "packages/storage/src/delivery.ts"
+          ],
+          "path": "packages/storage/src/delivery.test.ts"
+        },
+        {
+          "hash": "dd948aa387148986d8a87a00875f4d187bdf9481debbf632d32996ed15ace4e4",
+          "path": "packages/storage/src/delivery.ts"
+        },
+        {
+          "hash": "6da75fceb650127a212d9da221e761a6546ada78a5a1082d17d39b81903b443d",
+          "importsFiles": [
+            "packages/storage/src/fs-store.ts"
+          ],
+          "path": "packages/storage/src/fs-store.test.ts"
+        },
+        {
+          "hash": "5b8054de72a41caabba4f6eb57a0488aad2f29d85c3439d53f55dc0149eb40a7",
+          "importsFiles": [
+            "packages/storage/src/store.ts"
+          ],
+          "path": "packages/storage/src/fs-store.ts"
+        },
+        {
+          "hash": "16f1ba198db15677d542985a98b13b26351dd3ba2a72d12964e68e0565e5a864",
+          "importsFiles": [
+            "packages/storage/src/delivery.ts",
+            "packages/storage/src/fs-store.ts",
+            "packages/storage/src/mock-store.ts",
+            "packages/storage/src/store.ts"
+          ],
+          "path": "packages/storage/src/index.ts"
+        },
+        {
+          "hash": "26aa96c09caa9251278cc28dbcd442e1984ec03ec5a8943a15e22d99c3eed5c7",
+          "importsFiles": [
+            "packages/storage/src/mock-store.ts"
+          ],
+          "path": "packages/storage/src/mock-store.test.ts"
+        },
+        {
+          "hash": "7708481b17714eafbc92ff061ededa46c4b88c1ecbe308febbcdbdac9cb450e1",
+          "importsFiles": [
+            "packages/storage/src/store.ts"
+          ],
+          "path": "packages/storage/src/mock-store.ts"
+        },
+        {
+          "hash": "afeb4ac3685046f3cc0b46e816f52db076635cd1cdde177413282e680170da60",
+          "path": "packages/storage/src/store.ts"
+        },
+        {
+          "hash": "4f1bd421d4862ec3dd2e08701970501b7a2791e9ed6c390c6fc0b7724b785a20",
+          "path": "packages/storage/tsconfig.json"
+        }
+      ],
+      "globs": [
+        "packages/storage/**"
+      ],
+      "importConfidence": "full",
+      "name": "storage",
+      "origin": "authored",
+      "outsideReads": 2,
+      "outsideWrites": 1,
+      "role": "code",
+      "testedBy": 11,
+      "unresolvedSites": 0
+    },
+    {
+      "dynamicReads": 0,
+      "dynamicSpawns": 0,
+      "dynamicSpawnsInTests": 0,
+      "dynamicWrites": 0,
+      "entryPoints": [
+        "packages/xaman/src/index.ts"
+      ],
+      "externals": 0,
+      "files": [
+        {
+          "hash": "98d23708ee329b36c7f27847090012863afa2dd695d9ec1b4933d4fa28d25c7f",
+          "path": "packages/xaman/package.json"
+        },
+        {
+          "hash": "2d3fc883ec833da036168ae10330de9a1fef314090ddbec8e24da1b430314591",
+          "parseError": true,
+          "path": "packages/xaman/src/client.test.ts",
+          "unreadSyntax": "typeof-import-argument"
+        },
+        {
+          "hash": "680f97cad05a7b4b2a52e1f117fb02d52b198f9d4d82a280e7b4bf6340444468",
+          "importsFiles": [
+            "packages/xaman/src/types.ts"
+          ],
+          "path": "packages/xaman/src/client.ts"
+        },
+        {
+          "hash": "07889f5085b41a192b8b5c2b334419206d07d4e9ca67c67fb3d562f76dbfbb06",
+          "importsFiles": [
+            "packages/xaman/src/client.ts",
+            "packages/xaman/src/payloads.ts",
+            "packages/xaman/src/types.ts",
+            "packages/xaman/src/verify.ts"
+          ],
+          "path": "packages/xaman/src/index.ts"
+        },
+        {
+          "hash": "941ac545cfcb21a0adcd06657e1ce4076b2373ef7f0969fa9c08efa66c6ff1d1",
+          "importsFiles": [
+            "packages/core/src/index.ts",
+            "packages/xaman/src/payloads.ts"
+          ],
+          "path": "packages/xaman/src/payloads.test.ts"
+        },
+        {
+          "exports": [
+            "buildBuyPayload",
+            "buildConfigureMinterPayload",
+            "buildMintPayload"
+          ],
+          "hash": "14564386643300544e6f18ff4dfb5bd73b4fecbe344da5a59e29a11aed020967",
+          "importsFiles": [
+            "packages/core/src/index.ts",
+            "packages/xaman/src/types.ts"
+          ],
+          "path": "packages/xaman/src/payloads.ts"
+        },
+        {
+          "hash": "059339d25d103680f52f32ccd6dd556296bb9df1fff0f322eb1bc4abac9318d1",
+          "path": "packages/xaman/src/types.ts"
+        },
+        {
+          "hash": "3a8527542be1c6330a74702fbda88d3180a156e70deeab02976dbabd053921b1",
+          "importsFiles": [
+            "packages/xaman/src/types.ts",
+            "packages/xaman/src/verify.ts"
+          ],
+          "path": "packages/xaman/src/verify.test.ts"
+        },
+        {
+          "exports": [
+            "verifyPayloadResult",
+            "verifySignerAddress"
+          ],
+          "hash": "f76213f3dd94a28eee3b1f21bd82fb03ea8ff5499b92f1fa25da43de2b38676b",
+          "importsFiles": [
+            "packages/xaman/src/types.ts"
+          ],
+          "path": "packages/xaman/src/verify.ts"
+        },
+        {
+          "hash": "4f1bd421d4862ec3dd2e08701970501b7a2791e9ed6c390c6fc0b7724b785a20",
+          "path": "packages/xaman/tsconfig.json"
+        }
+      ],
+      "globs": [
+        "packages/xaman/**"
+      ],
+      "importConfidence": "full",
+      "name": "xaman",
+      "origin": "authored",
+      "outsideReads": 1,
+      "role": "code",
+      "testedBy": 3,
+      "unresolvedSites": 0
+    },
+    {
+      "dynamicReads": 0,
+      "dynamicSpawns": 0,
+      "dynamicSpawnsInTests": 0,
+      "dynamicWrites": 0,
+      "entryPoints": [
+        "packages/xrpl/src/index.ts"
+      ],
+      "externals": 0,
+      "files": [
+        {
+          "hash": "acfd1c9487c866c6d0df4cc5c1cd8cb2c692ddbbd8f17e30dd097660d163b5c1",
+          "path": "packages/xrpl/package.json"
+        },
+        {
+          "hash": "d707383785d783e8a139cbd04b55ecb21ba595f47b2eaf7c9ae6782d212187da",
+          "parseError": true,
+          "path": "packages/xrpl/src/account-nfts.test.ts",
+          "unreadSyntax": "typeof-import-argument"
+        },
+        {
+          "exports": [
+            "fetchAllAccountNfts"
+          ],
+          "hash": "a2a9d4b1479fa5c6625ad51e8fbde25bb539d0f5142c5863aa0f942e673e5d86",
+          "path": "packages/xrpl/src/account-nfts.ts"
+        },
+        {
+          "hash": "2514ffe26e0e1cfb5bb10b4b5bdc6451bd57f5dbe7044c01a0531bd98e5c54da",
+          "parseError": true,
+          "path": "packages/xrpl/src/check-holder.test.ts",
+          "unreadSyntax": "typeof-import-argument"
+        },
+        {
+          "exports": [
+            "checkHolder"
+          ],
+          "hash": "0967541450e7e044fb561ce3bbf913375edd01460d0842fc1a6ddc05ef9a6cf7",
+          "importsFiles": [
+            "packages/xrpl/src/account-nfts.ts",
+            "packages/xrpl/src/network.ts"
+          ],
+          "path": "packages/xrpl/src/check-holder.ts"
+        },
+        {
+          "hash": "0dfcd2acbdce4b82926dbc54fb5bab0f29bb9a9b1f18f777869fdd6d7c8c97e7",
+          "importsFiles": [
+            "packages/xrpl/src/check-holder.ts",
+            "packages/xrpl/src/issue-release.ts",
+            "packages/xrpl/src/mint.ts",
+            "packages/xrpl/src/network.ts",
+            "packages/xrpl/src/read-nft.ts",
+            "packages/xrpl/src/verify-minter.ts",
+            "packages/xrpl/src/wallet.ts"
+          ],
+          "path": "packages/xrpl/src/index.ts"
+        },
+        {
+          "hash": "f9c10517819c370a696677745fe400dec908599a243a0997c9c75cd70b9263c1",
+          "parseError": true,
+          "path": "packages/xrpl/src/issue-release.test.ts",
+          "unreadSyntax": "typeof-import-argument"
+        },
+        {
+          "exports": [
+            "issueRelease"
+          ],
+          "hash": "1821edd26ac8e19fe161b038b87736de6449672ae85dc06c91950b673f43efd8",
+          "importsFiles": [
+            "packages/core/src/index.ts",
+            "packages/storage/src/index.ts",
+            "packages/xrpl/src/mint.ts",
+            "packages/xrpl/src/network.ts",
+            "packages/xrpl/src/verify-minter.ts",
+            "packages/xrpl/src/wallet.ts"
+          ],
+          "path": "packages/xrpl/src/issue-release.ts"
+        },
+        {
+          "hash": "89cae592a330b9edef9536d1a942e9ad009595b62289059f9c466bf0860d0a97",
+          "parseError": true,
+          "path": "packages/xrpl/src/mint.test.ts",
+          "unreadSyntax": "typeof-import-argument"
+        },
+        {
+          "exports": [
+            "mintRelease"
+          ],
+          "hash": "c0bf82aba54255fee22b9fb24e81abbe5b222e3b9c4efd6b207cf306ae774be0",
+          "importsFiles": [
+            "packages/core/src/index.ts",
+            "packages/xrpl/src/network.ts",
+            "packages/xrpl/src/wallet.ts"
+          ],
+          "path": "packages/xrpl/src/mint.ts"
+        },
+        {
+          "hash": "a0098028585e3b420fbb5148fe0fe4f4393be0260a720d9342ad9f3c753a327a",
+          "importsFiles": [
+            "packages/xrpl/src/network.ts"
+          ],
+          "path": "packages/xrpl/src/network.test.ts"
+        },
+        {
+          "exports": [
+            "assertMainnetAllowed",
+            "getNetwork"
+          ],
+          "hash": "bd5f31957a95a78db70d3b72cc44f0490b1cd9534d6ffb7e44c2eb3885ff293c",
+          "path": "packages/xrpl/src/network.ts"
+        },
+        {
+          "hash": "4c86b28f3ace4ca3a88a2d003973cbd8687e87f64db488c484ea5598a1fb45c8",
+          "parseError": true,
+          "path": "packages/xrpl/src/read-nft.test.ts",
+          "unreadSyntax": "typeof-import-argument"
+        },
+        {
+          "exports": [
+            "readNftFromLedger"
+          ],
+          "hash": "df57e5d260352d6b1bc450689d591cdda7ad89757870825519f34edb147959ed",
+          "importsFiles": [
+            "packages/xrpl/src/account-nfts.ts",
+            "packages/xrpl/src/network.ts"
+          ],
+          "path": "packages/xrpl/src/read-nft.ts"
+        },
+        {
+          "hash": "da20ef1d25ddc5f2308088f2416fcc010fb69f2aebe952e3b13f0b78a1c0f1fc",
+          "parseError": true,
+          "path": "packages/xrpl/src/verify-minter.test.ts",
+          "unreadSyntax": "typeof-import-argument"
+        },
+        {
+          "exports": [
+            "verifyAuthorizedMinter"
+          ],
+          "hash": "be27643e366f9d5dab495dcfa22376159161d45c8400b0090690f6165e0380e4",
+          "importsFiles": [
+            "packages/xrpl/src/network.ts"
+          ],
+          "path": "packages/xrpl/src/verify-minter.ts"
+        },
+        {
+          "hash": "58578f4b223a121dfccf2f857224fa07a6e8cb95d93fcde303dba05d1f71fdc5",
+          "parseError": true,
+          "path": "packages/xrpl/src/wallet.test.ts",
+          "unreadSyntax": "typeof-import-argument"
+        },
+        {
+          "exports": [
+            "authorizeOperatorAsMinter",
+            "exportWalletPair",
+            "fundWalletPair",
+            "generateWalletPair",
+            "importWalletPair"
+          ],
+          "hash": "0dcb29ec39427e3d5a02c7138ab5158b6c5d9d050a89894d82902bb52769e0c3",
+          "importsFiles": [
+            "packages/xrpl/src/network.ts"
+          ],
+          "path": "packages/xrpl/src/wallet.ts"
+        },
+        {
+          "hash": "c3226cb985bbfd2d45422aa7a78526d3fc83ad65024e5c47fe9276e8b095a4e0",
+          "path": "packages/xrpl/tsconfig.json"
+        }
+      ],
+      "globs": [
+        "packages/xrpl/**"
+      ],
+      "importConfidence": "full",
+      "name": "xrpl",
+      "origin": "authored",
+      "role": "code",
+      "testedBy": 24,
+      "unresolvedSites": 0
+    }
+  ],
+  "doors": [
+    {
+      "checksCount": 10,
+      "commands": [
+        {
+          "job": "test",
+          "step": "Atlas check",
+          "text": "npx --yes @dogfood-lab/atlas@1.17.0 check"
+        },
+        {
+          "job": "test",
+          "step": "3",
+          "text": "npm ci"
+        },
+        {
+          "job": "test",
+          "step": "Verify",
+          "text": "bash verify.sh"
+        },
+        {
+          "job": "cargo-check",
+          "step": "Install dependencies",
+          "text": "npm ci"
+        },
+        {
+          "job": "cargo-check",
+          "step": "Build frontend",
+          "text": "npm run build"
+        },
+        {
+          "job": "cargo-check",
+          "step": "cargo check",
+          "text": "cargo check --all-targets --locked"
+        },
+        {
+          "job": "cargo-check",
+          "step": "cargo test",
+          "text": "cargo test --locked"
+        },
+        {
+          "job": "build-desktop",
+          "step": "Install dependencies",
+          "text": "npm ci"
+        },
+        {
+          "job": "build-desktop",
+          "step": "Bundle bridge worker",
+          "text": "node scripts/bundle-bridge.mjs"
+        },
+        {
+          "job": "build-desktop",
+          "step": "Build Tauri app",
+          "text": "npx tauri build"
+        }
+      ],
+      "elsewhere": [],
+      "file": ".github/workflows/ci.yml",
+      "gated": [
+        {
+          "jobs": [
+            "build-desktop"
+          ],
+          "pushes": false,
+          "sends": [
+            "releases"
+          ],
+          "stages": [],
+          "when": {
+            "event": "release"
+          }
+        }
+      ],
+      "landings": [],
+      "mentions": [],
+      "name": "CI",
+      "permissions": [
+        "contents:read",
+        "contents:write"
+      ],
+      "pushes": false,
+      "reach": [
+        {
+          "boundary": "app",
+          "depth": 0,
+          "files": 67
+        },
+        {
+          "boundary": "artifacts",
+          "depth": 0,
+          "files": 5
+        },
+        {
+          "boundary": "cli",
+          "depth": 0,
+          "files": 41
+        },
+        {
+          "boundary": "core",
+          "depth": 0,
+          "files": 36
+        },
+        {
+          "boundary": "root",
+          "depth": 0,
+          "files": 1
+        },
+        {
+          "boundary": "storage",
+          "depth": 0,
+          "files": 8
+        },
+        {
+          "boundary": "xaman",
+          "depth": 0,
+          "files": 8
+        },
+        {
+          "boundary": "xrpl",
+          "depth": 0,
+          "files": 17
+        }
+      ],
+      "readers": [],
+      "runs": [
+        {
+          "job": "test",
+          "matched": true,
+          "path": "app/bridge-worker-access.test.ts",
+          "runKind": "executes",
+          "via": "verify.sh → vitest app/vitest.config.ts"
+        },
+        {
+          "job": "cargo-check",
+          "matched": true,
+          "path": "app/bridge-worker-commands.ts",
+          "runKind": "checks",
+          "via": "tsc app/tsconfig.json"
+        },
+        {
+          "job": "test",
+          "matched": true,
+          "path": "app/bridge-worker-commands.ts",
+          "runKind": "checks",
+          "via": "verify.sh → tsc app/tsconfig.json"
+        },
+        {
+          "job": "test",
+          "matched": true,
+          "path": "app/bridge-worker-governance.test.ts",
+          "runKind": "executes",
+          "via": "verify.sh → vitest app/vitest.config.ts"
+        },
+        {
+          "job": "test",
+          "matched": true,
+          "path": "app/bridge-worker-manifest.test.ts",
+          "runKind": "executes",
+          "via": "verify.sh → vitest app/vitest.config.ts"
+        },
+        {
+          "job": "test",
+          "matched": true,
+          "path": "app/bridge-worker-mint-persist.test.ts",
+          "runKind": "executes",
+          "via": "verify.sh → vitest app/vitest.config.ts"
+        },
+        {
+          "job": "test",
+          "matched": true,
+          "path": "app/bridge-worker-recovery.test.ts",
+          "runKind": "executes",
+          "via": "verify.sh → vitest app/vitest.config.ts"
+        },
+        {
+          "job": "test",
+          "matched": true,
+          "path": "app/bridge-worker-stdout-flush.test.ts",
+          "runKind": "executes",
+          "via": "verify.sh → vitest app/vitest.config.ts"
+        },
+        {
+          "job": "test",
+          "matched": true,
+          "path": "app/bridge-worker-verify-release.test.ts",
+          "runKind": "executes",
+          "via": "verify.sh → vitest app/vitest.config.ts"
+        },
+        {
+          "job": "cargo-check",
+          "matched": true,
+          "path": "app/bridge-worker.test.ts",
+          "runKind": "checks",
+          "via": "tsc app/tsconfig.json"
+        },
+        {
+          "job": "test",
+          "matched": true,
+          "path": "app/bridge-worker.test.ts",
+          "runKind": "executes",
+          "via": "verify.sh → tsc app/tsconfig.json"
+        },
+        {
+          "job": "cargo-check",
+          "matched": true,
+          "path": "app/bridge-worker.ts",
+          "runKind": "checks",
+          "via": "tsc app/tsconfig.json"
+        },
+        {
+          "job": "test",
+          "matched": true,
+          "path": "app/bridge-worker.ts",
+          "runKind": "checks",
+          "via": "verify.sh → tsc app/tsconfig.json"
+        },
+        {
+          "job": "build-desktop",
+          "path": "app/scripts/bundle-bridge.mjs",
+          "runKind": "executes",
+          "when": {
+            "event": "release"
+          }
+        },
+        {
+          "job": "cargo-check",
+          "path": "app/scripts/bundle-bridge.mjs",
+          "runKind": "executes"
+        },
+        {
+          "directory": true,
+          "job": "cargo-check",
+          "matched": true,
+          "path": "app/src/",
+          "runKind": "checks",
+          "via": "tsc app/tsconfig.json"
+        },
+        {
+          "directory": true,
+          "job": "test",
+          "matched": true,
+          "path": "app/src/",
+          "runKind": "checks",
+          "via": "verify.sh → tsc app/tsconfig.json"
+        },
+        {
+          "job": "test",
+          "matched": true,
+          "path": "app/src/ErrorBoundary.test.tsx",
+          "runKind": "executes",
+          "via": "verify.sh → vitest app/vitest.config.ts"
+        },
+        {
+          "job": "test",
+          "matched": true,
+          "path": "app/src/__test__/tauri-security-config.test.ts",
+          "runKind": "executes",
+          "via": "verify.sh → vitest app/vitest.config.ts"
+        },
+        {
+          "job": "test",
+          "matched": true,
+          "path": "app/src/bridge/engine.test.ts",
+          "runKind": "executes",
+          "via": "verify.sh → vitest app/vitest.config.ts"
+        },
+        {
+          "job": "test",
+          "matched": true,
+          "path": "app/src/components/CloseWarningGate.test.tsx",
+          "runKind": "executes",
+          "via": "verify.sh → vitest app/vitest.config.ts"
+        },
+        {
+          "job": "test",
+          "matched": true,
+          "path": "app/src/components/TitleBar.test.tsx",
+          "runKind": "executes",
+          "via": "verify.sh → vitest app/vitest.config.ts"
+        },
+        {
+          "job": "test",
+          "matched": true,
+          "path": "app/src/components/panels/GovernancePanel.test.tsx",
+          "runKind": "executes",
+          "via": "verify.sh → vitest app/vitest.config.ts"
+        },
+        {
+          "job": "test",
+          "matched": true,
+          "path": "app/src/components/panels/MintPanel.test.tsx",
+          "runKind": "executes",
+          "via": "verify.sh → vitest app/vitest.config.ts"
+        },
+        {
+          "job": "test",
+          "matched": true,
+          "path": "app/src/components/panels/PanelShell.test.tsx",
+          "runKind": "executes",
+          "via": "verify.sh → vitest app/vitest.config.ts"
+        },
+        {
+          "job": "test",
+          "matched": true,
+          "path": "app/src/components/panels/RecoveryPanel.test.tsx",
+          "runKind": "executes",
+          "via": "verify.sh → vitest app/vitest.config.ts"
+        },
+        {
+          "job": "test",
+          "matched": true,
+          "path": "app/src/components/studio/StudioShell.sample-error.test.tsx",
+          "runKind": "executes",
+          "via": "verify.sh → vitest app/vitest.config.ts"
+        },
+        {
+          "job": "test",
+          "matched": true,
+          "path": "app/src/components/studio/StudioShell.test.tsx",
+          "runKind": "executes",
+          "via": "verify.sh → vitest app/vitest.config.ts"
+        },
+        {
+          "job": "test",
+          "matched": true,
+          "path": "app/src/errors/humanize.test.ts",
+          "runKind": "executes",
+          "via": "verify.sh → vitest app/vitest.config.ts"
+        },
+        {
+          "job": "test",
+          "matched": true,
+          "path": "app/src/state/actionlog.test.ts",
+          "runKind": "executes",
+          "via": "verify.sh → vitest app/vitest.config.ts"
+        },
+        {
+          "job": "test",
+          "matched": true,
+          "path": "app/src/state/release-reconcile.test.tsx",
+          "runKind": "executes",
+          "via": "verify.sh → vitest app/vitest.config.ts"
+        },
+        {
+          "job": "test",
+          "matched": true,
+          "path": "app/src/state/release-timeout.test.tsx",
+          "runKind": "executes",
+          "via": "verify.sh → vitest app/vitest.config.ts"
+        },
+        {
+          "job": "test",
+          "matched": true,
+          "path": "app/src/state/release-trust.test.tsx",
+          "runKind": "executes",
+          "via": "verify.sh → vitest app/vitest.config.ts"
+        },
+        {
+          "job": "test",
+          "matched": true,
+          "path": "app/src/state/release.test.tsx",
+          "runKind": "executes",
+          "via": "verify.sh → vitest app/vitest.config.ts"
+        },
+        {
+          "job": "test",
+          "matched": true,
+          "path": "app/src/state/session.test.ts",
+          "runKind": "executes",
+          "via": "verify.sh → vitest app/vitest.config.ts"
+        },
+        {
+          "job": "test",
+          "matched": true,
+          "path": "app/src/state/studio.test.tsx",
+          "runKind": "executes",
+          "via": "verify.sh → vitest app/vitest.config.ts"
+        },
+        {
+          "job": "test",
+          "matched": true,
+          "path": "app/src/state/validate.test.ts",
+          "runKind": "executes",
+          "via": "verify.sh → vitest app/vitest.config.ts"
+        },
+        {
+          "job": "cargo-check",
+          "matched": true,
+          "path": "app/vite.config.ts",
+          "runKind": "checks",
+          "via": "tsc app/tsconfig.json"
+        },
+        {
+          "job": "test",
+          "matched": true,
+          "path": "app/vite.config.ts",
+          "runKind": "checks",
+          "via": "verify.sh → tsc app/tsconfig.json"
+        },
+        {
+          "directory": true,
+          "job": "test",
+          "matched": true,
+          "path": "artifacts/",
+          "runKind": "checks",
+          "via": "verify.sh → tsc artifacts/tsconfig.json"
+        },
+        {
+          "job": "test",
+          "matched": true,
+          "path": "artifacts/failure-drills.test.ts",
+          "runKind": "executes",
+          "via": "verify.sh → vitest vitest.config.ts"
+        },
+        {
+          "job": "test",
+          "matched": true,
+          "path": "artifacts/governance-drills.test.ts",
+          "runKind": "executes",
+          "via": "verify.sh → vitest vitest.config.ts"
+        },
+        {
+          "job": "test",
+          "matched": true,
+          "path": "artifacts/governance-golden-path.test.ts",
+          "runKind": "executes",
+          "via": "verify.sh → vitest vitest.config.ts"
+        },
+        {
+          "job": "test",
+          "matched": true,
+          "path": "artifacts/simulation-trials.test.ts",
+          "runKind": "executes",
+          "via": "verify.sh → vitest vitest.config.ts"
+        },
+        {
+          "directory": true,
+          "job": "test",
+          "matched": true,
+          "path": "packages/cli/src/",
+          "runKind": "checks",
+          "via": "verify.sh → tsc tsconfig.json"
+        },
+        {
+          "job": "test",
+          "matched": true,
+          "path": "packages/cli/src/bin-help.test.ts",
+          "runKind": "executes",
+          "via": "verify.sh → vitest vitest.config.ts"
+        },
+        {
+          "job": "test",
+          "matched": true,
+          "path": "packages/cli/src/bin-json-args.test.ts",
+          "runKind": "executes",
+          "via": "verify.sh → vitest vitest.config.ts"
+        },
+        {
+          "job": "test",
+          "matched": true,
+          "path": "packages/cli/src/bin-mainnet-write.test.ts",
+          "runKind": "executes",
+          "via": "verify.sh → vitest vitest.config.ts"
+        },
+        {
+          "job": "test",
+          "matched": true,
+          "path": "packages/cli/src/bin-network.test.ts",
+          "runKind": "executes",
+          "via": "verify.sh → vitest vitest.config.ts"
+        },
+        {
+          "job": "test",
+          "matched": true,
+          "path": "packages/cli/src/bin-required-args.test.ts",
+          "runKind": "executes",
+          "via": "verify.sh → vitest vitest.config.ts"
+        },
+        {
+          "job": "test",
+          "matched": true,
+          "path": "packages/cli/src/bin.test.ts",
+          "runKind": "executes",
+          "via": "verify.sh → vitest vitest.config.ts"
+        },
+        {
+          "job": "test",
+          "matched": true,
+          "path": "packages/cli/src/commands/configure-minter.test.ts",
+          "runKind": "executes",
+          "via": "verify.sh → vitest vitest.config.ts"
+        },
+        {
+          "job": "test",
+          "matched": true,
+          "path": "packages/cli/src/commands/create-governance-policy.test.ts",
+          "runKind": "executes",
+          "via": "verify.sh → vitest vitest.config.ts"
+        },
+        {
+          "job": "test",
+          "matched": true,
+          "path": "packages/cli/src/commands/create-release.test.ts",
+          "runKind": "executes",
+          "via": "verify.sh → vitest vitest.config.ts"
+        },
+        {
+          "job": "test",
+          "matched": true,
+          "path": "packages/cli/src/commands/decide-payout.test.ts",
+          "runKind": "executes",
+          "via": "verify.sh → vitest vitest.config.ts"
+        },
+        {
+          "job": "test",
+          "matched": true,
+          "path": "packages/cli/src/commands/execute-payout.test.ts",
+          "runKind": "executes",
+          "via": "verify.sh → vitest vitest.config.ts"
+        },
+        {
+          "job": "test",
+          "matched": true,
+          "path": "packages/cli/src/commands/grant-access.test.ts",
+          "runKind": "executes",
+          "via": "verify.sh → vitest vitest.config.ts"
+        },
+        {
+          "job": "test",
+          "matched": true,
+          "path": "packages/cli/src/commands/init-wallets.test.ts",
+          "runKind": "executes",
+          "via": "verify.sh → vitest vitest.config.ts"
+        },
+        {
+          "job": "test",
+          "matched": true,
+          "path": "packages/cli/src/commands/mint-release.test.ts",
+          "runKind": "executes",
+          "via": "verify.sh → vitest vitest.config.ts"
+        },
+        {
+          "job": "test",
+          "matched": true,
+          "path": "packages/cli/src/commands/propose-payout.test.ts",
+          "runKind": "executes",
+          "via": "verify.sh → vitest vitest.config.ts"
+        },
+        {
+          "job": "test",
+          "matched": true,
+          "path": "packages/cli/src/commands/recover-release.test.ts",
+          "runKind": "executes",
+          "via": "verify.sh → vitest vitest.config.ts"
+        },
+        {
+          "job": "test",
+          "matched": true,
+          "path": "packages/cli/src/commands/resolve.test.ts",
+          "runKind": "executes",
+          "via": "verify.sh → vitest vitest.config.ts"
+        },
+        {
+          "job": "test",
+          "matched": true,
+          "path": "packages/cli/src/commands/validate.test.ts",
+          "runKind": "executes",
+          "via": "verify.sh → vitest vitest.config.ts"
+        },
+        {
+          "job": "test",
+          "matched": true,
+          "path": "packages/cli/src/commands/verify-payout.test.ts",
+          "runKind": "executes",
+          "via": "verify.sh → vitest vitest.config.ts"
+        },
+        {
+          "job": "test",
+          "matched": true,
+          "path": "packages/cli/src/commands/verify-release.test.ts",
+          "runKind": "executes",
+          "via": "verify.sh → vitest vitest.config.ts"
+        },
+        {
+          "job": "test",
+          "matched": true,
+          "path": "packages/cli/src/commands/xaman-flow.test.ts",
+          "runKind": "executes",
+          "via": "verify.sh → vitest vitest.config.ts"
+        },
+        {
+          "job": "test",
+          "matched": true,
+          "path": "packages/cli/src/lib/json-input.test.ts",
+          "runKind": "executes",
+          "via": "verify.sh → vitest vitest.config.ts"
+        },
+        {
+          "directory": true,
+          "job": "test",
+          "matched": true,
+          "path": "packages/core/src/",
+          "runKind": "checks",
+          "via": "verify.sh → tsc tsconfig.json"
+        },
+        {
+          "job": "test",
+          "matched": true,
+          "path": "packages/core/src/access-grant-validate.test.ts",
+          "runKind": "executes",
+          "via": "verify.sh → vitest vitest.config.ts"
+        },
+        {
+          "job": "test",
+          "matched": true,
+          "path": "packages/core/src/access-policy-validate.test.ts",
+          "runKind": "executes",
+          "via": "verify.sh → vitest vitest.config.ts"
+        },
+        {
+          "job": "test",
+          "matched": true,
+          "path": "packages/core/src/governance-validate.test.ts",
+          "runKind": "executes",
+          "via": "verify.sh → vitest vitest.config.ts"
+        },
+        {
+          "job": "test",
+          "matched": true,
+          "path": "packages/core/src/hash.test.ts",
+          "runKind": "executes",
+          "via": "verify.sh → vitest vitest.config.ts"
+        },
+        {
+          "job": "test",
+          "matched": true,
+          "path": "packages/core/src/receipt-validate.test.ts",
+          "runKind": "executes",
+          "via": "verify.sh → vitest vitest.config.ts"
+        },
+        {
+          "job": "test",
+          "matched": true,
+          "path": "packages/core/src/recovery-bundle-validate.test.ts",
+          "runKind": "executes",
+          "via": "verify.sh → vitest vitest.config.ts"
+        },
+        {
+          "job": "test",
+          "matched": true,
+          "path": "packages/core/src/resolve.test.ts",
+          "runKind": "executes",
+          "via": "verify.sh → vitest vitest.config.ts"
+        },
+        {
+          "job": "test",
+          "matched": true,
+          "path": "packages/core/src/validate.test.ts",
+          "runKind": "executes",
+          "via": "verify.sh → vitest vitest.config.ts"
+        },
+        {
+          "directory": true,
+          "job": "test",
+          "matched": true,
+          "path": "packages/storage/src/",
+          "runKind": "checks",
+          "via": "verify.sh → tsc tsconfig.json"
+        },
+        {
+          "job": "test",
+          "matched": true,
+          "path": "packages/storage/src/delivery.test.ts",
+          "runKind": "executes",
+          "via": "verify.sh → vitest vitest.config.ts"
+        },
+        {
+          "job": "test",
+          "matched": true,
+          "path": "packages/storage/src/fs-store.test.ts",
+          "runKind": "executes",
+          "via": "verify.sh → vitest vitest.config.ts"
+        },
+        {
+          "job": "test",
+          "matched": true,
+          "path": "packages/storage/src/mock-store.test.ts",
+          "runKind": "executes",
+          "via": "verify.sh → vitest vitest.config.ts"
+        },
+        {
+          "directory": true,
+          "job": "test",
+          "matched": true,
+          "path": "packages/xaman/src/",
+          "runKind": "checks",
+          "via": "verify.sh → tsc tsconfig.json"
+        },
+        {
+          "job": "test",
+          "matched": true,
+          "path": "packages/xaman/src/client.test.ts",
+          "runKind": "executes",
+          "via": "verify.sh → vitest vitest.config.ts"
+        },
+        {
+          "job": "test",
+          "matched": true,
+          "path": "packages/xaman/src/payloads.test.ts",
+          "runKind": "executes",
+          "via": "verify.sh → vitest vitest.config.ts"
+        },
+        {
+          "job": "test",
+          "matched": true,
+          "path": "packages/xaman/src/verify.test.ts",
+          "runKind": "executes",
+          "via": "verify.sh → vitest vitest.config.ts"
+        },
+        {
+          "directory": true,
+          "job": "test",
+          "matched": true,
+          "path": "packages/xrpl/src/",
+          "runKind": "checks",
+          "via": "verify.sh → tsc tsconfig.json"
+        },
+        {
+          "job": "test",
+          "matched": true,
+          "path": "packages/xrpl/src/account-nfts.test.ts",
+          "runKind": "executes",
+          "via": "verify.sh → vitest vitest.config.ts"
+        },
+        {
+          "job": "test",
+          "matched": true,
+          "path": "packages/xrpl/src/check-holder.test.ts",
+          "runKind": "executes",
+          "via": "verify.sh → vitest vitest.config.ts"
+        },
+        {
+          "job": "test",
+          "matched": true,
+          "path": "packages/xrpl/src/issue-release.test.ts",
+          "runKind": "executes",
+          "via": "verify.sh → vitest vitest.config.ts"
+        },
+        {
+          "job": "test",
+          "matched": true,
+          "path": "packages/xrpl/src/mint.test.ts",
+          "runKind": "executes",
+          "via": "verify.sh → vitest vitest.config.ts"
+        },
+        {
+          "job": "test",
+          "matched": true,
+          "path": "packages/xrpl/src/network.test.ts",
+          "runKind": "executes",
+          "via": "verify.sh → vitest vitest.config.ts"
+        },
+        {
+          "job": "test",
+          "matched": true,
+          "path": "packages/xrpl/src/read-nft.test.ts",
+          "runKind": "executes",
+          "via": "verify.sh → vitest vitest.config.ts"
+        },
+        {
+          "job": "test",
+          "matched": true,
+          "path": "packages/xrpl/src/verify-minter.test.ts",
+          "runKind": "executes",
+          "via": "verify.sh → vitest vitest.config.ts"
+        },
+        {
+          "job": "test",
+          "matched": true,
+          "path": "packages/xrpl/src/wallet.test.ts",
+          "runKind": "executes",
+          "via": "verify.sh → vitest vitest.config.ts"
+        },
+        {
+          "job": "test",
+          "path": "verify.sh",
+          "runKind": "executes"
+        }
+      ],
+      "runsCount": 88,
+      "secrets": [],
+      "sends": {
+        "deploysPages": false,
+        "dispatchesTo": [],
+        "opensIssues": false,
+        "opensIssuesOnFailure": false,
+        "opensPullRequests": false,
+        "publishes": false,
+        "publishesTo": [],
+        "releases": false
+      },
+      "stages": [],
+      "triggers": [
+        {
+          "event": "pull_request",
+          "paths": [
+            ".github/workflows/**",
+            "app/**",
+            "artifacts/**",
+            "atlas/**",
+            "fixtures/**",
+            "package-lock.json",
+            "package.json",
+            "packages/**",
+            "site/astro.config.mjs",
+            "site/package-lock.json",
+            "site/package.json",
+            "tsconfig*.json",
+            "verify.sh"
+          ]
+        },
+        {
+          "event": "push",
+          "paths": [
+            ".github/workflows/**",
+            "app/**",
+            "artifacts/**",
+            "atlas/**",
+            "fixtures/**",
+            "package-lock.json",
+            "package.json",
+            "packages/**",
+            "site/astro.config.mjs",
+            "site/package-lock.json",
+            "site/package.json",
+            "tsconfig*.json",
+            "verify.sh"
+          ]
+        },
+        {
+          "event": "release",
+          "types": [
+            "published"
+          ]
+        },
+        {
+          "event": "workflow_dispatch"
+        }
+      ],
+      "uses": [
+        "Swatinem/rust-cache",
+        "actions/checkout",
+        "actions/setup-node",
+        "dtolnay/rust-toolchain",
+        "softprops/action-gh-release"
+      ],
+      "usesWorkflowToken": false
+    },
+    {
+      "checksCount": 0,
+      "commands": [
+        {
+          "job": "build",
+          "step": "Install site dependencies",
+          "text": "npm ci"
+        },
+        {
+          "job": "build",
+          "step": "Build site",
+          "text": "npm run build"
+        }
+      ],
+      "elsewhere": [],
+      "file": ".github/workflows/pages.yml",
+      "landings": [],
+      "mentions": [],
+      "name": "Deploy site to GitHub Pages",
+      "permissions": [
+        "contents:read",
+        "id-token:write",
+        "pages:write"
+      ],
+      "pushes": false,
+      "reach": [
+        {
+          "boundary": "site",
+          "depth": 0,
+          "files": 3
+        }
+      ],
+      "readers": [],
+      "runs": [
+        {
+          "job": "build",
+          "matched": true,
+          "path": "site/astro.config.mjs",
+          "runKind": "executes",
+          "via": "astro build"
+        },
+        {
+          "directory": true,
+          "job": "build",
+          "matched": true,
+          "path": "site/src/",
+          "runKind": "executes",
+          "via": "astro build"
+        }
+      ],
+      "runsCount": 2,
+      "secrets": [],
+      "sends": {
+        "deploysPages": true,
+        "dispatchesTo": [],
+        "opensIssues": false,
+        "opensIssuesOnFailure": false,
+        "opensPullRequests": false,
+        "publishes": false,
+        "publishesTo": [],
+        "releases": false
+      },
+      "stages": [],
+      "triggers": [
+        {
+          "branches": [
+            "main"
+          ],
+          "event": "push",
+          "paths": [
+            ".github/workflows/pages.yml",
+            "site/**"
+          ]
+        },
+        {
+          "event": "workflow_dispatch"
+        }
+      ],
+      "uses": [
+        "actions/checkout",
+        "actions/deploy-pages",
+        "actions/setup-node",
+        "actions/upload-pages-artifact"
+      ],
+      "usesWorkflowToken": false
+    },
+    {
+      "checksCount": 0,
+      "commands": [],
+      "elsewhere": [],
+      "file": "packages/cli/package.json",
+      "kind": "command",
+      "landings": [],
+      "mentions": [],
+      "name": "capsule",
+      "permissions": [],
+      "pushes": false,
+      "reach": [
+        {
+          "boundary": "cli",
+          "depth": 0,
+          "files": 17
+        },
+        {
+          "boundary": "core",
+          "depth": 1,
+          "enters": {
+            "file": "packages/core/src/index.ts",
+            "from": "packages/cli/src/bin.ts"
+          },
+          "files": 28
+        },
+        {
+          "boundary": "storage",
+          "depth": 1,
+          "enters": {
+            "file": "packages/storage/src/index.ts",
+            "from": "packages/cli/src/bin.ts"
+          },
+          "files": 5
+        },
+        {
+          "boundary": "xaman",
+          "depth": 1,
+          "enters": {
+            "file": "packages/xaman/src/index.ts",
+            "from": "packages/cli/src/bin.ts"
+          },
+          "files": 5
+        },
+        {
+          "boundary": "xrpl",
+          "depth": 1,
+          "enters": {
+            "file": "packages/xrpl/src/index.ts",
+            "from": "packages/cli/src/bin.ts"
+          },
+          "files": 9
+        }
+      ],
+      "readers": [],
+      "runs": [
+        {
+          "path": "packages/cli/src/bin.ts",
+          "runKind": "executes"
+        }
+      ],
+      "runsCount": 1,
+      "secrets": [],
+      "sends": {
+        "deploysPages": false,
+        "dispatchesTo": [],
+        "opensIssues": false,
+        "opensIssuesOnFailure": false,
+        "opensPullRequests": false,
+        "publishes": false,
+        "publishesTo": [],
+        "releases": false
+      },
+      "stages": [],
+      "triggers": [],
+      "uses": [],
+      "usesWorkflowToken": false
+    }
+  ],
+  "edges": [
+    {
+      "from": "app",
+      "kind": "file",
+      "to": "core"
+    },
+    {
+      "from": "app",
+      "kind": "file",
+      "to": "storage"
+    },
+    {
+      "from": "app",
+      "kind": "file",
+      "to": "xrpl"
+    },
+    {
+      "from": "artifacts",
+      "fromTests": true,
+      "kind": "file",
+      "to": "cli"
+    },
+    {
+      "from": "artifacts",
+      "fromTests": true,
+      "kind": "file",
+      "to": "core"
+    },
+    {
+      "from": "artifacts",
+      "kind": "file",
+      "to": "xrpl"
+    },
+    {
+      "from": "cli",
+      "kind": "file",
+      "to": "core"
+    },
+    {
+      "from": "cli",
+      "kind": "file",
+      "to": "storage"
+    },
+    {
+      "from": "cli",
+      "kind": "file",
+      "to": "xaman"
+    },
+    {
+      "from": "cli",
+      "kind": "file",
+      "to": "xrpl"
+    },
+    {
+      "from": "xaman",
+      "kind": "file",
+      "to": "core"
+    },
+    {
+      "from": "xrpl",
+      "kind": "file",
+      "to": "core"
+    },
+    {
+      "from": "xrpl",
+      "kind": "file",
+      "to": "storage"
+    }
+  ],
+  "generatedFrom": {
+    "commit": "1f7eeff8bb9d6761be60a628902c6d498472cec8",
+    "tracked": 345
+  },
+  "landings": [
+    {
+      "readers": [
+        {
+          "by": "app/bridge-worker-stdout-flush.test.ts",
+          "call": "literal",
+          "confidence": "ast",
+          "fromTests": true
+        },
+        {
+          "by": "app/scripts/bundle-bridge.mjs",
+          "call": "literal",
+          "confidence": "ast"
+        }
+      ],
+      "target": "app/bridge-worker.ts",
+      "writers": []
+    },
+    {
+      "readers": [
+        {
+          "by": "app/src/support/bundle.ts",
+          "call": "import",
+          "confidence": "ast"
+        }
+      ],
+      "target": "app/package.json",
+      "writers": []
+    },
+    {
+      "readers": [
+        {
+          "by": "app/src/__test__/tauri-security-config.test.ts",
+          "call": "existsSync",
+          "confidence": "ast",
+          "fromTests": true
+        }
+      ],
+      "target": "app/src-tauri/capabilities",
+      "writers": []
+    },
+    {
+      "readers": [
+        {
+          "by": "app/src/__test__/tauri-security-config.test.ts",
+          "call": "existsSync",
+          "confidence": "ast",
+          "fromTests": true
+        },
+        {
+          "by": "app/src/__test__/tauri-security-config.test.ts",
+          "call": "readFileSync",
+          "confidence": "ast",
+          "fromTests": true
+        }
+      ],
+      "target": "app/src-tauri/capabilities/default.json",
+      "writers": []
+    },
+    {
+      "readers": [
+        {
+          "by": "app/src/__test__/tauri-security-config.test.ts",
+          "call": "existsSync",
+          "confidence": "ast",
+          "fromTests": true
+        }
+      ],
+      "target": "app/src-tauri/permissions",
+      "writers": []
+    },
+    {
+      "readers": [
+        {
+          "by": "app/src/__test__/tauri-security-config.test.ts",
+          "call": "readFileSync",
+          "confidence": "ast",
+          "fromTests": true
+        }
+      ],
+      "target": "app/src-tauri/permissions/desktop-commands.toml",
+      "writers": []
+    },
+    {
+      "readers": [],
+      "target": "app/src-tauri/resources",
+      "tracked": false,
+      "writers": [
+        {
+          "by": "app/scripts/bundle-bridge.mjs",
+          "confidence": "ast"
+        }
+      ]
+    },
+    {
+      "readers": [
+        {
+          "by": "app/src/__test__/tauri-security-config.test.ts",
+          "call": "readFileSync",
+          "confidence": "ast",
+          "fromTests": true
+        }
+      ],
+      "target": "app/src-tauri/tauri.conf.json",
+      "writers": []
+    },
+    {
+      "readers": [
+        {
+          "by": "verify.sh",
+          "call": "literal",
+          "confidence": "text"
+        }
+      ],
+      "target": "app/tsconfig.json",
+      "writers": []
+    },
+    {
+      "readers": [
+        {
+          "by": "artifacts/failure-drills.test.ts",
+          "call": "readFile",
+          "confidence": "ast",
+          "fromTests": true
+        }
+      ],
+      "target": "artifacts/direct-rail/issuance-receipt.json",
+      "writers": []
+    },
+    {
+      "readers": [
+        {
+          "by": "artifacts/failure-drills.test.ts",
+          "call": "readFile",
+          "confidence": "ast",
+          "fromTests": true
+        }
+      ],
+      "target": "artifacts/direct-rail/release.json",
+      "writers": []
+    },
+    {
+      "readers": [
+        {
+          "by": "verify.sh",
+          "call": "literal",
+          "confidence": "text"
+        }
+      ],
+      "target": "artifacts/tsconfig.json",
+      "writers": []
+    },
+    {
+      "readers": [
+        {
+          "by": "artifacts/governance-golden-path.test.ts",
+          "call": "readFile",
+          "confidence": "ast",
+          "fromTests": true
+        }
+      ],
+      "target": "fixtures/direct-rail-manifest.json",
+      "writers": []
+    },
+    {
+      "readers": [
+        {
+          "by": "packages/cli/src/commands/create-release.test.ts",
+          "call": "literal",
+          "confidence": "ast",
+          "fromTests": true
+        },
+        {
+          "by": "packages/cli/src/commands/verify-release.test.ts",
+          "call": "readFile",
+          "confidence": "ast",
+          "fromTests": true
+        },
+        {
+          "by": "packages/core/src/hash.test.ts",
+          "call": "readFile",
+          "confidence": "ast",
+          "fromTests": true
+        },
+        {
+          "by": "packages/core/src/resolve.test.ts",
+          "call": "readFile",
+          "confidence": "ast",
+          "fromTests": true
+        },
+        {
+          "by": "packages/core/src/validate.test.ts",
+          "call": "readFile",
+          "confidence": "ast",
+          "fromTests": true
+        },
+        {
+          "by": "packages/xaman/src/payloads.test.ts",
+          "call": "readFile",
+          "confidence": "ast",
+          "fromTests": true
+        }
+      ],
+      "target": "fixtures/sample-release.json",
+      "writers": []
+    },
+    {
+      "readers": [
+        {
+          "by": "package-lock.json",
+          "call": "literal",
+          "confidence": "text"
+        },
+        {
+          "by": "tsconfig.json",
+          "call": "literal",
+          "confidence": "text"
+        }
+      ],
+      "target": "packages/cli",
+      "writers": []
+    },
+    {
+      "readers": [
+        {
+          "by": "package-lock.json",
+          "call": "literal",
+          "confidence": "text"
+        },
+        {
+          "by": "tsconfig.json",
+          "call": "literal",
+          "confidence": "text"
+        }
+      ],
+      "target": "packages/core",
+      "writers": []
+    },
+    {
+      "readers": [
+        {
+          "by": "package-lock.json",
+          "call": "literal",
+          "confidence": "text"
+        },
+        {
+          "by": "tsconfig.json",
+          "call": "literal",
+          "confidence": "text"
+        }
+      ],
+      "target": "packages/storage",
+      "writers": []
+    },
+    {
+      "readers": [
+        {
+          "by": "package-lock.json",
+          "call": "literal",
+          "confidence": "text"
+        },
+        {
+          "by": "tsconfig.json",
+          "call": "literal",
+          "confidence": "text"
+        }
+      ],
+      "target": "packages/xaman",
+      "writers": []
+    },
+    {
+      "readers": [
+        {
+          "by": "package-lock.json",
+          "call": "literal",
+          "confidence": "text"
+        },
+        {
+          "by": "tsconfig.json",
+          "call": "literal",
+          "confidence": "text"
+        }
+      ],
+      "target": "packages/xrpl",
+      "writers": []
+    },
+    {
+      "readers": [
+        {
+          "by": "site/astro.config.mjs",
+          "call": "content-collection",
+          "confidence": "ast"
+        }
+      ],
+      "target": "site/src/content/docs",
+      "writers": []
+    },
+    {
+      "readers": [
+        {
+          "by": "site/astro.config.mjs",
+          "call": "autogenerate",
+          "confidence": "ast"
+        }
+      ],
+      "target": "site/src/content/docs/handbook",
+      "writers": []
+    },
+    {
+      "readers": [
+        {
+          "by": "verify.sh",
+          "call": "literal",
+          "confidence": "text"
+        }
+      ],
+      "target": "tsconfig.json",
+      "writers": []
+    }
+  ],
+  "overlaps": [],
+  "submodules": [],
+  "symlinks": [],
+  "testFiles": 76,
+  "unassigned": []
+}

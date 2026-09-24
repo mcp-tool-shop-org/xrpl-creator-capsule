@@ -22,6 +22,7 @@ on:
       - "app/**"
       - "verify.sh"
       - ".github/workflows/**"
+      - "atlas/**"
       - "site/package.json"
       - "site/package-lock.json"
       - "site/astro.config.mjs"
@@ -36,6 +37,7 @@ on:
       - "app/**"
       - "verify.sh"
       - ".github/workflows/**"
+      - "atlas/**"
       - "site/package.json"
       - "site/package-lock.json"
       - "site/astro.config.mjs"
@@ -62,6 +64,8 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
           cache: npm
+      - name: Atlas check
+        run: npx --yes @dogfood-lab/atlas@1.17.0 check
       - run: npm ci
       # verify.sh is the single source of truth for what "passing" means --
       # both project-graph type checks (root + app/ + artifacts/, build mode,
