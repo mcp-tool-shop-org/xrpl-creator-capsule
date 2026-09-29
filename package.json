@@ -18,6 +18,7 @@
     "lint": "tsc -b tsconfig.json app/tsconfig.json artifacts/tsconfig.json"
   },
   "devDependencies": {
+    "@vitest/coverage-v8": "3.1.1",
     "typescript": "5.8.3",
     "vitest": "3.1.1"
   }
