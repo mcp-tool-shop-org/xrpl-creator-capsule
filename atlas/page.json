@@ -9,7 +9,7 @@
   ],
   "breaks": [
     {
-      "doors": 2,
+      "doors": 1,
       "importedBy": [
         "app",
         "cli",
@@ -24,7 +24,7 @@
       "partLabel": "core"
     },
     {
-      "doors": 2,
+      "doors": 1,
       "importedBy": [
         "app",
         "cli",
@@ -36,7 +36,7 @@
       "partLabel": "storage"
     },
     {
-      "doors": 2,
+      "doors": 1,
       "importedBy": [
         "app",
         "artifacts",
@@ -48,7 +48,7 @@
       "partLabel": "xrpl"
     },
     {
-      "doors": 2,
+      "doors": 1,
       "importedBy": [
         "cli"
       ],
@@ -60,6 +60,14 @@
     {
       "doors": 2,
       "importedBy": [],
+      "importedByTests": [],
+      "kind": "part",
+      "name": "app",
+      "partLabel": "app"
+    },
+    {
+      "doors": 1,
+      "importedBy": [],
       "importedByTests": [
         "artifacts"
       ],
@@ -69,118 +77,128 @@
     }
   ],
   "changes": {
-    "first": true
+    "fileCounts": {
+      "added": 1,
+      "changed": 263,
+      "moved": 0,
+      "parts": 12,
+      "removed": 0
+    },
+    "items": [
+      {
+        "kind": "door",
+        "sentence": "CI's pull request trigger now also names `codecov.yml`.",
+        "subjects": [
+          ".github/workflows/ci.yml"
+        ]
+      },
+      {
+        "kind": "door",
+        "sentence": "CI's push trigger now also names `codecov.yml`.",
+        "subjects": [
+          ".github/workflows/ci.yml"
+        ]
+      },
+      {
+        "kind": "door",
+        "sentence": "CI now also runs app/src-tauri/build.rs and app/src-tauri/src/commands.rs.",
+        "subjects": [
+          ".github/workflows/ci.yml",
+          "app/src-tauri/build.rs",
+          "app/src-tauri/src/commands.rs"
+        ]
+      },
+      {
+        "kind": "door",
+        "sentence": "And 4 more changes to doors.",
+        "subjects": []
+      },
+      {
+        "kind": "landing",
+        "sentence": "app/src-tauri/gen/schemas/ is now written by app/src-tauri/build.rs.",
+        "subjects": [
+          "app/src-tauri/gen/schemas/",
+          "app/src-tauri/build.rs"
+        ]
+      },
+      {
+        "kind": "landing",
+        "sentence": "app/src-tauri/icons/128x128.png is now read by app/src-tauri/tauri.conf.json.",
+        "subjects": [
+          "app/src-tauri/icons/128x128.png",
+          "app/src-tauri/tauri.conf.json"
+        ]
+      },
+      {
+        "kind": "landing",
+        "sentence": "app/src-tauri/icons/128x128@2x.png is now read by app/src-tauri/tauri.conf.json.",
+        "subjects": [
+          "app/src-tauri/icons/128x128@2x.png",
+          "app/src-tauri/tauri.conf.json"
+        ]
+      },
+      {
+        "kind": "landing",
+        "sentence": "And 8 more new writers and readers of places.",
+        "subjects": []
+      },
+      {
+        "kind": "origin",
+        "sentence": "app was authored and is now mixed.",
+        "subjects": [
+          "app"
+        ]
+      },
+      {
+        "kind": "counts",
+        "sentence": "1 file added and 263 changed content, across 12 parts.",
+        "subjects": []
+      }
+    ],
+    "since": {
+      "commit": "1f7eeff8bb9d6761be60a628902c6d498472cec8",
+      "generatedAt": "2026-09-24T08:33:39.867Z"
+    },
+    "unchanged": false
   },
-  "changesTogether": [
-    {
-      "a": "app/bridge-worker.ts",
-      "b": "app/src/bridge/engine.ts",
-      "either": 7,
-      "partLabels": [
-        "app",
-        "app"
-      ],
-      "parts": [
-        "app",
-        "app"
-      ],
-      "relation": "inside",
-      "shared": 5
-    },
-    {
-      "a": "app/src/components/panels/MintPanel.tsx",
-      "b": "app/src/components/panels/PanelShell.tsx",
-      "either": 6,
-      "partLabels": [
-        "app",
-        "app"
-      ],
-      "parts": [
-        "app",
-        "app"
-      ],
-      "relation": "inside",
-      "shared": 4
-    },
-    {
-      "a": "app/src/bridge/engine.ts",
-      "b": "app/src/state/release.tsx",
-      "either": 10,
-      "partLabels": [
-        "app",
-        "app"
-      ],
-      "parts": [
-        "app",
-        "app"
-      ],
-      "relation": "inside",
-      "shared": 6
-    },
-    {
-      "a": "app/src/bridge/engine.ts",
-      "b": "app/src/components/panels/MintPanel.tsx",
-      "either": 7,
-      "partLabels": [
-        "app",
-        "app"
-      ],
-      "parts": [
-        "app",
-        "app"
-      ],
-      "relation": "inside",
-      "shared": 4
-    },
-    {
-      "a": "packages/cli/src/bin.ts",
-      "b": "packages/core/src/index.ts",
-      "either": 9,
-      "partLabels": [
-        "cli",
-        "core"
-      ],
-      "parts": [
-        "cli",
-        "core"
-      ],
-      "relation": "a-imports-b",
-      "shared": 5
-    }
-  ],
+  "changesTogether": [],
   "changesTogetherNote": [
-    "Confidence is low: fewer than 20 source files reach 10 revisions in the window.",
-    "Window: 180 days; a pair counts from 3 shared commits, since 1 source file reaches 10 revisions; the floor rises to 10 when 25 do."
+    "Window: 180 days; a pair counts from 3 shared commits, since 0 source files reach 10 revisions; the floor rises to 10 when 25 do."
   ],
   "changesTogetherWithTests": 0,
-  "commit": "1f7eeff8bb9d6761be60a628902c6d498472cec8",
+  "commit": "138def5496c67b45129ec25790a154f7351a36df",
   "defaultBranch": "main",
-  "derived": "12 parts, mostly TypeScript (183 files). Work enters through 3 doors; the busiest is CI, which reaches 8 parts. People run capsule.",
+  "derived": "12 parts, mostly TypeScript (183 files), Rust (4), CSS (3), JavaScript (2), Astro (1), HTML (1) and shell (1). Work enters through 3 doors; the busiest is CI, which reaches 8 parts. It deploys a site to GitHub Pages. People install the capsule-desktop desktop app.",
   "doors": [
     {
-      "checks": [
-        "app/bridge-worker-commands.ts",
-        "app/bridge-worker.ts",
-        "app/src/",
-        "app/vite.config.ts",
-        "artifacts/",
+      "builds": [
+        "app/src-tauri/src/main.rs",
         "packages/cli/src/",
         "packages/core/src/",
         "packages/storage/src/",
         "packages/xaman/src/",
         "packages/xrpl/src/"
       ],
-      "checksCount": 10,
+      "checks": [
+        "app/bridge-worker-commands.ts",
+        "app/bridge-worker.ts",
+        "app/src-tauri/src/lib.rs",
+        "artifacts/"
+      ],
+      "checksCount": 4,
+      "checksMore": 5,
       "file": ".github/workflows/ci.yml",
       "id": ".github/workflows/ci.yml",
-      "landings": [],
+      "landings": [
+        "app/src-tauri/gen/schemas/"
+      ],
       "name": "CI",
       "pushes": false,
       "reach": [
         {
           "boundary": "app",
           "depth": 0,
-          "files": 67
+          "files": 71
         },
         {
           "boundary": "artifacts",
@@ -229,26 +247,10 @@
         "app/bridge-worker-stdout-flush.test.ts",
         "app/bridge-worker-verify-release.test.ts",
         "app/bridge-worker.test.ts",
-        "app/src/ErrorBoundary.test.tsx",
-        "app/src/__test__/tauri-security-config.test.ts",
-        "app/src/bridge/engine.test.ts",
-        "app/src/components/CloseWarningGate.test.tsx",
-        "app/src/components/TitleBar.test.tsx",
-        "app/src/components/panels/GovernancePanel.test.tsx",
-        "app/src/components/panels/MintPanel.test.tsx",
-        "app/src/components/panels/PanelShell.test.tsx",
-        "app/src/components/panels/RecoveryPanel.test.tsx",
-        "app/src/components/studio/StudioShell.sample-error.test.tsx",
-        "app/src/components/studio/StudioShell.test.tsx",
-        "app/src/errors/humanize.test.ts",
-        "app/src/state/actionlog.test.ts",
-        "app/src/state/release-reconcile.test.tsx",
-        "app/src/state/release-timeout.test.tsx",
-        "app/src/state/release-trust.test.tsx",
-        "app/src/state/release.test.tsx",
-        "app/src/state/session.test.ts",
-        "app/src/state/studio.test.tsx",
-        "app/src/state/validate.test.ts",
+        "app/src-tauri/build.rs",
+        "app/src-tauri/src/commands.rs",
+        "app/src/",
+        "app/vite.config.ts",
         "artifacts/failure-drills.test.ts",
         "artifacts/governance-drills.test.ts",
         "artifacts/governance-golden-path.test.ts",
@@ -298,21 +300,25 @@
         "packages/xrpl/src/verify-minter.test.ts",
         "packages/xrpl/src/wallet.test.ts"
       ],
-      "runsCount": 78,
+      "runsCount": 62,
+      "runsMore": 111,
       "sends": [
-        "creates a GitHub release on a release event"
+        "uploads coverage to Codecov",
+        "builds app/src-tauri/src/main.rs, packages/cli/src/, packages/core/src/, packages/storage/src/, packages/xaman/src/ and packages/xrpl/src/ into MSI and NSIS installers and uploads them to the release, on a release event"
       ],
       "stages": [],
       "triggers": [
-        "on a pull request touching 13 paths",
-        "on a push touching 13 paths",
+        "on a pull request touching 14 paths",
+        "on a push touching 14 paths",
         "when a release is published",
         "or by hand"
-      ]
+      ],
+      "untracked": "app/src-tauri/resources/, which is not tracked"
     },
     {
       "checks": [],
       "checksCount": 0,
+      "checksMore": 0,
       "file": ".github/workflows/pages.yml",
       "id": ".github/workflows/pages.yml",
       "landings": [],
@@ -322,7 +328,7 @@
         {
           "boundary": "site",
           "depth": 0,
-          "files": 3
+          "files": 5
         }
       ],
       "runs": [
@@ -330,6 +336,7 @@
         "site/src/"
       ],
       "runsCount": 2,
+      "runsMore": 0,
       "sends": [
         "deploys the site"
       ],
@@ -340,45 +347,28 @@
       ]
     },
     {
+      "app": "desktop",
       "checks": [],
       "checksCount": 0,
-      "file": "packages/cli/package.json",
-      "id": "packages/cli/package.json#capsule",
+      "checksMore": 0,
+      "file": "app/src-tauri/Cargo.toml",
+      "id": "app/src-tauri/Cargo.toml#capsule-desktop",
       "kind": "command",
       "landings": [],
-      "name": "capsule",
+      "name": "capsule-desktop",
       "pushes": false,
       "reach": [
         {
-          "boundary": "cli",
+          "boundary": "app",
           "depth": 0,
-          "files": 17
-        },
-        {
-          "boundary": "core",
-          "depth": 1,
-          "files": 28
-        },
-        {
-          "boundary": "storage",
-          "depth": 1,
-          "files": 5
-        },
-        {
-          "boundary": "xaman",
-          "depth": 1,
-          "files": 5
-        },
-        {
-          "boundary": "xrpl",
-          "depth": 1,
-          "files": 9
+          "files": 3
         }
       ],
       "runs": [
-        "packages/cli/src/bin.ts"
+        "app/src-tauri/src/main.rs"
       ],
       "runsCount": 1,
+      "runsMore": 0,
       "sends": [],
       "stages": [],
       "triggers": []
@@ -388,6 +378,21 @@
   "duplicatesLead": null,
   "duplicatesNote": [],
   "edges": [
+    {
+      "from": "app",
+      "fromTests": false,
+      "to": "core"
+    },
+    {
+      "from": "app",
+      "fromTests": false,
+      "to": "storage"
+    },
+    {
+      "from": "app",
+      "fromTests": false,
+      "to": "xrpl"
+    },
     {
       "from": "cli",
       "fromTests": false,
@@ -424,16 +429,23 @@
       "to": "storage"
     }
   ],
-  "generated": [],
-  "generatedAt": "2026-09-24T08:33:39.867Z",
+  "engine": "1.24.0",
+  "generated": [
+    {
+      "place": "app/src-tauri/gen/schemas/",
+      "writers": [
+        "app/src-tauri/build.rs (a build script)"
+      ]
+    }
+  ],
+  "generatedAt": "2026-09-30T20:14:37.748Z",
   "limits": [
-    "3 import sites could not be resolved.",
-    "15 files use syntax the parser cannot read (app/bridge-worker-mint-persist.test.ts, app/src/components/studio/RecoveryPage.tsx, app/src/components/studio/ReviewPage.tsx and 12 more), so what they import is not known: 7 in xrpl (`typeof import(…)` as a type argument), 4 in cli (`typeof import(…)` as a type argument), 3 in app (a bare `&` in JSX text in 2 and `typeof import(…)` as a type argument in 1), 1 in xaman (`typeof import(…)` as a type argument).",
-    "2 writes and 14 reads use paths built at run time and are not named here.",
+    "4 imports could not be resolved: `app/bridge-worker-commands.ts` imports `xrpl`, which is not declared; `app/bridge-worker-mint-persist.test.ts` imports `xrpl`, which is not declared; `app/bridge-worker-verify-release.test.ts` imports `xrpl`, which is not declared; and 1 more.",
+    "6 writes and 15 reads use paths built at run time and are not named here.",
     "1 write goes to places this repository does not track, so it is not listed as generated.",
-    "22 writes and 37 reads go to the directory the command is run in, the home directory or a path its caller passes, not to this repository.",
+    "23 writes and 37 reads go to a path their caller passes, not to this repository.",
     "1 command is built at run time and not followed, and it is in tests.",
-    "Statistics confidence is low: fewer than 20 source files reach 10 revisions in the window."
+    "Statistics confidence is low: fewer than 25 source files reach 10 revisions in the window."
   ],
   "mainDoor": ".github/workflows/ci.yml",
   "partLabels": {
@@ -451,30 +463,46 @@
     "xrpl": "xrpl"
   },
   "parts": 12,
-  "readers": [],
+  "readers": [
+    {
+      "readers": [],
+      "target": "app/src-tauri/gen/schemas/"
+    }
+  ],
   "repo": "mcp-tool-shop-org/xrpl-creator-capsule",
   "sequences": [],
   "startDoor": ".github/workflows/ci.yml",
   "startHere": [
     ".github/workflows/ci.yml",
-    "packages/core/src/index.ts"
+    "packages/cli/src/index.ts",
+    "packages/cli/src/commands/resolve.ts",
+    "packages/core/src/access-grant-validate.ts",
+    "packages/core/src/validate.ts",
+    "packages/core/src/ajv-formats-interop.ts"
   ],
   "summary": null,
   "summaryFrom": null,
-  "testFiles": 76,
+  "testFiles": 77,
   "testedBy": {
-    "app": 25,
-    "cli": 22,
-    "core": 30,
-    "storage": 11,
-    "xaman": 3,
-    "xrpl": 24
+    "app": 27,
+    "cli": 23,
+    "core": 35,
+    "storage": 13,
+    "xaman": 4,
+    "xrpl": 28
   },
-  "unnamedWrites": 2,
-  "unread": [],
-  "unreadFiles": 15,
+  "unnamedWrites": 6,
+  "unread": [
+    {
+      "place": "app/src-tauri/gen/schemas/",
+      "writers": [
+        "app/src-tauri/build.rs (a build script)"
+      ]
+    }
+  ],
+  "unreadFiles": 0,
   "unreadNote": [],
   "untested": [],
   "untestedNote": [],
-  "written": 0
+  "written": 1
 }
