@@ -73,7 +73,7 @@ jobs:
           node-version: ${{ matrix.node-version }}
           cache: npm
       - name: Atlas check
-        run: npx --yes @dogfood-lab/atlas@1.17.0 check
+        run: npx --yes @dogfood-lab/atlas@1.24.0 check
       - run: npm ci
       # verify.sh is the single source of truth for what "passing" means --
       # both project-graph type checks (root + app/ + artifacts/, build mode,
