@@ -25,7 +25,7 @@
           "path": ".github/ISSUE_TEMPLATE/publish-failure.md"
         },
         {
-          "hash": "bfb7e4396e89249c2e70777ec19c5bba34a2a405749f77430eb3d1e9d2d68210",
+          "hash": "a9d1e147dc1d7f24fc60ae32718c1aeb85a64d2d345517e59457326142fa1021",
           "path": ".github/workflows/ci.yml"
         },
         {
@@ -5389,23 +5389,7 @@
       ],
       "triggers": [
         {
-          "event": "pull_request",
-          "paths": [
-            ".github/workflows/**",
-            "app/**",
-            "artifacts/**",
-            "atlas/**",
-            "codecov.yml",
-            "fixtures/**",
-            "package-lock.json",
-            "package.json",
-            "packages/**",
-            "site/astro.config.mjs",
-            "site/package-lock.json",
-            "site/package.json",
-            "tsconfig*.json",
-            "verify.sh"
-          ]
+          "event": "pull_request"
         },
         {
           "event": "push",
@@ -5708,7 +5692,7 @@
   ],
   "engine": "1.24.0",
   "generatedFrom": {
-    "commit": "138def5496c67b45129ec25790a154f7351a36df",
+    "commit": "868aa7dc5834c0aa2af08ecb70e6c985f59455ed",
     "tracked": 346
   },
   "landings": [

@@ -78,86 +78,29 @@
   ],
   "changes": {
     "fileCounts": {
-      "added": 1,
-      "changed": 263,
+      "added": 0,
+      "changed": 1,
       "moved": 0,
-      "parts": 12,
+      "parts": 1,
       "removed": 0
     },
     "items": [
       {
         "kind": "door",
-        "sentence": "CI's pull request trigger now also names `codecov.yml`.",
+        "sentence": "CI's pull request trigger no longer names `.github/workflows/**`, `app/**`, `artifacts/**`, `atlas/**`, `codecov.yml`, `fixtures/**`, `package-lock.json`, `package.json`, `packages/**`, `site/astro.config.mjs`, `site/package-lock.json`, `site/package.json`, `tsconfig*.json` and `verify.sh`.",
         "subjects": [
           ".github/workflows/ci.yml"
-        ]
-      },
-      {
-        "kind": "door",
-        "sentence": "CI's push trigger now also names `codecov.yml`.",
-        "subjects": [
-          ".github/workflows/ci.yml"
-        ]
-      },
-      {
-        "kind": "door",
-        "sentence": "CI now also runs app/src-tauri/build.rs and app/src-tauri/src/commands.rs.",
-        "subjects": [
-          ".github/workflows/ci.yml",
-          "app/src-tauri/build.rs",
-          "app/src-tauri/src/commands.rs"
-        ]
-      },
-      {
-        "kind": "door",
-        "sentence": "And 4 more changes to doors.",
-        "subjects": []
-      },
-      {
-        "kind": "landing",
-        "sentence": "app/src-tauri/gen/schemas/ is now written by app/src-tauri/build.rs.",
-        "subjects": [
-          "app/src-tauri/gen/schemas/",
-          "app/src-tauri/build.rs"
-        ]
-      },
-      {
-        "kind": "landing",
-        "sentence": "app/src-tauri/icons/128x128.png is now read by app/src-tauri/tauri.conf.json.",
-        "subjects": [
-          "app/src-tauri/icons/128x128.png",
-          "app/src-tauri/tauri.conf.json"
-        ]
-      },
-      {
-        "kind": "landing",
-        "sentence": "app/src-tauri/icons/128x128@2x.png is now read by app/src-tauri/tauri.conf.json.",
-        "subjects": [
-          "app/src-tauri/icons/128x128@2x.png",
-          "app/src-tauri/tauri.conf.json"
-        ]
-      },
-      {
-        "kind": "landing",
-        "sentence": "And 8 more new writers and readers of places.",
-        "subjects": []
-      },
-      {
-        "kind": "origin",
-        "sentence": "app was authored and is now mixed.",
-        "subjects": [
-          "app"
         ]
       },
       {
         "kind": "counts",
-        "sentence": "1 file added and 263 changed content, across 12 parts.",
+        "sentence": "1 file changed content, across 1 part.",
         "subjects": []
       }
     ],
     "since": {
-      "commit": "1f7eeff8bb9d6761be60a628902c6d498472cec8",
-      "generatedAt": "2026-09-24T08:33:39.867Z"
+      "commit": "138def5496c67b45129ec25790a154f7351a36df",
+      "generatedAt": "2026-09-30T20:14:37.748Z"
     },
     "unchanged": false
   },
@@ -166,7 +109,7 @@
     "Window: 180 days; a pair counts from 3 shared commits, since 0 source files reach 10 revisions; the floor rises to 10 when 25 do."
   ],
   "changesTogetherWithTests": 0,
-  "commit": "138def5496c67b45129ec25790a154f7351a36df",
+  "commit": "868aa7dc5834c0aa2af08ecb70e6c985f59455ed",
   "defaultBranch": "main",
   "derived": "12 parts, mostly TypeScript (183 files), Rust (4), CSS (3), JavaScript (2), Astro (1), HTML (1) and shell (1). Work enters through 3 doors; the busiest is CI, which reaches 8 parts. It deploys a site to GitHub Pages. People install the capsule-desktop desktop app.",
   "doors": [
@@ -308,7 +251,7 @@
       ],
       "stages": [],
       "triggers": [
-        "on a pull request touching 14 paths",
+        "on a pull request",
         "on a push touching 14 paths",
         "when a release is published",
         "or by hand"
@@ -438,7 +381,7 @@
       ]
     }
   ],
-  "generatedAt": "2026-09-30T20:14:37.748Z",
+  "generatedAt": "2026-10-01T02:14:46.826Z",
   "limits": [
     "4 imports could not be resolved: `app/bridge-worker-commands.ts` imports `xrpl`, which is not declared; `app/bridge-worker-mint-persist.test.ts` imports `xrpl`, which is not declared; `app/bridge-worker-verify-release.test.ts` imports `xrpl`, which is not declared; and 1 more.",
     "6 writes and 15 reads use paths built at run time and are not named here.",
