@@ -219,8 +219,8 @@
     "definition": "commits is how many commits in the window touch the file, including merges and commits dropped from coupling. lines is added plus deleted in those commits.",
     "files": [
       {
-        "commits": 15,
-        "lines": 346,
+        "commits": 17,
+        "lines": 386,
         "path": ".github/workflows/ci.yml"
       },
       {
@@ -609,8 +609,8 @@
         "path": "artifacts/tsconfig.json"
       },
       {
-        "commits": 4,
-        "lines": 324,
+        "commits": 6,
+        "lines": 360,
         "path": "atlas/README.md"
       },
       {
@@ -619,18 +619,18 @@
         "path": "atlas/boundaries.yaml"
       },
       {
-        "commits": 4,
-        "lines": 1680,
+        "commits": 6,
+        "lines": 1834,
         "path": "atlas/page.json"
       },
       {
-        "commits": 4,
-        "lines": 7518,
+        "commits": 6,
+        "lines": 7578,
         "path": "atlas/statistics.json"
       },
       {
-        "commits": 4,
-        "lines": 21190,
+        "commits": 6,
+        "lines": 21234,
         "path": "atlas/structure.json"
       },
       {
@@ -1004,8 +1004,8 @@
         "path": "site/astro.config.mjs"
       },
       {
-        "commits": 1,
-        "lines": 6090,
+        "commits": 3,
+        "lines": 6102,
         "path": "site/package-lock.json"
       },
       {
@@ -1039,9 +1039,9 @@
     "level": "low",
     "reason": "fewer than 25 source files reach 10 revisions in the window"
   },
-  "generatedAt": "2026-10-01T02:14:46.826Z",
+  "generatedAt": "2026-11-11T22:52:23.207Z",
   "generatedFrom": {
-    "commit": "868aa7dc5834c0aa2af08ecb70e6c985f59455ed"
+    "commit": "e94f89eb90df651a45a2abb1693689cf67d87e9b"
   },
   "pairs": [],
   "parameters": {
@@ -1054,16 +1054,16 @@
     "floor": "fallen",
     "floorHeld": false,
     "floorTrigger": "revision-depth",
-    "headDate": "2026-09-30T13:53:49-07:00",
+    "headDate": "2026-10-01T13:44:00-07:00",
     "inScopeFiles": 351,
     "pinnedStart": null,
     "priorFloor": "fallen",
-    "qualifyingCommits": 45,
+    "qualifyingCommits": 47,
     "qualifyingMinimum": 30,
     "revisions": 5,
     "shared": 10,
     "sharedFloorUsed": 3,
-    "since": "2026-04-03T20:53:49.000Z",
+    "since": "2026-04-04T20:44:00.000Z",
     "sourceExtensions": [
       ".js",
       ".mjs",

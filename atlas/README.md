@@ -1,15 +1,14 @@
 # xrpl-creator-capsule: how it works
 
-Mapped at 2026-10-01 from commit 868aa7d by Atlas 1.24.0.
+Mapped at 2026-11-11 from commit e94f89e by Atlas 1.26.0.
 
 ## What this is
 
 12 parts, mostly TypeScript (183 files), Rust (4), CSS (3), JavaScript (2), Astro (1), HTML (1) and shell (1). Work enters through 3 doors; the busiest is CI, which reaches 8 parts. It deploys a site to GitHub Pages. People install the capsule-desktop desktop app.
 
-## What changed since 2026-09-30 (138def5)
+## What changed since 2026-10-01 (868aa7d)
 
-- CI's pull request trigger no longer names `.github/workflows/**`, `app/**`, `artifacts/**`, `atlas/**`, `codecov.yml`, `fixtures/**`, `package-lock.json`, `package.json`, `packages/**`, `site/astro.config.mjs`, `site/package-lock.json`, `site/package.json`, `tsconfig*.json` and `verify.sh`.
-- 1 file changed content, across 1 part.
+Nothing structural changed since 2026-10-01; 2 files changed content.
 
 ## What comes in
 
